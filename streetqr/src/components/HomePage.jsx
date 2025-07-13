@@ -255,6 +255,21 @@ function HomePage() {
                 <a href="#"><i className="bi bi-youtube text-dark fs-5"></i></a>
               </div>
             </div>
+
+
+
+<section className="seo-text" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+  <h1>QR Menu for Restaurants, Cafes, and Hotels</h1>
+  <p>
+    Qzaar is a powerful digital menu system designed for modern restaurants, cafes, and hotels. Our QR code-based menu allows customers to scan a code, browse your menu, and place orders instantly from their smartphones.
+  </p>
+  <p>
+    Whether you're a small café or a large hotel, Qzaar helps streamline service, reduce paper menus, and enhance customer experience. No app installation required — just scan and order.
+  </p>
+</section>
+
+
+
             {/* Quick Links */}
             <div className="col-12 col-md-2">
               <h6 className="fw-bold text-dark mb-3">Quick Links</h6>
