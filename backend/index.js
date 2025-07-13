@@ -15,10 +15,12 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://updated-ver-git-main-karans-projects-c2579268.vercel.app'
+    'https://updated-ver-git-main-karans-projects-c2579268.vercel.app',
+    'https://www.qzaar.shop'
   ],
   credentials: true
 }));
+
 
 // For quick testing you can replace above CORS with:
 // app.use(cors({ origin: '*', credentials: true }));
