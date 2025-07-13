@@ -20,7 +20,8 @@ app.use(cors({
   credentials: true
 }));
 
-
+// For quick testing you can replace above CORS with:
+// app.use(cors({ origin: '*', credentials: true }));
 
 app.use(helmet()); // ✅ Secure HTTP headers
 app.use(express.json({ limit: '5mb' }));
@@ -105,11 +106,12 @@ app.post("/api/forgot-password", async (req, res) => {
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetToken = resetToken;
-    user.resetTokenExpiry = Date.now() + 3600000;
+    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
-    
+    // UPDATED: Use deployed frontend URL here:
+    const resetLink = `https://updated-ver-git-main-karans-projects-c2579268.vercel.app/reset-password/${resetToken}`;
+
     const html = `
       <h3>Password Reset Request</h3>
       <p>You requested a password reset for your Qzaar account.</p>
@@ -239,7 +241,12 @@ app.put("/api/order-status/:orderId", async (req, res) => {
   }
 });
 
+// ✅ Add a test route to confirm server is live on Render
+app.get('/', (req, res) => {
+  res.send('API is live on Render!');
+});
+
 // ✅ Start Server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
