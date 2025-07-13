@@ -12,7 +12,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ✅ Middleware
-app.use(cors()); // Optional: restrict origin in production
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://updated-ver-git-main-karans-projects-c2579268.vercel.app'
+  ],
+  credentials: true
+}));
+
+
+
 app.use(helmet()); // ✅ Secure HTTP headers
 app.use(express.json({ limit: '5mb' }));
 
