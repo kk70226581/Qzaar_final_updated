@@ -1,5 +1,3 @@
-// ✅ MenuBuilder.jsx (Shopkeeper Menu Builder Only, Vercel-ready with env variable)
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,10 +9,12 @@ function MenuBuilder() {
   const [items, setItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("loggedIn") === "true");
   const [shopId, setShopId] = useState(localStorage.getItem("shopId") || "");
-  const [shopName, setShopName] = useState(localStorage.getItem("shopName") || '');
-  const [openHours, setOpenHours] = useState(localStorage.getItem("openHours") || '');
-  const [address, setAddress] = useState(localStorage.getItem("address") || '');
+  const [shopName, setShopName] = useState(''); // Initialized as empty string
+  const [openHours, setOpenHours] = useState(''); // Initialized as empty string
+  const [address, setAddress] = useState(''); // Initialized as empty string
   const navigate = useNavigate();
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [newItem, setNewItem] = useState({ name: "", price: "", remarks: "", category: "Breakfast", image: "" });
 
   const API_BASE = process.env.REACT_APP_API_URL;
 
@@ -24,15 +24,20 @@ function MenuBuilder() {
       return;
     }
     loadMenu(shopId);
-  }, [isLoggedIn, shopId]);
+  }, [isLoggedIn, shopId, navigate]);
 
   const loadMenu = async (id) => {
     try {
       const res = await axios.get(`${API_BASE}/api/menu/${id}`);
       if (res.data.success) {
+        // Load shop details from the database
+        setShopName(res.data.shopName || '');
+        setOpenHours(res.data.openHours || '');
+        setAddress(res.data.address || '');
+
         const loadedItems = [];
         for (const cat in res.data.menu) {
-          res.data.menu[cat].forEach(item => {
+          res.data.menu[`${cat}`]?.forEach(item => {
             loadedItems.push({ ...item, category: cat });
           });
         }
@@ -53,12 +58,23 @@ function MenuBuilder() {
 
   const handleChange = (index, field, value) => {
     const updatedItems = [...items];
-    updatedItems[index][field] = value;
+    updatedItems[`${index}`][field] = value;
     setItems(updatedItems);
   };
 
-  const addItem = () => {
-    setItems([...items, { name: "", price: "", remarks: "", category: "Breakfast", image: "" }]);
+  const handleNewItemChange = (field, value) => {
+    setNewItem(prev => ({ ...prev, [`${field}`]: value }));
+  };
+
+  const addItemToList = () => {
+    setItems([...items, newItem]);
+    setNewItem({ name: "", price: "", remarks: "", category: "Breakfast", image: "" });
+    setIsAddingItem(false);
+  };
+
+  const cancelAddItem = () => {
+    setIsAddingItem(false);
+    setNewItem({ name: "", price: "", remarks: "", category: "Breakfast", image: "" });
   };
 
   const removeItem = (index) => {
@@ -73,8 +89,8 @@ function MenuBuilder() {
 
     const groupedData = {};
     items.forEach(item => {
-      if (!groupedData[item.category]) groupedData[item.category] = [];
-      groupedData[item.category].push({
+      if (!groupedData[`${item.category}`]) groupedData[`${item.category}`] = [];
+      groupedData[`${item.category}`].push({
         name: item.name,
         price: item.price,
         remarks: item.remarks,
@@ -104,106 +120,169 @@ function MenuBuilder() {
 
   return (
     <>
-      <Navbar />
-      <br />
+      <Navbar showAuthLinks={false} />
       <div className="container py-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold text-success">🍽️ Menu Builder</h2>
-          <button onClick={handleLogout} className="btn btn-danger btn-sm">🔓 Logout</button>
+          <button onClick={handleLogout} className="btn btn-outline-danger btn-sm">🔓 Logout</button>
+        </div>
+        
+        <p className="text-muted mb-4">
+          Fill in your shop details and add your menu items below. To add an image to an item, simply copy and paste the direct image URL into the Image URL field.
+        </p>
+
+        {/* Shop Details */}
+        <div className="card mb-4 shadow-sm">
+          <div className="card-header bg-success text-white fw-bold">Shop Details</div>
+          <div className="card-body">
+            <div className="row g-3">
+              <div className="col-md-6">
+                <input
+                  type="text"
+                  placeholder="Shop Name"
+                  value={shopName}
+                  onChange={(e) => {
+                    setShopName(e.target.value);
+                  }}
+                  className="form-control"
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  type="text"
+                  placeholder="Open Hours (e.g. 9 AM - 10 PM)"
+                  value={openHours}
+                  onChange={(e) => {
+                    setOpenHours(e.target.value);
+                  }}
+                  className="form-control"
+                />
+              </div>
+              <div className="col-12">
+                <input
+                  type="text"
+                  placeholder="Address (optional)"
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                  }}
+                  className="form-control"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mb-3">
-          <input
-            type="text"
-            placeholder="Shop Name"
-            value={shopName}
-            onChange={(e) => {
-              setShopName(e.target.value);
-              localStorage.setItem("shopName", e.target.value);
-            }}
-            className="form-control mb-2"
-          />
-          <input
-            type="text"
-            placeholder="Open Hours (e.g. 9 AM - 10 PM)"
-            value={openHours}
-            onChange={(e) => {
-              setOpenHours(e.target.value);
-              localStorage.setItem("openHours", e.target.value);
-            }}
-            className="form-control mb-2"
-          />
-          <input
-            type="text"
-            placeholder="Address (optional)"
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              localStorage.setItem("address", e.target.value);
-            }}
-            className="form-control"
-          />
-        </div>
-
-        {items.map((item, idx) => (
-          <div key={idx} className="card mb-3 border-success">
-            <div className="card-body">
-              <div className="row g-3">
-                <div className="col-md-6">
+        {/* Add New Item Section */}
+        <div className="mb-4">
+          {!isAddingItem ? (
+            <button onClick={() => setIsAddingItem(true)} className="btn btn-outline-primary btn-lg fw-bold">➕ Add New Item</button>
+          ) : (
+            <div className="card shadow-sm">
+              <div className="card-body row g-3 align-items-center">
+                <div className="col-sm-3">
                   <input
-                    placeholder="Item name"
-                    value={item.name}
-                    onChange={(e) => handleChange(idx, "name", e.target.value)}
+                    placeholder="Item Name"
+                    value={newItem.name}
+                    onChange={(e) => handleNewItemChange("name", e.target.value)}
                     className="form-control"
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-sm-2">
                   <input
                     placeholder="Price"
-                    value={item.price}
-                    onChange={(e) => handleChange(idx, "price", e.target.value)}
+                    value={newItem.price}
+                    onChange={(e) => handleNewItemChange("price", e.target.value)}
                     className="form-control"
                   />
                 </div>
-                <div className="col-md-6">
-                  <input
-                    placeholder="Remarks"
-                    value={item.remarks}
-                    onChange={(e) => handleChange(idx, "remarks", e.target.value)}
-                    className="form-control"
-                  />
-                </div>
-                <div className="col-md-6">
+                <div className="col-sm-3">
                   <select
-                    value={item.category}
-                    onChange={(e) => handleChange(idx, "category", e.target.value)}
+                    value={newItem.category}
+                    onChange={(e) => handleNewItemChange("category", e.target.value)}
                     className="form-select"
                   >
                     {categories.map((cat) => (
-                      <option key={cat}>{cat}</option>
+                      <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
                 </div>
-                <div className="col-12">
+                <div className="col-sm-4">
                   <input
                     placeholder="Image URL (optional)"
-                    value={item.image || ''}
-                    onChange={(e) => handleChange(idx, "image", e.target.value)}
+                    value={newItem.image}
+                    onChange={(e) => handleNewItemChange("image", e.target.value)}
                     className="form-control"
                   />
                 </div>
+                <div className="col-auto">
+                  <button onClick={addItemToList} className="btn btn-success fw-bold">💾 Save</button>
+                </div>
+                <div className="col-auto">
+                  <button onClick={cancelAddItem} className="btn btn-outline-secondary">❌ Cancel</button>
+                </div>
               </div>
-              <button onClick={() => removeItem(idx)} className="btn btn-link text-danger mt-2">❌ Remove Item</button>
             </div>
-          </div>
-        ))}
-
-        <div className="d-flex gap-3 justify-content-center mb-5">
-          <button onClick={addItem} className="btn btn-outline-primary">➕ Add Item</button>
-          <button onClick={handleSubmit} className="btn btn-success">🚀 Submit Menu</button>
+          )}
         </div>
 
-        <div className="text-center">
+        {/* Menu Items List */}
+        <h3 className="fw-bold text-success mb-3">Current Menu Items</h3>
+        <div className="space-y-3">
+          {items.map((item, idx) => (
+            <div key={idx} className="card shadow-sm">
+              <div className="card-body">
+                <div className="row g-3 align-items-center">
+                  <div className="col-sm-4">
+                    <input
+                      value={item.name}
+                      onChange={(e) => handleChange(idx, "name", e.target.value)}
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="col-sm-3">
+                    <input
+                      value={item.price}
+                      onChange={(e) => handleChange(idx, "price", e.target.value)}
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="col-sm-3">
+                    <select
+                      value={item.category}
+                      onChange={(e) => handleChange(idx, "category", e.target.value)}
+                      className="form-select"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-sm-2 text-end">
+                    <button onClick={() => removeItem(idx)} className="btn btn-outline-danger btn-sm">🗑️ Remove</button>
+                  </div>
+                  <div className="col-12">
+                    <input
+                      placeholder="Image URL (optional)"
+                      value={item.image || ''}
+                      onChange={(e) => handleChange(idx, "image", e.target.value)}
+                      className="form-control mt-2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Final Submit Button */}
+        {items.length > 0 && (
+          <div className="d-flex justify-content-center mt-5">
+            <button onClick={handleSubmit} className="btn btn-success btn-lg fw-bold">🚀 Save & Publish All Changes</button>
+          </div>
+        )}
+
+        <div className="text-center mt-5">
           <button className="btn btn-outline-secondary" onClick={() => navigate('/orders')}>📦 View Orders Page</button>
         </div>
       </div>
