@@ -8,14 +8,12 @@ function LoginSignup() {
   const [password, setPassword] = useState('');
   const [isSignup, setIsSignup] = useState(false);
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState(''); // 'success' or 'danger'
+  const [messageType, setMessageType] = useState('');
 
   const navigate = useNavigate();
+  const API_BASE = process.env.REACT_APP_API_URL;
 
-  const validateEmail = (email) => {
-    // Basic email regex
-    return /\S+@\S+\.\S+/.test(email);
-  };
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -35,7 +33,7 @@ function LoginSignup() {
 
     try {
       const endpoint = isSignup ? '/api/signup' : '/api/login';
-      const res = await axios.post(`http://localhost:5000${endpoint}`, { email, password });
+      const res = await axios.post(`${API_BASE}${endpoint}`, { email, password });
 
       if (res.data.success) {
         const userId = res.data.userId;
@@ -62,29 +60,27 @@ function LoginSignup() {
     }, 3000);
   };
 
- const handleForgotPassword = async () => {
-  const userEmail = prompt("Enter your registered email:");
+  const handleForgotPassword = async () => {
+    const userEmail = prompt("Enter your registered email:");
 
-  if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
-    showMessage("Enter a valid email address.", "danger");
-    return;
-  }
-
-  try {
-    const res = await axios.post("http://localhost:5000/api/forgot-password", {
-      email: userEmail,
-    });
-
-    if (res.data.success) {
-      showMessage("Password reset link sent to your email.", "success");
-    } else {
-      showMessage(res.data.message || "Error sending reset email.", "danger");
+    if (!userEmail || !validateEmail(userEmail)) {
+      showMessage("Enter a valid email address.", "danger");
+      return;
     }
-  } catch (error) {
-    console.error("Forgot password error:", error);
-    showMessage("Server error. Try again later.", "danger");
-  }
-};
+
+    try {
+      const res = await axios.post(`${API_BASE}/api/forgot-password`, { email: userEmail });
+
+      if (res.data.success) {
+        showMessage("Password reset link sent to your email.", "success");
+      } else {
+        showMessage(res.data.message || "Error sending reset email.", "danger");
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      showMessage("Server error. Try again later.", "danger");
+    }
+  };
 
   return (
     <>

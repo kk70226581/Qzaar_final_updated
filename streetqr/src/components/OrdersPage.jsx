@@ -1,8 +1,8 @@
-// ✅ OrdersPage.jsx - Separate page for shopkeeper to manage orders
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
+
+const API = process.env.REACT_APP_API_URL;
 
 function OrdersPage() {
   const [pendingOrders, setPendingOrders] = useState([]);
@@ -16,7 +16,7 @@ function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/orders/${shopId}`);
+      const res = await axios.get(`${API}/api/orders/${shopId}`);
       if (res.data.success) {
         const orders = res.data.orders;
         setPendingOrders(orders.filter(o => o.status !== 'completed'));
@@ -29,7 +29,7 @@ function OrdersPage() {
 
   const markCompleted = async (orderId) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/order-status/${orderId}`, {
+      const res = await axios.put(`${API}/api/order-status/${orderId}`, {
         status: 'completed'
       });
       if (res.data.success) {

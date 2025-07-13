@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
 
+const API = process.env.REACT_APP_API_URL;
+
 function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ function ResetPassword() {
     }
 
     try {
-      const res = await axios.post(`http://localhost:5000/api/reset-password/${token}`, { password });
+      const res = await axios.post(`${API}/api/reset-password/${token}`, { password });
       if (res.data.success) {
         setSuccess(true);
         setMessage("✅ Password reset successful! Redirecting...");

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './MenuView.css'; // New custom CSS for the professional design
+import './MenuView.css'; // Custom CSS for professional UI
+
+const API = process.env.REACT_APP_API_URL;
 
 function MenuView() {
   const { id } = useParams();
@@ -17,7 +19,7 @@ function MenuView() {
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get(`http://localhost:5000/api/menu/${id}`)
+    axios.get(`${API}/api/menu/${id}`)
       .then(res => {
         if (res.data.success) {
           setMenuData(res.data.menu);
@@ -65,15 +67,21 @@ function MenuView() {
     }
   };
 
-  const getItemQuantity = (itemName) => selectedItems.find(item => item.name === itemName)?.quantity || 0;
-  const getTotal = () => selectedItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
-  const getTotalItems = () => selectedItems.reduce((sum, i) => sum + i.quantity, 0);
+  const getItemQuantity = (itemName) =>
+    selectedItems.find(item => item.name === itemName)?.quantity || 0;
+
+  const getTotal = () =>
+    selectedItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
+
+  const getTotalItems = () =>
+    selectedItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleCheckout = async () => {
     if (!customerName || !tableNumber || selectedItems.length === 0) {
       alert("Please fill in all required fields and select items.");
       return;
     }
+
     const orderPayload = {
       shopId: id,
       customerName,
@@ -81,8 +89,9 @@ function MenuView() {
       items: selectedItems,
       total: getTotal()
     };
+
     try {
-      const res = await axios.post("http://localhost:5000/api/order", orderPayload);
+      const res = await axios.post(`${API}/api/order`, orderPayload);
       if (res.data.success) {
         navigate("/order-summary", {
           state: { ...orderPayload, orderId: res.data.orderId }
@@ -122,9 +131,8 @@ function MenuView() {
         </div>
       </header>
 
-      {/* Main Content Area (Menu & Cart) */}
       <div className="menu-main">
-        {/* Menu Items Section */}
+        {/* Menu Items */}
         <div className="menu-section">
           {Object.entries(menuData).map(([category, items]) => (
             <div key={category} className="menu-category">
@@ -165,12 +173,13 @@ function MenuView() {
           ))}
         </div>
 
-        {/* Order Summary & Checkout Section */}
+        {/* Cart / Order Summary */}
         <div className={`cart-panel ${isCartOpen ? 'open' : ''}`}>
           <div className="cart-header">
             <h2 className="cart-title">Your Order</h2>
             <button className="close-cart-btn" onClick={() => setIsCartOpen(false)}>&times;</button>
           </div>
+
           <div className="customer-inputs">
             <input
               type="text"
@@ -185,6 +194,7 @@ function MenuView() {
               onChange={(e) => setTableNumber(e.target.value)}
             />
           </div>
+
           <ul className="cart-items-list">
             {selectedItems.length === 0 ? (
               <p className="empty-cart">No items selected.</p>
@@ -204,6 +214,7 @@ function MenuView() {
               ))
             )}
           </ul>
+
           <div className="cart-footer">
             <div className="total-row">
               <span className="total-label">Total:</span>
@@ -216,7 +227,7 @@ function MenuView() {
         </div>
       </div>
 
-      {/* Mobile Floating Cart Button */}
+      {/* Floating Cart Button (Mobile) */}
       {selectedItems.length > 0 && !isCartOpen && (
         <button className="mobile-floating-cart" onClick={() => setIsCartOpen(true)}>
           <span className="item-count">{getTotalItems()} Items</span>
@@ -225,9 +236,8 @@ function MenuView() {
         </button>
       )}
 
-      {/* Footer */}
       <footer className="menu-footer">
-        <p>Powered by **Qzaar Technologies Pvt. Ltd.**</p>
+        <p>Powered by <strong>Qzaar Technologies Pvt. Ltd.</strong></p>
       </footer>
     </div>
   );

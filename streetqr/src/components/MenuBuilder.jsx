@@ -1,4 +1,4 @@
-// ✅ MenuBuilder.jsx (Shopkeeper Menu Builder Only, orders moved to new page)
+// ✅ MenuBuilder.jsx (Shopkeeper Menu Builder Only, Vercel-ready with env variable)
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,8 @@ function MenuBuilder() {
   const [address, setAddress] = useState(localStorage.getItem("address") || '');
   const navigate = useNavigate();
 
+  const API_BASE = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     if (!isLoggedIn || !shopId) {
       navigate("/");
@@ -26,7 +28,7 @@ function MenuBuilder() {
 
   const loadMenu = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/menu/${id}`);
+      const res = await axios.get(`${API_BASE}/api/menu/${id}`);
       if (res.data.success) {
         const loadedItems = [];
         for (const cat in res.data.menu) {
@@ -68,6 +70,7 @@ function MenuBuilder() {
       alert("Add at least one item.");
       return;
     }
+
     const groupedData = {};
     items.forEach(item => {
       if (!groupedData[item.category]) groupedData[item.category] = [];
@@ -80,12 +83,13 @@ function MenuBuilder() {
     });
 
     try {
-      const res = await axios.post(`http://localhost:5000/api/menu/${shopId}`, {
+      const res = await axios.post(`${API_BASE}/api/menu/${shopId}`, {
         menu: groupedData,
         shopName,
         openHours,
         address
       });
+
       if (res.data.success) {
         localStorage.setItem("qr_id", res.data._id);
         alert("Menu submitted successfully.");
@@ -101,7 +105,7 @@ function MenuBuilder() {
   return (
     <>
       <Navbar />
-      <br></br>
+      <br />
       <div className="container py-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold text-success">🍽️ Menu Builder</h2>
