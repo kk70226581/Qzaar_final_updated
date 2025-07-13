@@ -9,15 +9,7 @@ import QRCodePage from './components/QRCodePage';
 import MenuView from './components/MenuView';
 import OrderSummary from './components/OrderSummary';
 import OrdersPage from './components/OrdersPage';
-import ResetPassword from './components/ResetPassword'; // adjust path if needed
-
-
-import { GoogleOAuthProvider } from '@react-oauth/google';
-
-<GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-  <App />
-</GoogleOAuthProvider>
-
+import ResetPassword from './components/ResetPassword'; // Adjust path if needed
 
 function App() {
   return (
@@ -30,10 +22,8 @@ function App() {
         <Route path="/qrcode" element={<QRCodePage />} />
         <Route path="/menu/:id" element={<MenuView />} />
         <Route path="/order-summary" element={<OrderSummary />} />
-        <Route path="/orders" element={<OrdersPage />} /> {/* ✅ NEW */}
+        <Route path="/orders" element={<OrdersPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        
-        
       </Routes>
     </BrowserRouter>
   );
