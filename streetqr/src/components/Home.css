@@ -1,0 +1,132 @@
+/*
+ * Custom CSS for the HomePage component
+ * This file contains styling specific to the home page layout.
+ */
+
+/* ==================
+   Image Carousel Styling
+   ================== */
+
+/* Create a responsive container for the carousel images */
+.carousel-item {
+  height: 500px; /* Set a fixed height for a consistent look on larger screens */
+  background-color: #f8f9fa; /* A subtle background color to fill empty space if needed */
+}
+
+/* Ensure the image scales correctly within its container */
+.carousel-item img {
+  height: 100%; /* Image takes up the full height of the container */
+  width: 100%; /* Image takes up the full width of the container */
+  object-fit: contain; /* This is the key change. It scales the image to fit the container without cropping. */
+  object-position: center; /* Centers the image within the container */
+  border-radius: 8px; /* Optional: adds a nice rounded corner effect */
+}
+
+/* ==================
+   Video Section Styling
+   ================== */
+
+/* Create a responsive container for the video */
+/* ...existing CSS... */
+
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* Position the video to fill its container completely */
+/* ...existing CSS for the video container... */
+
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Add this line */
+}
+
+/* ==================
+   Image Carousel Styling
+   ================== */
+
+/* Set a consistent height for the carousel on larger screens */
+.carousel-item {
+  height: 500px;
+  background-color: #f8f9fa; 
+}
+
+/* For smaller screens (mobile), reduce the carousel height */
+@media (max-width: 767.98px) {
+  .carousel-item {
+    height: 300px; /* Adjust this value to your preference */
+  }
+}
+
+/* Ensure the image scales correctly within its container */
+.carousel-item img {
+  height: 100%; /* Image takes up the full height of the container */
+  width: 100%; /* Image takes up the full width of the container */
+  object-fit: cover; /* This is the key change. It scales and crops the image to fill the container perfectly. */
+  object-position: center; /* Centers the visible part of the image */
+  border-radius: 8px; /* Optional: adds a nice rounded corner effect */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * Custom CSS for the HomePage component
+ * This file contains styling specific to the home page layout.
+ */
+
+/* ==================
+   Image Carousel Styling
+   ================== */
+
+/* Set a consistent height for the carousel on larger screens */
+.carousel-item {
+  height: 500px;
+  background-color: #f8f9fa;
+}
+
+/* For smaller screens (mobile), reduce the carousel height */
+@media (max-width: 767.98px) {
+  .carousel-item {
+    height: 300px;
+  }
+}
+
+/* Ensure the image scales correctly within its container */
+
+
+/* Make carousel controls more visible */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid #fff;
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+/* ==================
+   Video Section Styling
+   ================== */
+
+
