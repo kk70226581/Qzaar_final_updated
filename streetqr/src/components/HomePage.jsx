@@ -77,7 +77,7 @@ function HomePage() {
                   {/* Carousel Item 2 */}
                   <div className="carousel-item">
                     <img
-                      src="/images/step2.png"
+                      src="/images/step2.jpg"
                       className="d-block w-100"
                       alt="Scan QR"
                     />
