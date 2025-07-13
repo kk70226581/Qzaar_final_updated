@@ -9,11 +9,13 @@ import QRCodePage from './components/QRCodePage';
 import MenuView from './components/MenuView';
 import OrderSummary from './components/OrderSummary';
 import OrdersPage from './components/OrdersPage';
-import ResetPassword from './components/ResetPassword'; // Adjust path if needed
+import ResetPassword from './components/ResetPassword';
+import ScrollToTop from './components/ScrollToTop'; // <-- New import
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop /> {/* <-- New component added here */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginSignup />} />
