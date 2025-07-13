@@ -118,13 +118,30 @@ app.post("/api/forgot-password", async (req, res) => {
     );
     console.log("🔐 Token saved to DB"); // Step 3
 
-    const resetLink = `https://www.qzaar.shop/reset-password/${resetToken}`;
-    const html = `
-      <h3>Password Reset Request</h3>
-      <p>You requested a password reset for your Qzaar account.</p>
-      <p><a href="${resetLink}">Click here to reset your password</a></p>
-      <p>This link is valid for 1 hour.</p>
-    `;
+
+
+   const resetLink = `https://www.qzaar.shop/reset-password/${resetToken}`;
+const html = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+    <h3>Password Reset Request</h3>
+    <p>You requested a password reset for your Qzaar account.</p>
+    <p>
+      <a href="${resetLink}" 
+         style="background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block;">
+         Reset Your Password
+      </a>
+    </p>
+    <p style="font-size: 14px; color: #555;">If the button above doesn't work, copy and paste this link into your browser:</p>
+    <p style="word-break: break-all; font-size: 13px; color: #333;">${resetLink}</p>
+    <p>This link is valid for 1 hour.</p>
+    <br/>
+    <p style="font-size: 12px; color: gray;">
+      — Qzaar Support Team<br />
+      <a href="https://www.qzaar.shop">www.qzaar.shop</a>
+    </p>
+  </div>
+`;
+
 
     console.log("✉️ Sending email to:", email); // Step 4
     const emailResult = await sendEmail(email, "Qzaar Password Reset", html);
