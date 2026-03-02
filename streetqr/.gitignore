@@ -9,6 +9,10 @@
 # testing
 /coverage
 
+node_modules
+.env
+build
+
 # production
 /build
 
