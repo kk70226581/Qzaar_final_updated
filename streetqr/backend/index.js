@@ -1,6 +1,8 @@
 // backend/index.js
 require('dotenv').config();
 
+
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -17,27 +19,17 @@ const PORT = process.env.PORT || 5000;
  * - allow requests from your frontend domain(s)
  * - allow preflight OPTIONS requests
  */
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://www.qzaar.shop',
-  'https://updated-ver.onrender.com',
-  'https://streetqr-backend.onrender.com'
-];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow server-to-server or tools without an origin
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
-    }
-    return callback(null, true);
-  },
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','Accept'],
-  credentials: true,
-  optionsSuccessStatus: 204
+  origin: [
+    "http://localhost:3000",
+    "https://www.qzaar.shop",
+    "https://updated-ver.onrender.com"
+  ],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true
 }));
+
+app.options("*", cors());
 
 // Ensure preflight requests are handled
 app.options('*', cors());
