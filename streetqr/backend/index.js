@@ -7,12 +7,16 @@ const cors = require('cors');
 const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const sendEmail = require('./sendmail'); // keep your sendmail.js module in backend/
+const sendEmail = require('./sendmail'); // ensure sendmail.js is in same folder
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ------- CORS (allow preflight and required headers) -------
+/**
+ * CORS configuration
+ * - allow requests from your frontend domain(s)
+ * - allow preflight OPTIONS requests
+ */
 const allowedOrigins = [
   'http://localhost:3000',
   'https://www.qzaar.shop',
@@ -22,39 +26,38 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // allow requests with no origin (like curl, server-to-server)
+    // allow server-to-server or tools without an origin
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
+      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
     }
     return callback(null, true);
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','Accept'],
   credentials: true,
   optionsSuccessStatus: 204
 }));
 
-// Ensure OPTIONS preflight handled
+// Ensure preflight requests are handled
 app.options('*', cors());
 
-// Security & parsing
 app.use(helmet());
 app.use(express.json({ limit: '5mb' }));
 
-// ------- MongoDB connection -------
+// ---------------- MongoDB ----------------
 if (!process.env.MONGO_URI) {
-  console.error('❌ MONGO_URI is not set in environment variables.');
-} 
+  console.error('❌ MONGO_URI not set. Set it in environment variables.');
+}
 mongoose.connect(process.env.MONGO_URI || '', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   maxPoolSize: 10
-}).then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ MongoDB Connection Error:', err && err.message ? err.message : err));
+})
+.then(() => console.log('✅ MongoDB Connected'))
+.catch((err) => console.error('❌ MongoDB Connection Error:', err && err.message ? err.message : err));
 
-// ------- Schemas & Models -------
+// ---------------- Schemas & Models ----------------
 const shopkeeperSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
@@ -84,7 +87,12 @@ const Order = mongoose.model('Order', orderSchema);
 // Simple in-memory cache for menus (optional)
 const menuCache = {};
 
-// ------- Routes -------
+// ---------------- Routes ----------------
+
+// Health check
+app.get('/', (req, res) => {
+  res.send('API is live on Render!');
+});
 
 // Signup
 app.post('/api/signup', async (req, res) => {
@@ -132,17 +140,12 @@ app.post('/api/forgot-password', async (req, res) => {
     if (!email) return res.json({ success: false, message: 'Email is required' });
 
     const user = await Shopkeeper.findOne({ email }).select('_id').lean();
-    console.log('👤 User found:', !!user);
-
     if (!user) return res.json({ success: false, message: 'No user found with this email' });
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     const expiry = Date.now() + 3600000; // 1 hour
 
-    await Shopkeeper.updateOne(
-      { _id: user._id },
-      { resetToken, resetTokenExpiry: expiry }
-    );
+    await Shopkeeper.updateOne({ _id: user._id }, { resetToken, resetTokenExpiry: expiry });
     console.log('🔐 Token saved to DB');
 
     const resetLink = `https://www.qzaar.shop/reset-password/${resetToken}`;
@@ -151,19 +154,15 @@ app.post('/api/forgot-password', async (req, res) => {
         <h3>Password Reset Request</h3>
         <p>You requested a password reset for your Qzaar account.</p>
         <p>
-          <a href="${resetLink}" 
-             style="background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block;">
-             Reset Your Password
+          <a href="${resetLink}" style="background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            Reset Your Password
           </a>
         </p>
         <p style="font-size: 14px; color: #555;">If the button above doesn't work, copy and paste this link into your browser:</p>
         <p style="word-break: break-all; font-size: 13px; color: #333;">${resetLink}</p>
         <p>This link is valid for 1 hour.</p>
         <br/>
-        <p style="font-size: 12px; color: gray;">
-          — Qzaar Support Team<br />
-          <a href="https://www.qzaar.shop">www.qzaar.shop</a>
-        </p>
+        <p style="font-size: 12px; color: gray;">— Qzaar Support Team</p>
       </div>
     `;
 
@@ -285,11 +284,6 @@ app.put('/api/order-status/:orderId', async (req, res) => {
     console.error('❌ Update Order Error:', err && err.message ? err.message : err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
-});
-
-// Health check root
-app.get('/', (req, res) => {
-  res.send('API is live on Render!');
 });
 
 // Start server
