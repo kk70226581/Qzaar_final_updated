@@ -15,9 +15,7 @@ export default function LoginSignup() {
   const navigate = useNavigate();
 
   // Use environment variable if set, otherwise fallback to the backend URL
-  const API_BASE =
-    process.env.REACT_APP_API_URL?.replace(/\/$/, "") ||
-    "https://streetqr-backend.onrender.com";
+ const API_BASE = "https://streetqr-backend.onrender.com";
 
   // create axios instance so we can set withCredentials if needed later
   const api = axios.create({
