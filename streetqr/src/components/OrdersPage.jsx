@@ -1,93 +1,372 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import {
+  Activity,
+  BarChart3,
+  CheckCircle2,
+  Clock3,
+  RefreshCw,
+  Search,
+  Sparkles
+} from 'lucide-react';
+import { getSocket } from '../api';
 import Navbar from './Navbar';
+import './OrdersPage.css';
 
 const API = process.env.REACT_APP_API_URL;
 
+const statusOptions = ['all', 'pending', 'preparing', 'completed'];
+
+const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+
 function OrdersPage() {
-  const [pendingOrders, setPendingOrders] = useState([]);
-  const [completedOrders, setCompletedOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [dashboard, setDashboard] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [lastLiveEvent, setLastLiveEvent] = useState('');
   const shopId = localStorage.getItem('shopId');
 
-  useEffect(() => {
-    if (!shopId) return;
-    fetchOrders();
+  const fetchData = useCallback(async () => {
+    if (!shopId) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const [ordersResponse, dashboardResponse] = await Promise.all([
+        axios.get(`${API}/api/orders/${shopId}`),
+        axios.get(`${API}/api/dashboard/${shopId}`)
+      ]);
+
+      if (ordersResponse.data.success) {
+        setOrders(ordersResponse.data.orders || []);
+      }
+
+      if (dashboardResponse.data.success) {
+        setDashboard(dashboardResponse.data.dashboard);
+      }
+    } catch (error) {
+      console.error('Unable to fetch order dashboard.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [shopId]);
 
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.get(`${API}/api/orders/${shopId}`);
-      if (res.data.success) {
-        const orders = res.data.orders;
-        setPendingOrders(orders.filter(o => o.status !== 'completed'));
-        setCompletedOrders(orders.filter(o => o.status === 'completed'));
-      }
-    } catch (err) {
-      console.error("Failed to fetch orders");
-    }
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const markCompleted = async (orderId) => {
-    try {
-      const res = await axios.put(`${API}/api/order-status/${orderId}`, {
-        status: 'completed'
+  useEffect(() => {
+    if (!autoRefresh || !shopId) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(fetchData, 25000);
+    return () => window.clearInterval(intervalId);
+  }, [autoRefresh, fetchData, shopId]);
+
+  useEffect(() => {
+    if (!shopId) {
+      return undefined;
+    }
+
+    const socket = getSocket();
+    const handleConnect = () => {
+      setIsSocketConnected(true);
+      socket.emit('join_shop', shopId);
+    };
+    const handleDisconnect = () => setIsSocketConnected(false);
+    const handleLiveEvent = () => {
+      setLastLiveEvent(new Date().toLocaleTimeString());
+      fetchData();
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('new_order', handleLiveEvent);
+    socket.on('order_status_changed', handleLiveEvent);
+    socket.on('payment_received', handleLiveEvent);
+    socket.on('order_cancelled', handleLiveEvent);
+
+    if (socket.connected) {
+      handleConnect();
+    }
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('new_order', handleLiveEvent);
+      socket.off('order_status_changed', handleLiveEvent);
+      socket.off('payment_received', handleLiveEvent);
+      socket.off('order_cancelled', handleLiveEvent);
+    };
+  }, [fetchData, shopId]);
+
+  const filteredOrders = useMemo(
+    () => {
+      const query = searchTerm.trim().toLowerCase();
+
+      return orders.filter((order) => {
+        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+        const matchesPayment = paymentFilter === 'all' || order.paymentMethod === paymentFilter;
+        const matchesSearch = !query || [
+          order.customerName,
+          order.customerEmail,
+          order.tableNumber,
+          ...(order.items || []).map((item) => item.name)
+        ].some((value) => String(value || '').toLowerCase().includes(query));
+
+        return matchesStatus && matchesPayment && matchesSearch;
       });
-      if (res.data.success) {
-        fetchOrders();
+    },
+    [orders, paymentFilter, searchTerm, statusFilter]
+  );
+
+  const updateStatus = async (orderId, status) => {
+    try {
+      const response = await axios.put(`${API}/api/order-status/${orderId}`, { status });
+      if (response.data.success) {
+        fetchData();
       }
-    } catch (err) {
-      console.error('Failed to mark as completed');
+    } catch (error) {
+      console.error('Unable to update order status.');
     }
   };
 
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const response = await axios.post(`${API}/api/cancel-order/${orderId}`, {
+        reason: 'Cancelled by business team'
+      });
+
+      if (response.data.success) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Unable to cancel order.');
+    }
   };
 
-  const renderOrder = (order, isPending = true) => (
-    <div className={`card mb-4 shadow-sm border-${isPending ? 'warning' : 'success'}`} key={order._id}>
-      <div className="card-body">
-        <h5 className="card-title">Order #{order._id}</h5>
-        <p><strong>Customer:</strong> {order.customerName}</p>
-        <p><strong>Table:</strong> {order.tableNumber}</p>
-        <p><strong>Total:</strong> ₹{order.total}</p>
-        <p><strong>Ordered at:</strong> {formatTime(order.createdAt)}</p>
-        <ul className="list-group list-group-flush mt-3">
-          {order.items.map((item, idx) => (
-            <li className="list-group-item" key={idx}>
-              {item.name} — ₹{item.price} × {item.quantity || 1}
-            </li>
-          ))}
-        </ul>
-        {isPending && (
-          <button onClick={() => markCompleted(order._id)} className="btn btn-sm btn-success mt-3">
-            ✅ Mark as Completed
+  const renderActionButtons = (order) => {
+    if (order.status === 'pending') {
+      return (
+        <>
+          <button type="button" className="orders-inline-btn orders-inline-btn--dark" onClick={() => updateStatus(order._id, 'preparing')}>
+            Start preparing
           </button>
-        )}
-      </div>
-    </div>
-  );
+          <button type="button" className="orders-inline-btn orders-inline-btn--success" onClick={() => updateStatus(order._id, 'completed')}>
+            Complete
+          </button>
+          <button type="button" className="orders-inline-btn orders-inline-btn--danger" onClick={() => handleCancelOrder(order._id)}>
+            Cancel
+          </button>
+        </>
+      );
+    }
+
+    if (order.status === 'preparing') {
+      return (
+        <>
+          <button type="button" className="orders-inline-btn orders-inline-btn--success" onClick={() => updateStatus(order._id, 'completed')}>
+            Mark completed
+          </button>
+          <button type="button" className="orders-inline-btn orders-inline-btn--danger" onClick={() => handleCancelOrder(order._id)}>
+            Cancel order
+          </button>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  const summaryCards = [
+    { label: 'Total orders', value: dashboard?.totalOrders ?? orders.length, icon: Activity },
+    { label: 'Pending now', value: dashboard?.pendingOrders ?? orders.filter((order) => order.status === 'pending').length, icon: Clock3 },
+    { label: 'Completed revenue', value: formatCurrency(dashboard?.completedRevenue ?? 0), icon: CheckCircle2 },
+    { label: 'Average order', value: formatCurrency(dashboard?.averageOrderValue ?? 0), icon: BarChart3 }
+  ];
 
   return (
     <>
       <Navbar hideAuth={true} />
-      <div className="container py-5">
-        <h2 className="fw-bold text-primary mb-4">📦 Pending Orders</h2>
-        {pendingOrders.length === 0 ? (
-          <p className="text-muted">No pending orders right now.</p>
-        ) : (
-          pendingOrders.map(order => renderOrder(order, true))
-        )}
+      <div className="orders-shell">
+        <div className="orders-container">
+          <section className="orders-hero">
+            <div className="orders-hero__copy">
+              <span className="orders-kicker">
+                <Sparkles size={16} />
+                Operations dashboard
+              </span>
+              <h1>{dashboard?.shopName || 'Live order management'}</h1>
+              <p>
+                Review incoming orders, move them through fulfillment states, and keep the service flow easy
+                to scan during busy hours.
+              </p>
+              <div className="orders-live-status">
+                <span className={`orders-live-dot ${isSocketConnected ? 'is-online' : ''}`} />
+                <strong>{isSocketConnected ? 'Live updates connected' : 'Live updates reconnecting'}</strong>
+                {lastLiveEvent && <span>Last event {lastLiveEvent}</span>}
+              </div>
+            </div>
 
-        <hr className="my-5" />
+            <div className="orders-hero__actions">
+              <button type="button" className="orders-btn orders-btn--secondary" onClick={fetchData}>
+                <RefreshCw size={16} />
+                Refresh now
+              </button>
+              <button
+                type="button"
+                className={`orders-btn ${autoRefresh ? 'orders-btn--primary' : 'orders-btn--ghost'}`}
+                onClick={() => setAutoRefresh((current) => !current)}
+              >
+                Auto refresh: {autoRefresh ? 'On' : 'Off'}
+              </button>
+            </div>
+          </section>
 
-        <h2 className="fw-bold text-success mb-4">📜 Completed Orders</h2>
-        {completedOrders.length === 0 ? (
-          <p className="text-muted">No completed orders yet.</p>
-        ) : (
-          completedOrders.map(order => renderOrder(order, false))
-        )}
+          <section className="orders-stats">
+            {summaryCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <article className="orders-stat-card" key={card.label}>
+                  <div className="orders-stat-card__icon">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <span>{card.label}</span>
+                    <strong>{card.value}</strong>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+
+          <div className="orders-layout">
+            <section className="orders-panel">
+              <div className="orders-panel__header">
+                <div>
+                  <h2>Top items</h2>
+                  <p>Best performers from completed orders.</p>
+                </div>
+              </div>
+
+              {dashboard?.topItems?.length ? (
+                <div className="orders-top-list">
+                  {dashboard.topItems.map((item) => (
+                    <div key={item.name} className="orders-top-item">
+                      <div className="orders-top-item__meta">
+                        <strong>{item.name}</strong>
+                        <span>{item.quantity} sold</span>
+                      </div>
+                      <b>{formatCurrency(item.revenue)}</b>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="orders-empty-copy">Top-selling insights will appear after orders start coming in.</p>
+              )}
+            </section>
+
+            <section className="orders-panel">
+              <div className="orders-panel__header orders-panel__header--stack">
+                <div>
+                  <h2>Order queue</h2>
+                  <p>Track every order from intake to completion.</p>
+                </div>
+
+                <div className="orders-filter-panel">
+                  <label className="orders-search">
+                    <Search size={16} />
+                    <input
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      placeholder="Search customer, table, or item"
+                    />
+                  </label>
+                  <div className="orders-filter-row">
+                    <select
+                      className="orders-select"
+                      value={paymentFilter}
+                      onChange={(event) => setPaymentFilter(event.target.value)}
+                    >
+                      <option value="all">All payments</option>
+                      <option value="cash">Cash</option>
+                      <option value="razorpay">Online</option>
+                    </select>
+                  {statusOptions.map((status) => (
+                    <button
+                      type="button"
+                      key={status}
+                      className={`orders-filter ${statusFilter === status ? 'is-active' : ''}`}
+                      onClick={() => setStatusFilter(status)}
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                  ))}
+                  </div>
+                </div>
+              </div>
+
+              {isLoading ? (
+                <p className="orders-empty-copy">Loading orders...</p>
+              ) : filteredOrders.length === 0 ? (
+                <p className="orders-empty-copy">No orders match this filter yet.</p>
+              ) : (
+                <div className="orders-list">
+                  {filteredOrders.map((order) => (
+                    <article key={order._id} className="orders-card">
+                      <div className="orders-card__top">
+                        <div>
+                          <div className="orders-card__title-row">
+                            <strong>Order #{order._id.slice(-6)}</strong>
+                            <span className={`orders-badge orders-badge--${order.status}`}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <div className="orders-card__meta">
+                            Customer {order.customerName} | Table {order.tableNumber}
+                          </div>
+                          <div className="orders-card__meta">
+                            Payment {order.paymentMethod} | {order.paymentStatus}
+                          </div>
+                          <div className="orders-card__meta">
+                            Placed {new Date(order.createdAt).toLocaleString()}
+                          </div>
+                          {order.customerNote && <div className="orders-card__note">Note: {order.customerNote}</div>}
+                        </div>
+
+                        <div className="orders-card__side">
+                          <div className="orders-card__total">{formatCurrency(order.total)}</div>
+                          <div className="orders-card__actions">
+                            {renderActionButtons(order)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="orders-card__items">
+                        {(order.items || []).map((item, index) => (
+                          <div key={`${order._id}-${index}`} className="orders-item-row">
+                            <div>
+                              <strong>{item.name}</strong>
+                              <span>Qty {item.quantity || 1}</span>
+                            </div>
+                            <b>{formatCurrency((item.price || 0) * (item.quantity || 1))}</b>
+                          </div>
+                        ))}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
       </div>
     </>
   );

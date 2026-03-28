@@ -1,13 +1,85 @@
+:root {
+  --accent-300: #ffd7ad;
+  --accent-400: #ffb566;
+  --accent-500: #ff7a18;
+  --accent-600: #ea580c;
+  --accent-700: #c2410c;
+  --ink-950: #171311;
+  --ink-900: #241c18;
+  --ink-800: #3f3129;
+  --ink-700: #5e4b3f;
+  --ink-600: #7a6658;
+  --ink-500: #9d8676;
+  --paper-50: #fffdf9;
+  --paper-100: #fff7ee;
+  --paper-200: #ffefdd;
+  --line-soft: rgba(92, 63, 41, 0.12);
+  --shadow-soft: 0 24px 60px rgba(108, 74, 44, 0.1);
+  --shadow-strong: 0 32px 90px rgba(69, 44, 22, 0.16);
+  --success-600: #15803d;
+  --danger-600: #b91c1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  color: var(--ink-950);
+  background:
+    radial-gradient(circle at top left, rgba(255, 195, 117, 0.18), transparent 26rem),
+    linear-gradient(180deg, var(--paper-100) 0%, var(--paper-50) 100%);
+  font-family: 'Segoe UI', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+input,
+select,
+textarea,
+button {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease,
+    color 180ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(255, 122, 24, 0.45);
+  box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.12);
+}
+
+::selection {
+  background: rgba(255, 122, 24, 0.2);
 }

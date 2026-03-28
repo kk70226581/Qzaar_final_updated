@@ -24,6 +24,7 @@ function App() {
         <Route path="/qrcode" element={<QRCodePage />} />
         <Route path="/menu/:id" element={<MenuView />} />
         <Route path="/order-summary" element={<OrderSummary />} />
+        <Route path="/track-order/:orderId" element={<OrderSummary />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>

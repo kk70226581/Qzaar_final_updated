@@ -1,80 +1,112 @@
 import React from 'react';
+import {
+  Globe2,
+  QrCode,
+  Sparkles,
+  Store,
+  Users
+} from 'lucide-react';
+import Navbar from './Navbar';
+import './AboutPage.css';
+
+const featureList = [
+  'QR menus that customers can open instantly without installing an app',
+  'Live order updates that help vendors manage busy service windows',
+  'Digital storefront branding with menu highlights and cleaner presentation',
+  'Simple analytics that surface revenue, order volume, and popular dishes'
+];
 
 function AboutPage() {
   return (
-    <div className="container py-5">
-      {/* Page Header */}
-      <h1 className="fw-bold text-primary mb-4 text-center">About Qzaar</h1>
-
-      {/* Vision Section */}
-      <section className="mb-5">
-        <h4 className="fw-bold text-dark mb-3">🚀 Our Vision</h4>
-        <p className="text-muted">
-          Qzaar is India’s #1 digital ordering platform for street food vendors. We aim to help small vendors digitize their business using QR code menus, real-time order tracking, and smart analytics — all in one place.
-        </p>
-      </section>
-
-      {/* Creator Bio Card */}
-      <section className="mb-5">
-        <h4 className="fw-bold text-dark mb-4 text-center">👨‍💻 Meet the Creator</h4>
-        <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '700px' }}>
-          <div className="row g-0">
-            <div className="col-md-4 col-12">
-              <img
-                src="/images/karan.jpg"
-                className="img-fluid rounded-start w-100"
-                alt="Karan Kannaujiya"
-                style={{ height: '100%', objectFit: 'cover' }}
-              />
+    <>
+      <Navbar />
+      <div className="about-shell">
+        <div className="about-container">
+          <section className="about-hero">
+            <div>
+              <span className="about-kicker">
+                <Sparkles size={16} />
+                Built for practical digital ordering
+              </span>
+              <h1>Qzaar helps street food vendors look more modern without losing simplicity.</h1>
+              <p>
+                The goal is straightforward: give small food businesses an easier way to publish a menu,
+                share it with QR, take orders, and stay organized during service.
+              </p>
             </div>
-            <div className="col-md-8 col-12">
-              <div className="card-body">
-                <h5 className="card-title fw-bold text-primary">Karan Kannaujiya</h5>
-                <p className="card-text text-muted mb-1">🎓 B.Tech in Information Technology</p>
-                <p className="card-text text-muted mb-1">🏫 IIIT Allahabad</p>
-                <p className="card-text text-muted mb-1">📍 From Gorakhpur, Uttar Pradesh</p>
-                <p className="card-text small mt-2">
-                  I'm passionate about building digital solutions that solve real-world problems. Qzaar is my step toward helping local vendors thrive through simple, powerful, and accessible technology.
-                </p>
 
-                {/* Social Media Links */}
-                <div className="mt-3 d-flex gap-3">
-                  <a href="https://www.linkedin.com/in/karankannaujiya" target="_blank" rel="noopener noreferrer">
-                    <i className="bi bi-linkedin fs-4 text-primary"></i>
-                  </a>
-                  <a href="https://github.com/karankannaujiya" target="_blank" rel="noopener noreferrer">
-                    <i className="bi bi-github fs-4 text-dark"></i>
-                  </a>
-                  <a href="mailto:karankannaujiya@example.com">
-                    <i className="bi bi-envelope fs-4 text-danger"></i>
-                  </a>
+            <div className="about-hero__card">
+              <div className="about-hero__stat">
+                <QrCode size={18} />
+                <div>
+                  <strong>Fast to launch</strong>
+                  <span>Create a storefront, publish a menu, and share a live QR link.</span>
                 </div>
-
+              </div>
+              <div className="about-hero__stat">
+                <Globe2 size={18} />
+                <div>
+                  <strong>Easy for customers</strong>
+                  <span>Browse dishes, add items, and place orders from any phone browser.</span>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
+
+          <section className="about-grid">
+            <article className="about-panel">
+              <div className="about-panel__header">
+                <h2>What Qzaar offers</h2>
+                <p>A practical toolkit designed to feel polished while staying easy to use.</p>
+              </div>
+              <ul className="about-feature-list">
+                {featureList.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="about-panel about-panel--creator">
+              <div className="about-creator">
+                <div className="about-creator__photo">
+                  <Store size={34} />
+                </div>
+                <div>
+                  <span className="about-panel__eyebrow">Who we serve</span>
+                  <h2>Built for growing food businesses</h2>
+                  <p>
+                    Qzaar is designed for street food vendors, cafes, kiosks, and small restaurant teams that
+                    want a simpler way to manage digital menus and customer orders.
+                  </p>
+                </div>
+              </div>
+
+              <div className="about-creator__meta">
+                <div><QrCode size={16} /><span>QR-first ordering for faster service</span></div>
+                <div><Users size={16} /><span>Easy for staff, simple for customers</span></div>
+                <div><Globe2 size={16} /><span>Accessible from any modern phone browser</span></div>
+              </div>
+
+              <div className="about-creator__links">
+                <a href="/login"><Store size={16} /> Open Dashboard</a>
+                <a href="/menu/demo"><QrCode size={16} /> View Menu</a>
+                <a href="mailto:support@qzaar.com"><Sparkles size={16} /> Contact Support</a>
+              </div>
+            </article>
+          </section>
+
+          <section className="about-panel about-panel--wide">
+            <span className="about-panel__eyebrow">Why it matters</span>
+            <h2>Digitization feels more useful when it removes friction instead of adding it.</h2>
+            <p>
+              Qzaar bridges the gap between a local vendor and a better ordering experience. It keeps the
+              workflow light, improves how the brand is presented, and helps teams stay more organized when
+              orders start coming in.
+            </p>
+          </section>
         </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="mb-5">
-        <h4 className="fw-bold text-dark mb-3">💡 What Qzaar Offers</h4>
-        <ul className="text-muted">
-          <li>✅ QR Code Menus – No app needed for customers</li>
-          <li>✅ Live Order Notifications – Vendors get instant alerts</li>
-          <li>✅ Digital Dashboard – Track sales & top-selling items</li>
-          <li>✅ Smart & Affordable – Designed for Indian street vendors</li>
-        </ul>
-      </section>
-
-      {/* Why Qzaar Matters */}
-      <section>
-        <h4 className="fw-bold text-dark mb-3">🌍 Why Qzaar Matters</h4>
-        <p className="text-muted">
-          In a rapidly digitizing world, Qzaar bridges the technology gap for small food vendors. We bring the convenience of digital ordering, payment tracking, and customer experience – all at their fingertips.
-        </p>
-      </section>
-    </div>
+      </div>
+    </>
   );
 }
 

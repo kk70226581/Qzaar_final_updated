@@ -1,117 +1,371 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
+import {
+  BadgePercent,
+  ChefHat,
+  Clock3,
+  CreditCard,
+  Flame,
+  ImageOff,
+  Heart,
+  Leaf,
+  MapPin,
+  Phone,
+  Plus,
+  Search,
+  ShoppingBag,
+  Sparkles,
+  TrendingUp,
+  UtensilsCrossed,
+  Wallet
+} from 'lucide-react';
+import PaymentGateway from './PaymentGateway';
+import CouponApplier from './CouponApplier';
+import { createOrder, getMenu } from '../api';
+import './MenuView.css';
 
-const API = process.env.REACT_APP_API_URL;
+const paymentOptions = [
+  { id: 'cash', label: 'Pay at counter', description: 'Cash on delivery or counter payment', icon: Wallet },
+  { id: 'razorpay', label: 'Pay Online', description: 'Card, UPI, Net Banking via Razorpay', icon: CreditCard }
+];
+
+const FAVORITES_STORAGE_PREFIX = 'streetqr:favorites:';
+const PROFILE_STORAGE_PREFIX = 'streetqr:profile:';
+
+const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+
+const getEstimatedPrepMinutes = (selectedItems) => {
+  if (!selectedItems.length) {
+    return 0;
+  }
+
+  return selectedItems.reduce((maxTime, item) => Math.max(maxTime, Number(item.prepTime) || 10), 0);
+};
+
+function SmartImage({ src, alt, className, fallbackClassName, fallbackContent }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  if (!src || hasError) {
+    return <div className={fallbackClassName}>{fallbackContent}</div>;
+  }
+
+  return <img src={src} alt={alt} className={className} onError={() => setHasError(true)} />;
+}
 
 function MenuView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [menuData, setMenuData] = useState(null);
+
+  const [menuData, setMenuData] = useState({});
+  const [shop, setShop] = useState({});
   const [selectedItems, setSelectedItems] = useState([]);
   const [customerName, setCustomerName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
-  const [shop, setShop] = useState({});
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerNote, setCustomerNote] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [showPaymentGateway, setShowPaymentGateway] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [favorites, setFavorites] = useState(new Set());
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get(`${API}/api/menu/${id}`)
-      .then(res => {
-        if (res.data.success) {
-          setMenuData(res.data.menu);
-          setShop({
-            logo: res.data.logo,
-            shopName: res.data.shopName,
-            openHours: res.data.openHours,
-            address: res.data.address
-            // You will need to add a line for ownerName if your API provides it
-          });
-          setError(null);
-        } else {
-          setError("Failed to load menu. Please try again.");
+    setError('');
+
+    getMenu(id)
+      .then((response) => {
+        if (!response.data.success) {
+          setError(response.data.message || 'Failed to load menu. Please try again.');
+          return;
         }
+
+        setMenuData(response.data.menu || {});
+        setShop({
+          shopName: response.data.shopName,
+          ownerName: response.data.ownerName,
+          tagline: response.data.tagline,
+          cuisineType: response.data.cuisineType,
+          contactPhone: response.data.contactPhone,
+          logo: response.data.logo,
+          openHours: response.data.openHours,
+          address: response.data.address,
+          brandColor: response.data.brandColor || '#f97316'
+        });
       })
-      .catch(() => {
-        setError("Failed to load menu. Please try again.");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .catch(() => setError('Failed to load menu. Please try again.'))
+      .finally(() => setIsLoading(false));
   }, [id]);
 
-  const handleAddToCart = (item, quantity = 1) => {
-    const existingItem = selectedItems.find(i => i.name === item.name);
-    if (existingItem) {
-      setSelectedItems(prev =>
-        prev.map(i =>
-          i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
-        )
-      );
-    } else {
-      setSelectedItems(prev => [...prev, { ...item, quantity }]);
+  useEffect(() => {
+    const savedFavorites = window.localStorage.getItem(`${FAVORITES_STORAGE_PREFIX}${id}`);
+    const savedProfile = window.localStorage.getItem(`${PROFILE_STORAGE_PREFIX}${id}`);
+
+    if (savedFavorites) {
+      try {
+        setFavorites(new Set(JSON.parse(savedFavorites)));
+      } catch {
+        setFavorites(new Set());
+      }
     }
-  };
 
-  const updateQuantity = (itemName, newQuantity) => {
-    if (newQuantity < 1) {
-      setSelectedItems(prev => prev.filter(i => i.name !== itemName));
-    } else {
-      setSelectedItems(prev =>
-        prev.map(item =>
-          item.name === itemName ? { ...item, quantity: newQuantity } : item
-        )
-      );
+    if (savedProfile) {
+      try {
+        const profile = JSON.parse(savedProfile);
+        setCustomerName(profile.customerName || '');
+        setTableNumber(profile.tableNumber || '');
+        setCustomerPhone(profile.customerPhone || '');
+        setCustomerEmail(profile.customerEmail || '');
+      } catch {
+        // Ignore malformed saved profile data.
+      }
     }
-  };
+  }, [id]);
 
-  const getItemQuantity = (itemName) =>
-    selectedItems.find(item => item.name === itemName)?.quantity || 0;
+  useEffect(() => {
+    window.localStorage.setItem(`${FAVORITES_STORAGE_PREFIX}${id}`, JSON.stringify(Array.from(favorites)));
+  }, [favorites, id]);
 
-  const getTotal = () =>
-    selectedItems.reduce((sum, i) => sum + (Number(i.price) * i.quantity), 0);
+  useEffect(() => {
+    window.localStorage.setItem(`${PROFILE_STORAGE_PREFIX}${id}`, JSON.stringify({
+      customerName,
+      tableNumber,
+      customerPhone,
+      customerEmail
+    }));
+  }, [customerEmail, customerName, customerPhone, id, tableNumber]);
 
-  const getTotalItems = () =>
-    selectedItems.reduce((sum, i) => sum + i.quantity, 0);
+  const categories = useMemo(() => ['All', ...Object.keys(menuData || {})], [menuData]);
 
-  const handleCheckout = async () => {
-    setIsPlacingOrder(true);
-    
-    if (!customerName || !tableNumber || selectedItems.length === 0) {
-      alert("Please fill in all required fields and select items.");
-      setIsPlacingOrder(false);
+  const flatItems = useMemo(() => (
+    Object.entries(menuData || {}).flatMap(([category, items]) =>
+      (items || []).map((item) => ({ ...item, category }))
+    )
+  ), [menuData]);
+
+  const availableItems = useMemo(
+    () => flatItems.filter((item) => item.available !== false),
+    [flatItems]
+  );
+
+  const featuredItems = useMemo(
+    () => availableItems.filter((item) => item.featured),
+    [availableItems]
+  );
+
+  const highlightedItems = useMemo(() => {
+    if (featuredItems.length) {
+      return featuredItems.slice(0, 3);
+    }
+
+    return [...availableItems]
+      .sort((left, right) => (Number(right.discount) || 0) - (Number(left.discount) || 0))
+      .slice(0, 3);
+  }, [availableItems, featuredItems]);
+
+  const visibleItems = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return flatItems.filter((item) => {
+      const matchesSearch = !query || [item.name, item.remarks, item.category]
+        .some((value) => String(value || '').toLowerCase().includes(query));
+      const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+      const matchesFeatured = !featuredOnly || item.featured;
+      const matchesFavorites = !favoritesOnly || favorites.has(item.name);
+
+      return matchesSearch && matchesCategory && matchesFeatured && matchesFavorites;
+    });
+  }, [activeCategory, favorites, favoritesOnly, featuredOnly, flatItems, searchTerm]);
+
+  const groupedVisibleItems = useMemo(() => {
+    const grouped = {};
+    visibleItems.forEach((item) => {
+      if (!grouped[item.category]) {
+        grouped[item.category] = [];
+      }
+      grouped[item.category].push(item);
+    });
+    return grouped;
+  }, [visibleItems]);
+
+  const getItemQuantity = (itemName) => selectedItems.find((item) => item.name === itemName)?.quantity || 0;
+  const totalItems = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = selectedItems.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+  const taxes = Math.round(subtotal * 0.05 * 100) / 100;
+  const safeDiscountAmount = Math.min(discountAmount, subtotal);
+  const finalAmount = Math.max(subtotal - safeDiscountAmount + taxes, 0);
+  const estimatedPrepMinutes = getEstimatedPrepMinutes(selectedItems);
+  const averagePrepTime = availableItems.length
+    ? Math.round(availableItems.reduce((sum, item) => sum + (Number(item.prepTime) || 10), 0) / availableItems.length)
+    : 0;
+  const heroImage = shop.logo || highlightedItems[0]?.image || availableItems[0]?.image || '';
+  const topCategory = useMemo(() => {
+    const counts = Object.entries(menuData || {}).map(([category, items]) => ({
+      category,
+      count: (items || []).filter((item) => item.available !== false).length
+    }));
+    return counts.sort((left, right) => right.count - left.count)[0]?.category || 'Chef specials';
+  }, [menuData]);
+
+  useEffect(() => {
+    if (discountAmount > subtotal) {
+      setDiscountAmount(subtotal);
+    }
+
+    if (!selectedItems.length && appliedCoupon) {
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
+    }
+  }, [appliedCoupon, discountAmount, selectedItems.length, subtotal]);
+
+  const addToCart = (item) => {
+    if (item.available === false) {
       return;
     }
 
-    const orderPayload = {
+    setSelectedItems((current) => {
+      const existing = current.find((entry) => entry.name === item.name);
+      if (existing) {
+        return current.map((entry) => (
+          entry.name === item.name ? { ...entry, quantity: entry.quantity + 1 } : entry
+        ));
+      }
+
+      return [...current, { ...item, quantity: 1 }];
+    });
+  };
+
+  const updateQuantity = (itemName, quantity) => {
+    setSelectedItems((current) => {
+      if (quantity < 1) {
+        return current.filter((item) => item.name !== itemName);
+      }
+
+      return current.map((item) => (
+        item.name === itemName ? { ...item, quantity } : item
+      ));
+    });
+  };
+
+  const toggleFavorite = (itemName) => {
+    setFavorites((current) => {
+      const nextFavorites = new Set(current);
+
+      if (nextFavorites.has(itemName)) {
+        nextFavorites.delete(itemName);
+      } else {
+        nextFavorites.add(itemName);
+      }
+
+      return nextFavorites;
+    });
+  };
+
+  const handleCheckout = async () => {
+    if (!customerName.trim() || !tableNumber.trim() || !customerPhone.trim() || !selectedItems.length) {
+      toast.error('Please fill in customer name, phone, table number and select at least one item.');
+      return;
+    }
+
+    setIsPlacingOrder(true);
+
+    const payload = {
       shopId: id,
+      shopName: shop.shopName,
+      shopAddress: shop.address,
       customerName,
+      customerPhone,
+      customerEmail,
       tableNumber,
+      customerNote,
       items: selectedItems,
-      total: getTotal()
+      subtotal,
+      subTotal: subtotal,
+      discountAmount: safeDiscountAmount,
+      couponCode: appliedCoupon?.code,
+      taxes,
+      total: finalAmount,
+      paymentMethod,
+      paymentStatus: 'pending',
+      estimatedPrepMinutes
     };
 
     try {
-      const res = await axios.post(`${API}/api/order`, orderPayload);
-      if (res.data.success) {
-        navigate("/order-summary", {
-          state: { ...orderPayload, orderId: res.data.orderId }
-        });
+      if (paymentMethod === 'razorpay') {
+        setCurrentOrder(payload);
+        setShowPaymentGateway(true);
+        setIsPlacingOrder(false);
+        return;
       }
-    } catch {
-      alert("Order failed. Please try again.");
+
+      const response = await createOrder(payload);
+
+      if (response.data.success) {
+        toast.success('Order placed successfully!');
+        setIsCartOpen(false);
+        navigate(`/track-order/${response.data.orderId}`, {
+          state: {
+            ...payload,
+            orderId: response.data.orderId,
+            estimatedReadyAt: response.data.estimatedReadyAt
+          }
+        });
+      } else {
+        toast.error(response.data.message || 'Order failed. Please try again.');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Order failed. Please try again.');
     } finally {
       setIsPlacingOrder(false);
     }
   };
 
+  const handlePaymentSuccess = (verifiedOrder) => {
+    if (!currentOrder || !verifiedOrder?._id) {
+      toast.error('Payment succeeded, but the order details were incomplete.');
+      return;
+    }
+
+    toast.success('Payment successful! Order placed.');
+    setShowPaymentGateway(false);
+    setIsCartOpen(false);
+    setCurrentOrder(null);
+
+    navigate(`/track-order/${verifiedOrder._id}`, {
+      state: {
+        ...currentOrder,
+        orderId: verifiedOrder._id,
+        paymentStatus: verifiedOrder.paymentStatus || 'paid',
+        paymentReference: verifiedOrder.paymentReference,
+        estimatedReadyAt: verifiedOrder.estimatedReadyAt
+      }
+    });
+  };
+
+  const handlePaymentClose = () => {
+    setShowPaymentGateway(false);
+  };
+
   if (isLoading) {
     return (
-      <div className="loading-state-clean">
-        <div className="spinner-border text-accent" role="status">
+      <div className="menu-view-state">
+        <div className="spinner-border text-warning" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
@@ -119,600 +373,565 @@ function MenuView() {
   }
 
   if (error) {
-    return <div className="error-state-clean">{error}</div>;
+    return <div className="menu-view-state">{error}</div>;
   }
 
   return (
-    <div className="menu-container-clean">
-      <header className="menu-header-clean">
-        <div className="shop-info-clean">
-          {shop.logo && (
-            <img src={shop.logo} alt="Shop Logo" className="shop-logo-clean" />
-          )}
-          <div className="shop-details-clean">
-            <h1 className="shop-name-clean">{shop.shopName || "Restaurant Name"}</h1>
-            <p className="shop-owner-clean">{"Owner's Name Here"}</p>
-            <p className="shop-address-clean">{shop.address || "Address not available"}</p>
+    <div className="menu-view" style={{ '--menu-accent': shop.brandColor || '#f97316' }}>
+      <header className="menu-view__hero">
+        <div className="menu-view__hero-background" />
+        <div className="menu-view__hero-overlay" />
+
+        <div className="menu-view__hero-content">
+          <div className="menu-view__hero-copy">
+            <motion.div
+              className="menu-view__logo-hero"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <SmartImage
+                src={shop.logo}
+                alt={shop.shopName || 'Shop'}
+                className="menu-view__logo-image"
+                fallbackClassName="menu-view__logo-fallback"
+                fallbackContent={<ChefHat size={40} />}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <p className="menu-view__hero-tag">{shop.cuisineType || 'Digital Menu'}</p>
+              <h1 className="menu-view__hero-title">{shop.shopName || 'Restaurant'}</h1>
+              <p className="menu-view__hero-tagline">{shop.tagline || 'Delicious food, real-time ordering'}</p>
+              <div className="menu-view__hero-quickline">
+                <span>{availableItems.length} dishes ready to order</span>
+                <span>{topCategory}</span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="menu-view__hero-stats"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              {shop.openHours && (
+                <div className="hero-stat">
+                  <Clock3 size={16} className="stat-icon" />
+                  <span>{shop.openHours}</span>
+                </div>
+              )}
+              {shop.address && (
+                <div className="hero-stat">
+                  <MapPin size={16} className="stat-icon" />
+                  <span>{shop.address}</span>
+                </div>
+              )}
+              {shop.contactPhone && (
+                <div className="hero-stat">
+                  <Phone size={16} className="stat-icon" />
+                  <span>{shop.contactPhone}</span>
+                </div>
+              )}
+            </motion.div>
           </div>
+
+          <motion.div
+            className="menu-view__hero-visual"
+            initial={{ x: 24, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.55 }}
+          >
+            <div className="menu-view__hero-board">
+              <SmartImage
+                src={heroImage}
+                alt={shop.shopName || 'Restaurant'}
+                className="menu-view__hero-board-image"
+                fallbackClassName="menu-view__hero-board-fallback"
+                fallbackContent={<ChefHat size={48} />}
+              />
+              <div className="menu-view__hero-board-sheen" />
+              <div className="menu-view__hero-board-content">
+                <strong>{shop.shopName || 'Your restaurant'}</strong>
+                <span>{shop.tagline || 'Add stronger branding to make the menu feel premium.'}</span>
+                <div className="menu-view__hero-board-badges">
+                  <span>{availableItems.length} dishes live</span>
+                  <span>{featuredItems.length || highlightedItems.length} picks highlighted</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </header>
 
-      <div className="menu-main-clean">
-        <div className="menu-section-clean">
-          {Object.entries(menuData).map(([category, items]) => (
-            <div key={category} className="menu-category-clean">
-              <h2 className="category-title-clean">{category}</h2>
-              <div className="menu-items-grid-clean">
-                {items.map(item => {
-                  const itemQuantity = getItemQuantity(item.name);
-                  return (
-                    <div key={item.name} className="menu-item-card-clean">
-                      {item.image && (
-                        <div className="item-image-wrapper-clean">
-                          <img src={item.image} alt={item.name} className="item-image-clean" />
-                        </div>
-                      )}
-                      <div className="item-card-content-clean">
-                        <div className="item-details-clean">
-                          <h4 className="item-name-clean">{item.name}</h4>
-                          <p className="item-remarks-clean">{item.remarks}</p>
-                          <p className="item-price-clean">₹{Number(item.price).toFixed(2)}</p>
-                        </div>
-                        {itemQuantity > 0 ? (
-                          <div className="quantity-controls-clean">
-                            <button className="btn-qty-clean" onClick={() => updateQuantity(item.name, itemQuantity - 1)}>-</button>
-                            <span className="qty-value-clean">{item.quantity}</span>
-                            <button className="btn-qty-clean" onClick={() => updateQuantity(item.name, itemQuantity + 1)}>+</button>
+      <div className="menu-view__main-content">
+        <div className="menu-view__container">
+          <section className="menu-view__meta-grid">
+            <div className="menu-view__meta-card">
+              <span>Available items</span>
+              <strong>{availableItems.length}</strong>
+            </div>
+            <div className="menu-view__meta-card">
+              <span>Featured picks</span>
+              <strong>{featuredItems.length || highlightedItems.length}</strong>
+            </div>
+            <div className="menu-view__meta-card">
+              <span>Average prep</span>
+              <strong>{averagePrepTime} min</strong>
+            </div>
+            <div className="menu-view__meta-card">
+              <span>Cart status</span>
+              <strong>{totalItems ? `${totalItems} item${totalItems > 1 ? 's' : ''}` : 'Ready to order'}</strong>
+            </div>
+          </section>
+
+          <motion.div
+            className="menu-view__search-container"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="menu-view__search-bar">
+              <Search size={18} className="search-icon" />
+              <input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search for your favorite dishes..."
+                className="search-input"
+              />
+              {searchTerm && (
+                <button type="button" className="search-clear" onClick={() => setSearchTerm('')}>
+                  Clear
+                </button>
+              )}
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="menu-view__filters"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.15 }}
+          >
+            <div className="filters-scroll">
+              {categories.map((category) => (
+                <motion.button
+                  key={category}
+                  type="button"
+                  className={`filter-chip ${activeCategory === category ? 'is-active' : ''}`}
+                  onClick={() => setActiveCategory(category)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {category}
+                </motion.button>
+              ))}
+
+              <motion.button
+                type="button"
+                className={`filter-chip ${featuredOnly ? 'is-active' : ''}`}
+                onClick={() => setFeaturedOnly((current) => !current)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Flame size={16} /> Featured only
+              </motion.button>
+
+              {favorites.size > 0 && (
+                <motion.button
+                  type="button"
+                  className={`filter-chip ${favoritesOnly ? 'is-active' : ''}`}
+                  onClick={() => setFavoritesOnly((current) => !current)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Heart size={16} /> Favorites
+                </motion.button>
+              )}
+            </div>
+          </motion.div>
+
+          {!featuredOnly && !searchTerm && activeCategory === 'All' && highlightedItems.length > 0 && (
+            <motion.section
+              className="menu-view__featured-section"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="featured-header">
+                <h2><Sparkles size={20} /> Today's Specials</h2>
+                <p>Hand-picked favorites and best value dishes</p>
+              </div>
+
+              <div className="featured-items-grid">
+                {highlightedItems.map((item) => (
+                  <motion.div
+                    key={`featured-${item.name}`}
+                    className="featured-item-card"
+                    whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="featured-item-image">
+                      <SmartImage
+                        src={item.image}
+                        alt={item.name}
+                        className="featured-item-photo"
+                        fallbackClassName="featured-item-fallback"
+                        fallbackContent={
+                          <div className="menu-card__image-fallback-copy">
+                            <ChefHat size={34} />
+                            <span>Freshly prepared</span>
                           </div>
-                        ) : (
-                          <button className="add-to-cart-btn-clean" onClick={() => handleAddToCart(item)}>
-                            Add
-                          </button>
-                        )}
+                        }
+                      />
+                      <div className="featured-item-image__gradient" />
+                      <div className="featured-badge">{item.featured ? 'FEATURED' : 'SPECIAL'}</div>
+                    </div>
+
+                    <div className="featured-item-content">
+                      <h3>{item.name}</h3>
+                      <p className="featured-item-desc">{item.remarks || 'Delicious choice'}</p>
+                      <div className="featured-item-footer">
+                        <span className="featured-price">{formatCurrency(item.price)}</span>
+                        <motion.button
+                          className="featured-add-btn"
+                          onClick={() => addToCart(item)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Plus size={18} />
+                        </motion.button>
                       </div>
                     </div>
-                  );
-                })}
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
+            </motion.section>
+          )}
 
-        <div className={`cart-panel-clean ${isCartOpen ? 'open' : ''}`}>
-          <div className="cart-header-clean">
-            <h2 className="cart-title-clean">Your Order</h2>
-            <button className="close-cart-btn-clean" onClick={() => setIsCartOpen(false)}>&times;</button>
-          </div>
-
-          <div className="customer-inputs-clean">
-            <input
-              type="text"
-              placeholder="Customer Name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Table Number"
-              value={tableNumber}
-              onChange={(e) => setTableNumber(e.target.value)}
-            />
-          </div>
-
-          <ul className="cart-items-list-clean">
-            {selectedItems.length === 0 ? (
-              <p className="empty-cart-clean">No items selected.</p>
+          <div className="menu-view__content-grid">
+            {Object.keys(groupedVisibleItems).length === 0 ? (
+              <motion.div
+                className="menu-view__empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <UtensilsCrossed size={48} />
+                <p>No items match this view yet</p>
+                <small>Try another category, clear the search, or turn off featured-only mode.</small>
+              </motion.div>
             ) : (
-              selectedItems.map(item => (
-                <li key={item.name} className="cart-item-clean">
-                  <div className="cart-item-info-clean">
-                    <span className="cart-item-name-clean">{item.name}</span>
-                    <span className="cart-item-price-clean">₹{Number(item.price).toFixed(2)}</span>
+              Object.entries(groupedVisibleItems).map(([category, items], categoryIndex) => (
+                <motion.div
+                  key={category}
+                  className="menu-view__category"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: categoryIndex * 0.1 }}
+                >
+                  <h2 className="category-title"><TrendingUp size={18} /> {category}</h2>
+                  <div className="menu-view__grid">
+                    {items.map((item, itemIndex) => {
+                      const itemQuantity = getItemQuantity(item.name);
+                      const isAvailable = item.available !== false;
+                      const isFavorited = favorites.has(item.name);
+
+                      return (
+                        <motion.article
+                          key={`${category}-${item.name}`}
+                          className={`menu-card ${!isAvailable ? 'is-unavailable' : ''}`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: itemIndex * 0.05 }}
+                          whileHover={isAvailable ? { y: -8 } : {}}
+                          role="button"
+                          style={{ cursor: isAvailable ? 'pointer' : 'not-allowed' }}
+                        >
+                          <div className="menu-card__image-wrapper">
+                            <SmartImage
+                              src={item.image}
+                              alt={item.name}
+                              className="menu-card__image"
+                              fallbackClassName="menu-card__image-fallback"
+                              fallbackContent={
+                                <div className="menu-card__image-fallback-copy">
+                                  <ImageOff size={24} />
+                                  <span>Image coming soon</span>
+                                </div>
+                              }
+                            />
+                            <div className="menu-card__image-overlay" />
+
+                            {item.featured && (
+                              <div className="menu-card__badge">
+                                <Sparkles size={12} /> FEATURED
+                              </div>
+                            )}
+
+                            {item.discount ? (
+                              <div className="menu-card__discount">
+                                -{item.discount}%
+                              </div>
+                            ) : null}
+
+                            {!isAvailable && (
+                              <div className="menu-card__sold-out">Sold out</div>
+                            )}
+
+                            <motion.button
+                              className={`menu-card__favorite ${isFavorited ? 'is-favorited' : ''}`}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                toggleFavorite(item.name);
+                              }}
+                              whileHover={{ scale: 1.15 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <Heart size={16} fill={isFavorited ? 'currentColor' : 'none'} />
+                            </motion.button>
+                          </div>
+
+                          <div className="menu-card__body">
+                            <div className="menu-card__labels">
+                              {item.isVeg && <span className="label label--veg"><Leaf size={11} /> Veg</span>}
+                              {item.spiceLevel && <span className={`label label--spice label--spice-${String(item.spiceLevel).toLowerCase()}`}>{item.spiceLevel}</span>}
+                              <span className="label label--time"><Clock3 size={11} /> {item.prepTime || 10}m</span>
+                            </div>
+
+                            <h3 className="menu-card__name">{item.name}</h3>
+                            {item.remarks && <p className="menu-card__description">{item.remarks}</p>}
+
+                            <div className="menu-card__meta-line">
+                              <span>{item.category}</span>
+                              <span>{isAvailable ? 'Made fresh' : 'Unavailable'}</span>
+                            </div>
+
+                            <div className="menu-card__footer">
+                              <div className="menu-card__pricing">
+                                <span className="menu-card__price">{formatCurrency(item.price)}</span>
+                                {item.originalPrice && (
+                                  <span className="menu-card__original-price">{formatCurrency(item.originalPrice)}</span>
+                                )}
+                              </div>
+
+                              <AnimatePresence>
+                                {itemQuantity > 0 ? (
+                                  <motion.div
+                                    className="menu-card__quantity"
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.8, opacity: 0 }}
+                                  >
+                                    <motion.button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        updateQuantity(item.name, itemQuantity - 1);
+                                      }}
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                    >
+                                      -
+                                    </motion.button>
+                                    <span className="quantity-display">{itemQuantity}</span>
+                                    <motion.button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        updateQuantity(item.name, itemQuantity + 1);
+                                      }}
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                    >
+                                      +
+                                    </motion.button>
+                                  </motion.div>
+                                ) : (
+                                  <motion.button
+                                    type="button"
+                                    className="menu-card__add"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      addToCart(item);
+                                    }}
+                                    disabled={!isAvailable}
+                                    whileHover={isAvailable ? { scale: 1.05 } : {}}
+                                    whileTap={isAvailable ? { scale: 0.95 } : {}}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                  >
+                                    <Plus size={16} />
+                                  </motion.button>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                        </motion.article>
+                      );
+                    })}
                   </div>
-                  <div className="item-controls-clean">
-                    <button className="btn-qty-clean" onClick={() => updateQuantity(item.name, item.quantity - 1)}>-</button>
-                    <span className="qty-value-clean">{item.quantity}</span>
-                    <button className="btn-qty-clean" onClick={() => updateQuantity(item.name, item.quantity + 1)}>+</button>
-                  </div>
-                </li>
+                </motion.div>
               ))
             )}
-          </ul>
-
-          <div className="cart-footer-clean">
-            <div className="total-row-clean">
-              <span className="total-label-clean">Total:</span>
-              <span className="total-amount-clean">₹{getTotal().toFixed(2)}</span>
-            </div>
-            <button 
-              onClick={handleCheckout} 
-              className="checkout-btn-clean" 
-              disabled={isPlacingOrder || selectedItems.length === 0}
-            >
-              {isPlacingOrder ? 'Processing...' : 'Checkout Order'}
-            </button>
           </div>
         </div>
       </div>
 
-      {selectedItems.length > 0 && !isCartOpen && (
-        <button className="mobile-floating-cart-clean" onClick={() => setIsCartOpen(true)}>
-          <span className="item-count-clean">{getTotalItems()} Items</span>
-          <span className="view-cart-text-clean">View Cart</span>
-          <span className="cart-total-clean">₹{getTotal().toFixed(2)}</span>
+      <AnimatePresence>
+        {isCartOpen && (
+          <motion.button
+            type="button"
+            className="order-drawer__backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsCartOpen(false)}
+            aria-label="Close cart"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`order-drawer ${isCartOpen ? 'is-open' : ''}`}>
+        <div className="order-drawer__header">
+          <div>
+            <h2>Checkout and tracking</h2>
+            <p>{shop.shopName ? `Ordering from ${shop.shopName}` : 'Review your items and confirm details.'}</p>
+          </div>
+          <button type="button" className="order-drawer__close" onClick={() => setIsCartOpen(false)}>x</button>
+        </div>
+
+        <div className="order-drawer__summary">
+          <div className="order-drawer__summary-list">
+            <div className="order-drawer__summary-row">
+              <span><ShoppingBag size={14} style={{ display: 'inline', marginRight: '4px' }} /> Items subtotal</span>
+              <span>{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="order-drawer__summary-row">
+              <span><Clock3 size={14} style={{ display: 'inline', marginRight: '4px' }} /> Estimated prep</span>
+              <span>{estimatedPrepMinutes || 0} min</span>
+            </div>
+            {safeDiscountAmount > 0 && (
+              <div className="order-drawer__summary-row order-drawer__summary-row--discount">
+                <span>Discount ({appliedCoupon?.code})</span>
+                <span>-{formatCurrency(safeDiscountAmount)}</span>
+              </div>
+            )}
+            <div className="order-drawer__summary-row">
+              <span><BadgePercent size={14} style={{ display: 'inline', marginRight: '4px' }} /> Taxes</span>
+              <span>{formatCurrency(taxes)}</span>
+            </div>
+            <div className="order-drawer__summary-row order-drawer__summary-row--total">
+              <span>Total to pay</span>
+              <span>{formatCurrency(finalAmount)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="order-drawer__inputs">
+          <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Customer name" />
+          <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} placeholder="Phone number" type="tel" />
+          <input value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="Email (optional)" type="email" />
+          <input value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} placeholder="Table number" />
+          <textarea rows="3" value={customerNote} onChange={(event) => setCustomerNote(event.target.value)} placeholder="Special note (optional)" />
+        </div>
+
+        <div className="order-drawer__payment">
+          <h3>Payment</h3>
+          <div className="order-drawer__payment-grid">
+            {paymentOptions.map((option) => {
+              const Icon = option.icon;
+
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`payment-card ${paymentMethod === option.id ? 'is-active' : ''}`}
+                  onClick={() => setPaymentMethod(option.id)}
+                >
+                  <Icon size={16} />
+                  <strong>{option.label}</strong>
+                  <span>{option.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <CouponApplier
+          shopId={id}
+          cartTotal={subtotal}
+          onCouponApplied={(coupon) => {
+            if (!coupon) {
+              setDiscountAmount(0);
+              setAppliedCoupon(null);
+              return;
+            }
+
+            setDiscountAmount(Number(coupon.discountAmount) || 0);
+            setAppliedCoupon(coupon);
+          }}
+        />
+
+        <div className="order-drawer__timeline">
+          <h3>What happens next</h3>
+          <div className="timeline-step"><strong>1.</strong><span>{paymentMethod === 'cash' ? 'Place the order and pay when it arrives.' : 'Complete payment and confirm the order.'}</span></div>
+          <div className="timeline-step"><strong>2.</strong><span>The kitchen moves your order from pending to preparing.</span></div>
+          <div className="timeline-step"><strong>3.</strong><span>You can track status and remaining time on the next screen.</span></div>
+        </div>
+
+        <div className="order-drawer__items">
+          {selectedItems.length === 0 ? (
+            <p className="order-drawer__empty">Your cart is empty.</p>
+          ) : (
+            selectedItems.map((item) => (
+              <div className="order-drawer__item" key={item.name}>
+                <div className="order-drawer__item-details">
+                  <strong>{item.name}</strong>
+                  <span>{formatCurrency(item.price)}</span>
+                </div>
+                <div className="menu-card__quantity">
+                  <button type="button" onClick={() => updateQuantity(item.name, item.quantity - 1)}>-</button>
+                  <span>{item.quantity}</span>
+                  <button type="button" onClick={() => updateQuantity(item.name, item.quantity + 1)}>+</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <button type="button" className="order-drawer__submit" onClick={handleCheckout} disabled={isPlacingOrder || !selectedItems.length}>
+          {isPlacingOrder ? 'Processing order...' : paymentMethod === 'cash' ? 'Place order' : 'Pay and place order'}
+        </button>
+      </aside>
+
+      {selectedItems.length > 0 && (
+        <button type="button" className="menu-view__floating-cart" onClick={() => setIsCartOpen(true)}>
+          <span>{totalItems} items</span>
+          <strong>{formatCurrency(finalAmount)}</strong>
         </button>
       )}
-      
-      {isCartOpen && (
-        <div className="cart-backdrop-clean" onClick={() => setIsCartOpen(false)}></div>
-      )}
 
-      <footer className="menu-footer-clean">
-        <p>Powered by <strong>Qzaar Technologies Pvt. Ltd.</strong></p>
-      </footer>
-
-      <style jsx>{`
-        /* --- General Styling & Layout --- */
-        .menu-container-clean {
-          font-family: 'Poppins', sans-serif;
-          background-color: #F8F0E3;
-          color: #4A3B31;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .menu-main-clean {
-          max-width: 1600px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: center;
-          gap: 2.5rem;
-          padding: 2rem 1.5rem;
-          flex-grow: 1;
-        }
-
-        /* --- Header --- */
-        .menu-header-clean {
-          position: sticky;
-          top: 0;
-          z-index: 1000;
-          background-color: #FCF8F5;
-          padding: 1.5rem 2rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .shop-info-clean {
-          display: flex;
-          align-items: center;
-          max-width: 1600px;
-          margin: 0 auto;
-        }
-
-        .shop-logo-clean {
-          height: 60px;
-          width: 60px;
-          border-radius: 50%;
-          object-fit: cover;
-          margin-right: 1.5rem;
-          border: 2px solid #FF9500;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .shop-details-clean {
-          line-height: 1.2;
-        }
-
-        .shop-name-clean {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #4A3B31;
-          margin: 0;
-        }
-        
-        .shop-owner-clean {
-            font-size: 1rem;
-            color: #8C7B71;
-            font-weight: 500;
-            margin: 0;
-        }
-
-        .shop-address-clean {
-          font-size: 0.9rem;
-          color: #8C7B71;
-          margin: 0;
-        }
-
-        /* --- Menu Items Section --- */
-        .menu-section-clean {
-          flex-grow: 1;
-          max-width: 1000px;
-        }
-
-        .category-title-clean {
-          font-size: 2rem;
-          font-weight: 700;
-          margin-bottom: 2rem;
-          color: #4A3B31;
-          border-left: 5px solid #FF9500;
-          padding-left: 1rem;
-        }
-
-        .menu-items-grid-clean {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 2rem;
-        }
-
-        .menu-item-card-clean {
-          background-color: #FCF8F5;
-          border-radius: 15px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-          overflow: hidden;
-          transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .menu-item-card-clean:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .item-image-wrapper-clean {
-          width: 100%;
-          padding-bottom: 75%;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .item-image-clean {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          object-fit: cover;
-          transition: transform 0.3s ease;
-        }
-
-        .item-card-content-clean {
-          padding: 1.5rem;
-          display: flex;
-          flex-direction: column;
-          flex-grow: 1;
-          justify-content: space-between;
-        }
-
-        .item-name-clean {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin: 0 0 0.5rem 0;
-          color: #4A3B31;
-        }
-
-        .item-remarks-clean {
-          font-size: 0.95rem;
-          color: #8C7B71;
-          margin: 0 0 1rem 0;
-        }
-
-        .item-price-clean {
-          font-size: 1.4rem;
-          font-weight: 700;
-          color: #FF9500;
-          margin: 0;
-        }
-
-        .add-to-cart-btn-clean {
-          background-color: #FF9500;
-          color: white;
-          border: none;
-          padding: 0.8rem 1.5rem;
-          border-radius: 50px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.3s ease, transform 0.3s ease;
-          margin-top: 1rem;
-        }
-
-        .add-to-cart-btn-clean:hover {
-          background-color: #E68500;
-          transform: translateY(-2px);
-        }
-
-        .quantity-controls-clean {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .btn-qty-clean {
-          background-color: transparent;
-          border: 2px solid #FF9500;
-          color: #FF9500;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          font-size: 1.5rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.3s, color 0.3s;
-        }
-
-        .btn-qty-clean:hover {
-          background-color: #FF9500;
-          color: white;
-        }
-
-        .qty-value-clean {
-          font-size: 1.2rem;
-          font-weight: bold;
-          min-width: 25px;
-          text-align: center;
-        }
-
-        /* --- Cart Panel --- */
-        .menu-main-clean > .cart-panel-clean {
-          position: sticky;
-          top: 9rem;
-          width: 350px;
-          min-width: 300px;
-          background-color: #FCF8F5;
-          padding: 2rem;
-          border-radius: 15px;
-          box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-          height: fit-content;
-          z-index: 99;
-        }
-        
-        .cart-backdrop-clean {
-            display: none;
-        }
-
-        .cart-header-clean {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-          border-bottom: 2px solid #E0E0E0;
-          padding-bottom: 1rem;
-        }
-
-        .cart-title-clean {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #4A3B31;
-          margin: 0;
-        }
-        
-        .customer-inputs-clean {
-          margin-bottom: 1.5rem;
-        }
-        
-        .customer-inputs-clean input {
-          width: 100%;
-          padding: 0.75rem;
-          margin-bottom: 1rem;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          font-size: 1rem;
-          color: #4A3B31;
-          background-color: #fcfcfc;
-        }
-        
-        .customer-inputs-clean input::placeholder {
-            color: #8C7B71;
-        }
-
-        .cart-items-list-clean {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          border-bottom: 1px dashed #ddd;
-          padding-bottom: 1rem;
-          margin-bottom: 1rem;
-        }
-
-        .cart-item-clean {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.75rem 0;
-          border-bottom: 1px solid #eee;
-        }
-        
-        .cart-item-clean:last-child {
-            border-bottom: none;
-        }
-        
-        .cart-item-info-clean {
-            flex-grow: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-right: 1rem;
-        }
-        
-        .cart-item-name-clean {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #4A3B31;
-        }
-        
-        .cart-item-price-clean {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #FF9500;
-        }
-        
-        .item-controls-clean .btn-qty-clean {
-            width: 30px;
-            height: 30px;
-            font-size: 1.2rem;
-        }
-
-        .empty-cart-clean {
-          text-align: center;
-          color: #8C7B71;
-          font-style: italic;
-          padding: 2rem;
-        }
-
-        .cart-footer-clean {
-          padding-top: 1rem;
-        }
-
-        .total-row-clean {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin-bottom: 1.5rem;
-        }
-
-        .total-label-clean {
-          color: #4A3B31;
-        }
-
-        .total-amount-clean {
-          color: #FF9500;
-        }
-
-        .checkout-btn-clean {
-          width: 100%;
-          background-color: #FF9500;
-          color: white;
-          border: none;
-          padding: 1.25rem;
-          border-radius: 50px;
-          font-size: 1.25rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .checkout-btn-clean:hover {
-          background-color: #E68500;
-          transform: translateY(-2px);
-        }
-        
-        .checkout-btn-clean:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* --- Footer --- */
-        .menu-footer-clean {
-          text-align: center;
-          background-color: #FCF8F5;
-          color: #8C7B71;
-          padding: 1rem 0;
-          margin-top: auto;
-        }
-        
-        /* --- Mobile Floating Cart --- */
-        .mobile-floating-cart-clean {
-          position: fixed;
-          bottom: 1.5rem;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: #4A3B31;
-          color: white;
-          padding: 1rem 1.5rem;
-          border-radius: 50px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-          cursor: pointer;
-          border: none;
-          z-index: 10000;
-          animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px) translateX(-50%); }
-            to { opacity: 1; transform: translateY(0) translateX(-50%); }
-        }
-        
-        .item-count-clean, .cart-total-clean {
-            font-weight: 700;
-        }
-        
-        .view-cart-text-clean {
-            font-weight: 500;
-            color: #FF9500;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 1024px) {
-            .menu-main-clean {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-            .menu-main-clean > .cart-panel-clean {
-                position: relative;
-                width: 100%;
-                top: 0;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .shop-logo-clean {
-                height: 50px;
-                width: 50px;
-            }
-            .shop-name-clean {
-                font-size: 1.75rem;
-            }
-            .menu-items-grid-clean {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .item-image-wrapper-clean {
-                padding-bottom: 75%;
-            }
-
-            .menu-main-clean {
-                padding: 1rem; /* Adjust padding for a wider feel */
-            }
-            
-            .menu-main-clean > .cart-panel-clean {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                padding: 1.5rem;
-                border-radius: 0;
-                box-shadow: none;
-                z-index: 10001;
-                transform: translateX(100%);
-                transition: transform 0.4s ease-in-out;
-                overflow-y: auto;
-            }
-            
-            .menu-main-clean > .cart-panel-clean.open {
-                transform: translateX(0);
-            }
-            
-            .cart-backdrop-clean {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                background-color: rgba(0, 0, 0, 0.6);
-                z-index: 10000;
-                display: block;
-            }
-        }
-      `}</style>
+      <AnimatePresence mode="wait">
+        {showPaymentGateway && currentOrder && (
+          <PaymentGateway
+            orderId={currentOrder.shopId}
+            amount={currentOrder.total}
+            customerName={currentOrder.customerName}
+            customerEmail={currentOrder.customerEmail}
+            customerPhone={currentOrder.customerPhone}
+            tableNumber={currentOrder.tableNumber}
+            shopId={currentOrder.shopId}
+            items={currentOrder.items}
+            onSuccess={handlePaymentSuccess}
+            onClose={handlePaymentClose}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

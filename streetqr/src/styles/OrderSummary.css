@@ -1,0 +1,655 @@
+.order-summary-container {
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 174, 94, 0.18), transparent 28rem),
+    linear-gradient(180deg, #fffaf4 0%, #fff4ea 100%);
+}
+
+.order-tracker-shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.order-tracker-hero,
+.tracker-card,
+.order-tracker-state,
+.modal-content {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.order-tracker-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 360px);
+  gap: 18px;
+  padding: 28px;
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.order-tracker-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.16), transparent 24rem),
+    linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  z-index: 0;
+}
+
+.order-tracker-hero--pending::before {
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 24rem),
+    linear-gradient(135deg, #0f766e 0%, #0f172a 100%);
+}
+
+.order-tracker-hero--preparing::before {
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.16), transparent 24rem),
+    linear-gradient(135deg, #c2410c 0%, #7c2d12 100%);
+}
+
+.order-tracker-hero--completed::before {
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 24rem),
+    linear-gradient(135deg, #166534 0%, #14532d 100%);
+}
+
+.order-tracker-hero--cancelled::before {
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 24rem),
+    linear-gradient(135deg, #991b1b 0%, #450a0a 100%);
+}
+
+.order-tracker-hero__copy,
+.order-tracker-hero__status-card {
+  position: relative;
+  z-index: 1;
+}
+
+.order-tracker-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.order-tracker-live__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #86efac;
+  box-shadow: 0 0 0 6px rgba(134, 239, 172, 0.18);
+}
+
+.order-tracker-brand,
+.order-tracker-status-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.order-tracker-brand {
+  margin-top: 1rem;
+}
+
+.order-tracker-brand__logo,
+.order-tracker-status-card__logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.order-tracker-brand__image,
+.order-tracker-brand__fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.order-tracker-brand__image {
+  object-fit: cover;
+  display: block;
+}
+
+.order-tracker-brand__fallback {
+  display: grid;
+  place-items: center;
+  color: white;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.order-tracker-brand__copy span,
+.order-tracker-brand__copy strong,
+.order-tracker-status-card__brand span,
+.order-tracker-status-card__brand strong {
+  display: block;
+}
+
+.order-tracker-brand__copy span,
+.order-tracker-status-card__brand span {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.84rem;
+}
+
+.order-tracker-brand__copy strong,
+.order-tracker-status-card__brand strong {
+  margin-top: 0.2rem;
+}
+
+.order-tracker-hero h1 {
+  margin: 1rem 0 0.55rem;
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.order-tracker-hero p {
+  margin: 0;
+  max-width: 56ch;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.65;
+}
+
+.order-tracker-hero__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.4rem;
+}
+
+.order-tracker-hero__meta div,
+.order-tracker-hero__status-card {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.order-tracker-hero__meta div {
+  padding: 1rem;
+}
+
+.order-tracker-hero__meta span,
+.order-tracker-hero__status-card span,
+.order-tracker-hero__status-card small {
+  display: block;
+}
+
+.order-tracker-hero__meta span,
+.order-tracker-hero__status-card span,
+.order-tracker-hero__status-card small {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.order-tracker-hero__meta strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.05rem;
+}
+
+.order-tracker-hero__status-card {
+  padding: 1.2rem;
+  align-self: stretch;
+}
+
+.order-tracker-status-card__brand {
+  margin-bottom: 1rem;
+}
+
+.order-tracker-status-icon {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.order-tracker-hero__status-card strong {
+  display: block;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+}
+
+.order-tracker-progress {
+  margin: 1rem 0 0.9rem;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.order-tracker-progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fbbf24, #fff);
+}
+
+.order-tracker-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.74fr);
+  gap: 18px;
+}
+
+.order-tracker-main,
+.order-tracker-sidebar {
+  display: grid;
+  gap: 18px;
+}
+
+.tracker-card {
+  padding: 22px;
+}
+
+.tracker-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tracker-card__header h2,
+.order-tracker-state h3,
+.modal-content h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.2rem;
+}
+
+.tracker-inline-btn,
+.tracker-btn {
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.tracker-inline-btn {
+  padding: 0.72rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+}
+
+.tracker-pill {
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.tracker-pill--pending {
+  color: #0f766e;
+  background: rgba(15, 118, 110, 0.1);
+}
+
+.tracker-pill--preparing {
+  color: #c2410c;
+  background: rgba(194, 65, 12, 0.12);
+}
+
+.tracker-pill--completed {
+  color: #166534;
+  background: rgba(22, 101, 52, 0.12);
+}
+
+.tracker-pill--cancelled {
+  color: #991b1b;
+  background: rgba(153, 27, 27, 0.12);
+}
+
+.tracker-muted {
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.tracker-timeline {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.tracker-timeline__step {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  text-align: center;
+}
+
+.tracker-timeline__step strong {
+  color: #111827;
+}
+
+.tracker-timeline__step span {
+  color: #6b7280;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.tracker-timeline__step.is-muted {
+  opacity: 0.45;
+}
+
+.tracker-timeline__marker {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.04);
+  color: #6b7280;
+}
+
+.tracker-timeline__step.is-active .tracker-timeline__marker {
+  color: white;
+  background: linear-gradient(135deg, #111827, #374151);
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.18);
+}
+
+.tracker-timeline__line {
+  width: 44px;
+  height: 2px;
+  margin-top: 26px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.tracker-timeline__line.is-active {
+  background: linear-gradient(90deg, #111827, #9ca3af);
+}
+
+.tracker-recognition,
+.tracker-details,
+.tracker-pricing,
+.tracker-support {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tracker-recognition__item,
+.tracker-details div,
+.tracker-pricing div,
+.tracker-support div {
+  border-radius: 18px;
+  padding: 0.95rem 1rem;
+  background: rgba(15, 23, 42, 0.035);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.tracker-recognition__item span,
+.tracker-details span,
+.tracker-pricing span,
+.tracker-support span {
+  display: block;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-bottom: 0.28rem;
+}
+
+.tracker-recognition__item strong,
+.tracker-details strong,
+.tracker-pricing strong,
+.tracker-support strong {
+  color: #111827;
+}
+
+.tracker-details {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tracker-details__wide {
+  grid-column: 1 / -1;
+}
+
+.tracker-items {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.tracker-items__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.035);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.tracker-items__row strong,
+.tracker-items__row span {
+  display: block;
+}
+
+.tracker-items__row span {
+  margin-top: 0.25rem;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.tracker-items__row b {
+  color: #111827;
+  white-space: nowrap;
+}
+
+.tracker-pricing .is-discount strong {
+  color: #166534;
+}
+
+.tracker-pricing .is-total {
+  background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(55,65,81,0.96));
+}
+
+.tracker-pricing .is-total span,
+.tracker-pricing .is-total strong {
+  color: white;
+}
+
+.tracker-payment {
+  margin-top: 1rem;
+  border-radius: 18px;
+  padding: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.tracker-payment--paid {
+  background: rgba(22, 101, 52, 0.09);
+  color: #166534;
+}
+
+.tracker-payment--pending {
+  background: rgba(194, 65, 12, 0.09);
+  color: #c2410c;
+}
+
+.tracker-payment strong,
+.tracker-payment span {
+  display: block;
+}
+
+.tracker-payment span {
+  margin-top: 0.2rem;
+  color: #6b7280;
+}
+
+.tracker-refund {
+  margin-top: 0.9rem;
+  color: #166534;
+  font-weight: 700;
+}
+
+.tracker-qr {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  border-radius: 22px;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.tracker-actions {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.tracker-btn {
+  width: 100%;
+  padding: 0.95rem 1.1rem;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-weight: 700;
+}
+
+.tracker-btn--primary {
+  background: linear-gradient(135deg, #111827, #374151);
+  color: white;
+}
+
+.tracker-btn--secondary {
+  background: rgba(15, 23, 42, 0.06);
+  color: #111827;
+}
+
+.tracker-btn--danger {
+  background: rgba(153, 27, 27, 0.1);
+  color: #991b1b;
+}
+
+.tracker-btn:hover,
+.tracker-inline-btn:hover {
+  transform: translateY(-1px);
+}
+
+.tracker-card--compact .tracker-card__header {
+  margin-bottom: 0.8rem;
+}
+
+.order-tracker-state {
+  max-width: 520px;
+  margin: 10vh auto 0;
+  padding: 2rem;
+  text-align: center;
+}
+
+.order-tracker-state p,
+.modal-content p {
+  color: #6b7280;
+  line-height: 1.65;
+}
+
+.order-tracker-state--error svg {
+  color: #b91c1c;
+  margin-bottom: 0.8rem;
+}
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid rgba(15, 23, 42, 0.08);
+  border-top-color: #111827;
+  border-radius: 50%;
+  animation: tracker-spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes tracker-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: min(520px, 100%);
+  padding: 1.6rem;
+}
+
+.cancel-textarea {
+  width: 100%;
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(15, 23, 42, 0.03);
+  resize: vertical;
+}
+
+.modal-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+@media (max-width: 1024px) {
+  .order-tracker-hero,
+  .order-tracker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-tracker-hero,
+  .tracker-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .order-tracker-hero__meta,
+  .tracker-details,
+  .modal-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-timeline__line {
+    width: 2px;
+    height: 28px;
+    margin: 0 auto;
+  }
+
+  .tracker-items__row {
+    flex-direction: column;
+  }
+}

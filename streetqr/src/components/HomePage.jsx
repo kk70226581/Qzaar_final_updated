@@ -1,339 +1,289 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import '../App.css';
+import { motion } from 'framer-motion';
+import {
+  Activity,
+  ArrowRight,
+  BarChart3,
+  Clock3,
+  LayoutDashboard,
+  QrCode,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  TabletSmartphone
+} from 'lucide-react';
+import Navbar from './Navbar';
 import './Home.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const featureCards = [
+  {
+    icon: QrCode,
+    title: 'Branded QR storefronts',
+    text: 'Each vendor gets a mobile-first menu, customizable profile, and QR link that can go live in minutes.'
+  },
+  {
+    icon: Activity,
+    title: 'Real-time order handling',
+    text: 'Incoming orders move through pending, preparing, and completed states so the operator dashboard feels alive.'
+  },
+  {
+    icon: BarChart3,
+    title: 'Actionable sales insights',
+    text: 'Top items, revenue snapshots, menu health, and average order value help vendors improve what they sell.'
+  }
+];
+
+const workflow = [
+  {
+    step: '01',
+    title: 'Build the vendor profile',
+    text: 'Add brand color, cuisine type, contact details, store story, and a menu that feels tailored.'
+  },
+  {
+    step: '02',
+    title: 'Publish a richer menu',
+    text: 'Flag featured dishes, availability, prep time, dietary tags, and imagery that improves order confidence.'
+  },
+  {
+    step: '03',
+    title: 'Operate with visibility',
+    text: 'Track orders, refresh automatically, and stay on top of service, menu performance, and daily revenue.'
+  }
+];
+
+const proofPoints = [
+  { label: 'Mobile-first ordering', value: 'Scan, browse, and order without downloading an app' },
+  { label: 'Menu intelligence', value: 'Featured dishes, availability, prep time, and dietary tags' },
+  { label: 'Operations made simple', value: 'Live order states, dashboard metrics, and quick publishing' }
+];
+
+const technicalHighlights = [
+  'Clean vendor workflow from setup to QR sharing to order tracking',
+  'Thoughtful mobile design for customers scanning at the stall',
+  'Practical analytics and fulfillment tools for daily operations',
+  'Consistent branding across menu, dashboard, and checkout'
+];
 
 function HomePage() {
-  // 🔐 Simple example: derive isAuthenticated from localStorage / context
-  // Replace this logic with your existing auth state (without changing backend).
-  const isAuthenticated = useMemo(() => {
-    // Example: you may already save a token or user object somewhere
-    const token = localStorage.getItem('token'); // or 'authToken', etc.
-    return !!token;
-  }, []);
+  const isAuthenticated = useMemo(
+    () => localStorage.getItem('loggedIn') === 'true' || Boolean(localStorage.getItem('shopId')),
+    []
+  );
 
   return (
-    <div>
-      <Navbar isAuthenticated={isAuthenticated} />
+    <div className="landing-shell">
+      <Navbar />
 
-      {/* Hero Section */}
-      <section className="bg-light text-center py-5">
-        <div className="container">
-          <h1 className="display-4 fw-bold text-primary mb-3">
-            <span role="img" aria-label="utensils">🍽️</span> Welcome to Qzaar
-          </h1>
+      <main>
+        <section className="hero-section">
+          <div className="hero-section__glow hero-section__glow--left" />
+          <div className="hero-section__glow hero-section__glow--right" />
+          <div className="landing-container hero-grid">
+            <motion.div
+              className="hero-copy"
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.55 }}
+            >
+              <span className="hero-pill">
+                <Sparkles size={16} />
+                Digital ordering made simpler for modern street food vendors
+              </span>
+              <h1>Street food ordering with a friendlier flow, cleaner visuals, and sharper vendor tools.</h1>
+              <p className="hero-copy__lead">
+                Qzaar helps vendors create a branded QR menu, manage orders in real time, and give customers
+                a smoother mobile ordering experience from the very first scan.
+              </p>
 
-          {/* SECTION WITH STEPS */}
-          <div className="mb-5 mx-auto" style={{ maxWidth: '800px' }}>
-            <h2 className="fw-bold text-dark mb-4">
-              Create a mini website for your Restaurant
-            </h2>
-            <div className="row g-4">
-              <div className="col-12 col-md-6 col-lg-3">
-                <h3 className="fw-bold fs-5 text-primary">1. Sign up &amp; Create Profile</h3>
-                <p className="text-muted small">
-                  Register your restaurant and set up your brand details, logo, and contact info.
-                </p>
+              <div className="hero-actions">
+                <Link className="hero-btn hero-btn--primary" to={isAuthenticated ? '/menu' : '/login'}>
+                  {isAuthenticated ? 'Open Builder Dashboard' : 'Launch Vendor Workspace'}
+                  <ArrowRight size={18} />
+                </Link>
+                <Link className="hero-btn hero-btn--secondary" to="/about">
+                  Learn More
+                </Link>
               </div>
-              <div className="col-12 col-md-6 col-lg-3">
-                <h3 className="fw-bold fs-5 text-primary">2. Build Your Digital Menu</h3>
-                <p className="text-muted small">
-                  Easily add all your dishes, prices, and high-quality images under different categories.
-                </p>
-              </div>
-              <div className="col-12 col-md-6 col-lg-3">
-                <h3 className="fw-bold fs-5 text-primary">3. Get Your Unique QR Code</h3>
-                <p className="text-muted small">
-                  Qzaar automatically generates a unique QR code for your menu that you can print.
-                </p>
-              </div>
-              <div className="col-12 col-md-6 col-lg-3">
-                <h3 className="fw-bold fs-5 text-primary">4. Go Live &amp; Track Orders</h3>
-                <p className="text-muted small">
-                  Place the QR code on your tables and track incoming orders from your dashboard.
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* Hide CTA if already logged in */}
-          {!isAuthenticated && (
-            <Link to="/login" className="btn btn-primary btn-lg mt-4">
-              Get Started Now
-            </Link>
-          )}
-        </div>
-      </section>
+              <div className="hero-proof-grid">
+                {proofPoints.map((point) => (
+                  <div className="hero-proof-card" key={point.label}>
+                    <strong>{point.label}</strong>
+                    <span>{point.value}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-      {/* Carousel Section */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-12 col-lg-8">
-              <div
-                id="qzaarCarousel"
-                className="carousel slide"
-                data-bs-ride="carousel"
-                data-bs-interval="3000"
-              >
-                <div className="carousel-inner">
-                  {/* Carousel Item 1 (Active) */}
-                  <div className="carousel-item active">
-                    <img
-                      src="/images/step1.png"
-                      className="d-block w-100"
-                      alt="Create Menu"
-                    />
+            <motion.div
+              className="hero-preview"
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.55, delay: 0.1 }}
+            >
+              <div className="hero-preview__card hero-preview__card--primary">
+                <div className="hero-preview__eyebrow">Business overview</div>
+                <h2>Vendor dashboard</h2>
+                <div className="hero-metrics">
+                  <div>
+                    <span>Total orders</span>
+                    <strong>128</strong>
                   </div>
-                  {/* Carousel Item 2 */}
-                  <div className="carousel-item">
-                    <img
-                      src="/images/step2.jpg"
-                      className="d-block w-100"
-                      alt="Scan QR"
-                    />
+                  <div>
+                    <span>Completed revenue</span>
+                    <strong>Rs 24.5k</strong>
                   </div>
-                  {/* Carousel Item 3 */}
-                  <div className="carousel-item">
-                    <img
-                      src="/images/step3.png"
-                      className="d-block w-100"
-                      alt="Track Orders"
-                    />
-                  </div>
-                  {/* Carousel Item 4 */}
-                  <div className="carousel-item">
-                    <img
-                      src="/images/step4.png"
-                      className="d-block w-100"
-                      alt="Order Process"
-                    />
-                  </div>
-                  {/* Carousel Item 5 */}
-                  <div className="carousel-item">
-                    <img
-                      src="/images/step5.png"
-                      className="d-block w-100"
-                      alt="Cost Savings"
-                    />
+                  <div>
+                    <span>Featured items</span>
+                    <strong>09</strong>
                   </div>
                 </div>
-
-                {/* Carousel Controls */}
-                <button
-                  className="carousel-control-prev"
-                  type="button"
-                  data-bs-target="#qzaarCarousel"
-                  data-bs-slide="prev"
-                >
-                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Previous</span>
-                </button>
-                <button
-                  className="carousel-control-next"
-                  type="button"
-                  data-bs-target="#qzaarCarousel"
-                  data-bs-slide="next"
-                >
-                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Next</span>
-                </button>
+                <div className="hero-preview__stack">
+                  <div className="hero-preview__stack-card">
+                    <LayoutDashboard size={18} />
+                    <div>
+                      <strong>Ops ready</strong>
+                      <span>Pending, preparing, and completed status updates</span>
+                    </div>
+                  </div>
+                  <div className="hero-preview__stack-card">
+                    <ScanLine size={18} />
+                    <div>
+                      <strong>Customer-ready menus</strong>
+                      <span>Search, category filters, featured dishes, and dietary badges</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div className="hero-preview__card hero-preview__card--secondary">
+                <div className="hero-preview__mini-stat">
+                  <Clock3 size={16} />
+                  <span>Average prep promise</span>
+                  <strong>14 min</strong>
+                </div>
+                <div className="hero-preview__mini-stat">
+                  <ShieldCheck size={16} />
+                  <span>Launch checklist</span>
+                  <strong>Draft autosave enabled</strong>
+                </div>
+                <div className="hero-preview__mini-stat">
+                  <TabletSmartphone size={16} />
+                  <span>Guest experience</span>
+                  <strong>Built for small screens first</strong>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Features Section */}
-      <section className="py-5 bg-white border-top">
-        <div className="container">
-          <h2 className="text-center text-primary mb-5 fw-bold">Why Choose Qzaar?</h2>
-          <div className="row text-center g-4">
-            <div className="col-md-4">
-              <div className="p-4 shadow-sm rounded bg-light h-100">
-                <h4>📱 Digital Menu</h4>
-                <p>Replace your paper menu with a mobile-friendly digital version.</p>
-              </div>
+        <section className="landing-section">
+          <div className="landing-container">
+            <div className="section-heading">
+              <span>Why businesses choose Qzaar</span>
+              <h2>Everything needed to run a cleaner and more reliable QR ordering experience.</h2>
             </div>
-            <div className="col-md-4">
-              <div className="p-4 shadow-sm rounded bg-light h-100">
-                <h4>📦 Real-Time Orders</h4>
-                <p>Get notified instantly when a customer places an order.</p>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="p-4 shadow-sm rounded bg-light h-100">
-                <h4>📊 Business Insights</h4>
-                <p>Track your top-selling items and daily order trends.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How to Use Section (Video) */}
-      <section className="py-5 bg-light border-top">
-        <div className="container">
-          <h2 className="fw-bold text-primary mb-5 text-center">How to Use Qzaar</h2>
-          <div className="row align-items-center g-5">
-            {/* Video Column */}
-            <div className="col-md-7">
-              <div className="video-container">
-                <video
-                  controls
-                  controlsList="nodownload"
-                  className="w-100 h-100"
-                >
-                  <source src="/videos/tutorial.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </div>
-            {/* Text Column */}
-            <div className="col-md-5">
-              <ul className="list-unstyled">
-                <li className="mb-4">
-                  <h4>
-                    <span className="text-primary me-2 fw-bold">1.</span> Create your menu
-                  </h4>
-                  <p className="text-muted">
-                    Easily add, edit, and organize all your menu items with prices and high-quality images in minutes.
-                  </p>
-                </li>
-                <li className="mb-4">
-                  <h4>
-                    <span className="text-primary me-2 fw-bold">2.</span> Generate QR codes
-                  </h4>
-                  <p className="text-muted">
-                    Qzaar automatically generates unique QR codes for your menu that customers can scan.
-                  </p>
-                </li>
-                <li className="mb-4">
-                  <h4>
-                    <span className="text-primary me-2 fw-bold">3.</span> Track orders live
-                  </h4>
-                  <p className="text-muted">
-                    Manage all incoming orders from a single, intuitive dashboard with real-time updates.
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="bg-light py-5">
-        <div className="container text-center">
-          <h2 className="fw-bold text-primary mb-3">About Qzaar</h2>
-          <p className="text-muted lead mx-auto" style={{ maxWidth: '800px' }}>
-            Qzaar empowers street vendors across India to modernize their ordering process using QR code technology,
-            a digital menu builder, and smart order management tools — all in one place.
-          </p>
-        </div>
-      </section>
-
-      {/* SEO Section */}
-      <section
-        className="seo-text"
-        style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}
-      >
-        <h1>QR Menu for Restaurants, Cafes, and Hotels</h1>
-        <p>
-          Qzaar is a powerful digital menu system designed for modern restaurants, cafes, and hotels.
-          Our QR code-based menu allows customers to scan a code, browse your menu, and place orders
-          instantly from their smartphones.
-        </p>
-        <p>
-          Whether you are a small café or a large hotel, Qzaar helps streamline service, reduce paper menus,
-          and enhance customer experience. No app installation required — just scan and order.
-        </p>
-      </section>
-
-      {/* Footer Section */}
-      <footer className="bg-white pt-5 pb-4 mt-5 border-top">
-        <div className="container">
-          <div className="row gy-4 text-center text-md-start">
-            {/* Qzaar Brand */}
-            <div className="col-12 col-md-4">
-              <h4 className="fw-bold text-dark">🍽️ Qzaar</h4>
-              <p className="text-muted small">
-                Qzaar is India’s leading platform helping street vendors go digital with QR code menus,
-                live order tracking, and real-time business insights.
-              </p>
-              <div className="d-flex justify-content-center justify-content-md-start gap-3 mt-3">
-                <a href="#"><i className="bi bi-facebook text-dark fs-5"></i></a>
-                <a href="#"><i className="bi bi-instagram text-dark fs-5"></i></a>
-                <a href="#"><i className="bi bi-twitter-x text-dark fs-5"></i></a>
-                <a href="#"><i className="bi bi-youtube text-dark fs-5"></i></a>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div className="col-12 col-md-2">
-              <h6 className="fw-bold text-dark mb-3">Quick Links</h6>
-              <ul className="list-unstyled">
-                <li>
-                  <Link to="/" className="text-dark text-decoration-none small">
-                    Home
-                  </Link>
-                </li>
-                {!isAuthenticated && (
-                  <li>
-                    <Link to="/login" className="text-dark text-decoration-none small">
-                      Login / Signup
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <a href="#about" className="text-dark text-decoration-none small">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="tel:8081845856" className="text-dark text-decoration-none small">
-                    📞 Call: 8081845856
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:karankannaujiya129@gmail.com"
-                    className="text-dark text-decoration-none small"
+            <div className="feature-grid">
+              {featureCards.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <motion.article
+                    key={feature.title}
+                    className="feature-card"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.35 }}
+                    variants={fadeInUp}
+                    transition={{ duration: 0.45, delay: index * 0.08 }}
                   >
-                    📧 Email: karankannaujiya129@gmail.com
-                  </a>
-                </li>
+                    <div className="feature-card__icon">
+                      <Icon size={22} />
+                    </div>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.text}</p>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-section landing-section--accent">
+          <div className="landing-container workflow-layout">
+            <div className="section-heading section-heading--left">
+              <span>Core workflow</span>
+              <h2>From setup to service in three clear stages.</h2>
+            </div>
+            <div className="workflow-list">
+              {workflow.map((item, index) => (
+                <motion.div
+                  key={item.step}
+                  className="workflow-card"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.35 }}
+                  variants={fadeInUp}
+                  transition={{ duration: 0.45, delay: index * 0.07 }}
+                >
+                  <span className="workflow-card__step">{item.step}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-section">
+          <div className="landing-container highlights-layout">
+            <div className="section-heading section-heading--left">
+              <span>Business value</span>
+              <h2>Made for smoother service, stronger branding, and easier daily operations.</h2>
+            </div>
+            <div className="highlight-panel">
+              <div className="highlight-panel__header">
+                <Store size={20} />
+                <strong>Why teams rely on it</strong>
+              </div>
+              <ul className="highlight-list">
+                {technicalHighlights.map((highlight) => (
+                  <li key={highlight}>{highlight}</li>
+                ))}
               </ul>
             </div>
+          </div>
+        </section>
 
-            {/* Features */}
-            <div className="col-12 col-md-3">
-              <h6 className="fw-bold text-dark mb-3">Platform Features</h6>
-              <ul className="list-unstyled">
-                <li className="text-muted small">✅ QR Code Menus</li>
-                <li className="text-muted small">✅ Digital Order Management</li>
-                <li className="text-muted small">✅ Live Order Dashboard</li>
-                <li className="text-muted small">✅ Analytics &amp; Sales Tracking</li>
-              </ul>
-            </div>
-
-            {/* App / Info */}
-            <div className="col-12 col-md-3">
-              <h6 className="fw-bold text-dark mb-3">Coming Soon</h6>
-              <p className="text-muted small">
-                Download our mobile app to manage your menu and orders on the go.
+        <section id="contact" className="landing-section landing-section--cta">
+          <div className="landing-container cta-panel">
+            <div>
+              <span className="cta-panel__eyebrow">Ready to get started?</span>
+              <h2>Set up your business profile, publish your menu, and start taking orders with confidence.</h2>
+              <p>
+                Qzaar helps food businesses present their menu clearly, speed up ordering, and stay organized
+                during busy service hours.
               </p>
             </div>
+            <div className="cta-panel__actions">
+              <Link className="hero-btn hero-btn--primary" to={isAuthenticated ? '/menu' : '/login'}>
+                {isAuthenticated ? 'Continue to Dashboard' : 'Sign In'}
+              </Link>
+              <a className="hero-btn hero-btn--secondary" href="mailto:support@qzaar.com">
+                Contact Us
+              </a>
+            </div>
           </div>
-          <hr className="my-4" />
-          <div className="text-center text-muted small">
-            © {new Date().getFullYear()} Qzaar Technologies Pvt. Ltd. · Made with ❤️ in India
-          </div>
-        </div>
-      </footer>
+        </section>
+      </main>
     </div>
   );
 }

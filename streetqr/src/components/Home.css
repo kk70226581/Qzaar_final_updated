@@ -1,132 +1,432 @@
-/*
- * Custom CSS for the HomePage component
- * This file contains styling specific to the home page layout.
- */
-
-/* ==================
-   Image Carousel Styling
-   ================== */
-
-/* Create a responsive container for the carousel images */
-.carousel-item {
-  height: 500px; /* Set a fixed height for a consistent look on larger screens */
-  background-color: #f8f9fa; /* A subtle background color to fill empty space if needed */
+.landing-shell {
+  background:
+    radial-gradient(circle at top left, rgba(255, 178, 74, 0.28), transparent 28rem),
+    radial-gradient(circle at top right, rgba(255, 122, 24, 0.14), transparent 24rem),
+    linear-gradient(180deg, #fffaf4 0%, #fff7ee 38%, #fffdf9 100%);
 }
 
-/* Ensure the image scales correctly within its container */
-.carousel-item img {
-  height: 100%; /* Image takes up the full height of the container */
-  width: 100%; /* Image takes up the full width of the container */
-  object-fit: contain; /* This is the key change. It scales the image to fit the container without cropping. */
-  object-position: center; /* Centers the image within the container */
-  border-radius: 8px; /* Optional: adds a nice rounded corner effect */
+.landing-container {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
 }
 
-/* ==================
-   Video Section Styling
-   ================== */
-
-/* Create a responsive container for the video */
-/* ...existing CSS... */
-
-.video-container {
+.hero-section {
   position: relative;
-  width: 100%;
-  padding-bottom: 56.25%;
-  height: 0;
   overflow: hidden;
-  border-radius: 8px;
+  padding: 4.25rem 0 3.75rem;
 }
 
-/* Position the video to fill its container completely */
-/* ...existing CSS for the video container... */
-
-.video-container video {
+.hero-section__glow {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Add this line */
-}
-
-/* ==================
-   Image Carousel Styling
-   ================== */
-
-/* Set a consistent height for the carousel on larger screens */
-.carousel-item {
-  height: 500px;
-  background-color: #f8f9fa; 
-}
-
-/* For smaller screens (mobile), reduce the carousel height */
-@media (max-width: 767.98px) {
-  .carousel-item {
-    height: 300px; /* Adjust this value to your preference */
-  }
-}
-
-/* Ensure the image scales correctly within its container */
-.carousel-item img {
-  height: 100%; /* Image takes up the full height of the container */
-  width: 100%; /* Image takes up the full width of the container */
-  object-fit: cover; /* This is the key change. It scales and crops the image to fill the container perfectly. */
-  object-position: center; /* Centers the visible part of the image */
-  border-radius: 8px; /* Optional: adds a nice rounded corner effect */
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * Custom CSS for the HomePage component
- * This file contains styling specific to the home page layout.
- */
-
-/* ==================
-   Image Carousel Styling
-   ================== */
-
-/* Set a consistent height for the carousel on larger screens */
-.carousel-item {
-  height: 500px;
-  background-color: #f8f9fa;
-}
-
-/* For smaller screens (mobile), reduce the carousel height */
-@media (max-width: 767.98px) {
-  .carousel-item {
-    height: 300px;
-  }
-}
-
-/* Ensure the image scales correctly within its container */
-
-
-/* Make carousel controls more visible */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid #fff;
+  width: 22rem;
+  height: 22rem;
   border-radius: 50%;
-  padding: 1rem;
+  filter: blur(70px);
+  opacity: 0.65;
+  pointer-events: none;
 }
 
-/* ==================
-   Video Section Styling
-   ================== */
+.hero-section__glow--left {
+  top: -5rem;
+  left: -8rem;
+  background: rgba(255, 156, 74, 0.5);
+}
 
+.hero-section__glow--right {
+  top: 6rem;
+  right: -7rem;
+  background: rgba(255, 221, 165, 0.8);
+}
 
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.hero-copy h1 {
+  margin: 1rem 0 1rem;
+  max-width: 12ch;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.8rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  color: var(--ink-950);
+}
+
+.hero-copy__lead {
+  max-width: 58ch;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--ink-600);
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 122, 24, 0.1);
+  color: var(--accent-700);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.hero-actions,
+.cta-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 1.75rem;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  padding: 0.95rem 1.35rem;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.hero-btn:hover {
+  transform: translateY(-1px);
+}
+
+.hero-btn--primary {
+  background: linear-gradient(135deg, var(--ink-950), #1f2937);
+  color: white;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.16);
+}
+
+.hero-btn--secondary {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--ink-950);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.hero-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.9rem;
+}
+
+.hero-proof-card {
+  padding: 1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero-proof-card strong,
+.hero-proof-card span {
+  display: block;
+}
+
+.hero-proof-card strong {
+  margin-bottom: 0.45rem;
+  color: var(--ink-950);
+}
+
+.hero-proof-card span {
+  color: var(--ink-600);
+  line-height: 1.55;
+}
+
+.hero-preview {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-preview__card {
+  border-radius: 1.7rem;
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero-preview__card--primary {
+  padding: 1.65rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 235, 0.96));
+}
+
+.hero-preview__card--primary h2 {
+  margin: 0.35rem 0 1.1rem;
+  font-size: 1.85rem;
+  color: var(--ink-950);
+}
+
+.hero-preview__eyebrow {
+  color: var(--accent-700);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.hero-metrics div {
+  padding: 1rem;
+  border-radius: 1.15rem;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.hero-metrics span,
+.hero-preview__stack-card span,
+.hero-preview__mini-stat span {
+  display: block;
+  color: var(--ink-500);
+  font-size: 0.86rem;
+}
+
+.hero-metrics strong,
+.hero-preview__stack-card strong,
+.hero-preview__mini-stat strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-950);
+}
+
+.hero-preview__stack {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.hero-preview__stack-card,
+.hero-preview__mini-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 1.1rem;
+}
+
+.hero-preview__stack-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.hero-preview__stack-card svg,
+.hero-preview__mini-stat svg {
+  color: var(--accent-600);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.hero-preview__card--secondary {
+  padding: 1.1rem;
+  background: rgba(255, 255, 255, 0.76);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hero-preview__mini-stat {
+  background: rgba(255, 247, 235, 0.86);
+}
+
+.landing-section {
+  padding: 2rem 0 4rem;
+}
+
+.landing-section--accent {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.12), rgba(255, 248, 238, 0.82)),
+    radial-gradient(circle at top right, rgba(255, 178, 74, 0.12), transparent 24rem);
+}
+
+.landing-section--cta {
+  padding-bottom: 4.75rem;
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.section-heading--left {
+  text-align: left;
+}
+
+.section-heading span,
+.cta-panel__eyebrow {
+  display: inline-block;
+  color: var(--accent-700);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.section-heading h2,
+.cta-panel h2 {
+  margin: 0.6rem 0 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--ink-950);
+}
+
+.feature-grid,
+.workflow-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.workflow-layout {
+  display: grid;
+  gap: 1.6rem;
+}
+
+.workflow-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-card,
+.workflow-card,
+.highlight-panel,
+.cta-panel {
+  border-radius: 1.7rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.feature-card,
+.workflow-card,
+.highlight-panel {
+  padding: 1.5rem;
+}
+
+.feature-card__icon {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: rgba(255, 122, 24, 0.12);
+  color: var(--accent-700);
+}
+
+.feature-card h3,
+.workflow-card h3 {
+  margin: 1rem 0 0.55rem;
+  color: var(--ink-950);
+  font-size: 1.22rem;
+}
+
+.feature-card p,
+.workflow-card p,
+.cta-panel p {
+  margin: 0;
+  line-height: 1.72;
+  color: var(--ink-600);
+}
+
+.workflow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.workflow-card__step {
+  display: inline-flex;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--ink-700);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.highlights-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.highlight-panel__header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--ink-950);
+  margin-bottom: 1rem;
+}
+
+.highlight-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--ink-700);
+}
+
+.highlight-list li + li {
+  margin-top: 0.85rem;
+}
+
+.cta-panel {
+  display: grid;
+  grid-template-columns: 1.1fr auto;
+  gap: 1.5rem;
+  padding: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .hero-grid,
+  .feature-grid,
+  .workflow-list,
+  .highlights-layout,
+  .cta-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy h1 {
+    max-width: none;
+  }
+
+  .hero-proof-grid,
+  .hero-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .landing-container {
+    width: min(1180px, calc(100% - 1rem));
+  }
+
+  .hero-section {
+    padding-top: 2.5rem;
+  }
+
+  .hero-copy h1 {
+    font-size: 2.7rem;
+  }
+
+  .hero-preview__card--primary,
+  .feature-card,
+  .workflow-card,
+  .highlight-panel,
+  .cta-panel {
+    padding: 1.25rem;
+  }
+}
