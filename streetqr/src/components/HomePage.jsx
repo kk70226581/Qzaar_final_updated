@@ -39,7 +39,7 @@ const heroSignals = ['No app required', 'Fast setup', 'Live order flow'];
 
 const platformStats = [
   { label: 'Live menu modules', value: '4' },
-  { label: 'Active orders', value: '18' },
+  { label: 'Orders live', value: '18' },
   { label: 'Average prep', value: '14m' },
   { label: 'Launch setup', value: '8 min' }
 ];
