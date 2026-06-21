@@ -276,7 +276,7 @@ function HomePage() {
               <h2>Give customers a menu that feels reliable before they place the first order.</h2>
             </div>
             <Link className="home-button home-button--primary" to={isAuthenticated ? '/menu' : '/login'}>
-              {isAuthenticated ? 'Continue' : 'Get Started'}
+              {isAuthenticated ? 'Resume' : 'Get Started'}
               <ReceiptText size={18} />
             </Link>
           </div>
