@@ -35,7 +35,7 @@ const staggerChildren = {
   }
 };
 
-const heroSignals = ['Fast setup', 'Mobile-first menu', 'Live order flow'];
+const heroSignals = ['No app required', 'Fast setup', 'Live order flow'];
 
 const platformStats = [
   { label: 'Live menu modules', value: '4' },
