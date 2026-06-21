@@ -105,7 +105,7 @@ function HomePage() {
                 <ShieldCheck size={16} />
                 Built for serious food operations
               </span>
-              <h1>Run QR ordering like a real restaurant system.</h1>
+              <h1>Run QR ordering like a real, polished restaurant system.</h1>
               <p>
                 Qzaar gives food businesses a clean digital menu, order desk, coupon engine,
                 payment flow, and tracking experience without making the brand look childish.
