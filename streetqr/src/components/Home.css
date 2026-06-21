@@ -630,7 +630,7 @@
 
 /* ─── Final CTA ─────────────────────────────────────────────── */
 .final-cta {
-  padding: 5rem 0;
+  padding: 4.75rem 0;
   background: radial-gradient(ellipse 70% 90% at 50% 100%, rgba(245,158,11,0.08), transparent);
   position: relative;
   overflow: hidden;
