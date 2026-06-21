@@ -109,7 +109,7 @@
 }
 
 .home-hero__copy h1 {
-  max-width: 12ch;
+  max-width: 11ch;
   font-size: clamp(2.3rem, 4vw, 3.65rem);
   font-weight: 900;
   letter-spacing: -0.03em;
