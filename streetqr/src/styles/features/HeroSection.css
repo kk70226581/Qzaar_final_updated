@@ -1,0 +1,199 @@
+/* 🌟 Hero Section Component Styles
+   Premium hero banner */
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+/* ========== HEIGHT VARIANTS ========== */
+
+.hero-section--full {
+  min-height: 100vh;
+}
+
+.hero-section--large {
+  min-height: 80vh;
+}
+
+.hero-section--medium {
+  min-height: 60vh;
+}
+
+.hero-section--small {
+  min-height: 40vh;
+}
+
+/* ========== OVERLAY ========== */
+
+.hero-section__overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 1;
+  transition: opacity var(--duration-slow) var(--ease-in-out);
+}
+
+/* ========== CONTENT ========== */
+
+.hero-section__content {
+  position: relative;
+  z-index: 2;
+  color: white;
+  max-width: 900px;
+  width: 100%;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  text-align: center;
+}
+
+.hero-section__content--left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.hero-section__content--right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.hero-section__content--center {
+  align-items: center;
+  text-align: center;
+}
+
+/* ========== TITLE ========== */
+
+.hero-section__title {
+  font-size: var(--text-5xl);
+  font-weight: var(--font-extrabold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ========== SUBTITLE ========== */
+
+.hero-section__subtitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  opacity: 0.95;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== CTA ========== */
+
+.hero-section__cta {
+  display: inline-flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* ========== CHILDREN ========== */
+
+.hero-section__children {
+  margin-top: var(--space-6);
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+@media (max-width: 640px) {
+  .hero-section {
+    min-height: 300px;
+    background-attachment: scroll;
+  }
+
+  .hero-section--full {
+    min-height: 60vh;
+  }
+
+  .hero-section--large {
+    min-height: 50vh;
+  }
+
+  .hero-section--medium {
+    min-height: 40vh;
+  }
+
+  .hero-section--small {
+    min-height: 30vh;
+  }
+
+  .hero-section__content {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .hero-section__title {
+    font-size: var(--text-3xl);
+  }
+
+  .hero-section__subtitle {
+    font-size: var(--text-base);
+  }
+
+  .hero-section__cta {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero-section__title {
+    font-size: var(--text-4xl);
+  }
+
+  .hero-section__subtitle {
+    font-size: var(--text-lg);
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+@media (prefers-color-scheme: dark) {
+  .hero-section__overlay {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section__overlay,
+  .hero-section__title,
+  .hero-section__subtitle,
+  .hero-section__cta,
+  .hero-section__children {
+    animation: none;
+  }
+}
+
+/* ========== ANIMATION ========== */
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-section {
+  animation: heroFadeIn var(--duration-slow) var(--ease-out);
+}

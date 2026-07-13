@@ -49,11 +49,8 @@ function QRCodePage() {
                 <QrCode size={16} />
                 Publish and share
               </span>
-              <h1>Your menu is ready to scan.</h1>
-              <p>
-                Download the QR, copy the live menu link, or open the public menu to review the exact customer
-                experience before sharing it at the stall.
-              </p>
+              <h1>Your menu is ready.</h1>
+              <p>Download, copy, share, or preview.</p>
 
               <div className="qr-actions">
                 <button type="button" className="qr-btn qr-btn--primary" onClick={handleDownload}>
@@ -78,8 +75,8 @@ function QRCodePage() {
               </div>
 
               <div className="qr-tips">
-                <div><strong>Best use:</strong><span>Print near the counter or place it on the table.</span></div>
-                <div><strong>Customer flow:</strong><span>Scan, browse menu, add items, and place the order on mobile.</span></div>
+                <div><strong>Print</strong><span>Counter or table.</span></div>
+                <div><strong>Flow</strong><span>Scan, browse, order.</span></div>
               </div>
             </div>
 

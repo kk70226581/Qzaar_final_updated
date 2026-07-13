@@ -6,7 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import './styles/tokens.css';
+import './styles/design-system.css';
 import './index.css';
+
 
 
 // App root component

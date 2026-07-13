@@ -1,0 +1,215 @@
+/* CategoryTabs Component Styles */
+
+.category-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  box-shadow: 0 2px 4px var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Container for scrollable tabs */
+.category-tabs__container {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  flex: 1;
+  padding: var(--space-3) 0;
+  
+  /* Hide scrollbar but allow scrolling */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.category-tabs__container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual tab button */
+.category-tab {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-base);
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  
+  /* Touch friendly */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Active tab state */
+.category-tab--active {
+  color: var(--primary-600);
+  font-weight: var(--font-semibold);
+}
+
+/* Active indicator line */
+.category-tab__indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-500));
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px var(--primary-600)40;
+}
+
+/* Scroll buttons */
+.category-tabs__scroll {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  
+  /* Touch friendly */
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.category-tabs__scroll:hover {
+  background: var(--primary-100);
+  color: var(--primary-600);
+  transform: scale(1.05);
+}
+
+.category-tabs__scroll:active {
+  transform: scale(0.95);
+}
+
+.category-tabs__scroll--left {
+  order: -1;
+}
+
+.category-tabs__scroll--right {
+  order: 1;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .category-tabs {
+    background: var(--bg-primary);
+    border-bottom-color: var(--border-color);
+  }
+
+  .category-tab:hover {
+    background: var(--bg-secondary);
+  }
+
+  .category-tabs__scroll {
+    background: var(--bg-secondary);
+  }
+
+  .category-tabs__scroll:hover {
+    background: var(--primary-900);
+  }
+}
+
+/* Responsive design */
+
+/* Tablet and larger - show scroll buttons if needed */
+@media (min-width: 641px) {
+  .category-tabs {
+    padding: 0 var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .category-tab {
+    padding: var(--space-3) var(--space-6);
+  }
+}
+
+/* Mobile - optimize for small screens */
+@media (max-width: 640px) {
+  .category-tabs {
+    gap: var(--space-1);
+    padding: 0 var(--space-2);
+  }
+
+  .category-tab {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+
+  .category-tabs__scroll {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  .category-tab__indicator {
+    height: 4px;
+    box-shadow: none;
+  }
+
+  .category-tab {
+    border: 2px solid transparent;
+  }
+
+  .category-tab--active {
+    border-bottom: 3px solid var(--primary-600);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .category-tabs__container {
+    scroll-behavior: auto;
+  }
+
+  .category-tab,
+  .category-tabs__scroll {
+    transition: none;
+  }
+
+  .category-tab__indicator {
+    animation: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.category-tab:focus-visible,
+.category-tabs__scroll:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .category-tabs {
+    display: none;
+  }
+}

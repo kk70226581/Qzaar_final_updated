@@ -1,0 +1,77 @@
+/* 💀 Modern Skeleton Component Styles
+   Loading state placeholders with shimmer animation */
+
+.modern-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary),
+    var(--bg-quaternary),
+    var(--bg-tertiary)
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: var(--rounded-md);
+}
+
+.modern-skeleton--text {
+  height: 16px;
+  margin-bottom: var(--space-2);
+  width: 100%;
+  min-width: 100px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.modern-skeleton--circle {
+  border-radius: 9999px;
+  aspect-ratio: 1;
+}
+
+.modern-skeleton--rectangle {
+  border-radius: var(--rounded-lg);
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+/* ========== SKELETON GROUP ========== */
+
+.modern-skeleton__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ========== SHIMMER ANIMATION ========== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+@media (prefers-color-scheme: dark) {
+  .modern-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--bg-secondary),
+      var(--bg-tertiary),
+      var(--bg-secondary)
+    );
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .modern-skeleton {
+    animation: none;
+    background: var(--bg-secondary);
+  }
+}

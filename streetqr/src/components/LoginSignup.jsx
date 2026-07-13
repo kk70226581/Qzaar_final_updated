@@ -15,14 +15,14 @@ import Navbar from './Navbar';
 import './LoginSignup.css';
 
 const productPoints = [
-  'Brandable vendor profile and QR-ready storefront',
-  'Featured items, availability, prep-time, and category filters',
-  'Live order queue with lightweight analytics'
+  'QR storefront',
+  'Menu builder',
+  'Live orders'
 ];
 
 function LoginSignup() {
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_URL;
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -94,7 +94,7 @@ function LoginSignup() {
       localStorage.setItem('shopId', response.data.userId);
       localStorage.setItem('email', email);
       showMessage(isSignup ? 'Account created. Redirecting to your dashboard...' : 'Login successful. Redirecting...', 'success');
-      window.setTimeout(() => navigate('/menu'), 900);
+      window.setTimeout(() => navigate('/dashboard'), 900);
     } catch (error) {
       console.error(error);
       showMessage('Server error. Please try again.', 'danger');
@@ -137,16 +137,13 @@ function LoginSignup() {
               <Sparkles size={16} />
               Secure business access
             </span>
-            <h1>Sign in to manage your menu, QR ordering, and daily business operations.</h1>
-            <p>
-              Access your business account, update your menu, publish changes, and monitor incoming orders from
-              one simple workspace.
-            </p>
+            <h1>Access your Qzaar workspace.</h1>
+            <p>Manage menu, QR, offers, and orders.</p>
 
             <div className="auth-highlight-card">
               <div className="auth-highlight-card__header">
                 <QrCode size={18} />
-                What you can manage
+                Workspace tools
               </div>
               <ul className="auth-bullets">
                 {productPoints.map((point) => (
@@ -158,13 +155,13 @@ function LoginSignup() {
             <div className="auth-trust-row">
               <div>
                 <ShieldCheck size={18} />
-                <strong>Business-ready workflow</strong>
-                <span>Manage menus, publish updates, and track orders from one place.</span>
+                <strong>Menu control</strong>
+                <span>Update and publish quickly.</span>
               </div>
               <div>
                 <Lock size={18} />
-                <strong>Protected account access</strong>
-                <span>Password confirmation, clear feedback, and an easy reset flow.</span>
+                <strong>Secure access</strong>
+                <span>Login, signup, reset.</span>
               </div>
             </div>
           </section>
@@ -172,8 +169,8 @@ function LoginSignup() {
           <section className="auth-panel">
             <div className="auth-panel__header">
               <p className="auth-panel__eyebrow">{isSignup ? 'Create account' : 'Welcome back'}</p>
-              <h2>{isSignup ? 'Start publishing your digital menu' : 'Log in to continue'}</h2>
-              <p>{isSignup ? 'Create your business account and start setting up your digital menu.' : 'Access your menu dashboard, QR tools, and live orders.'}</p>
+              <h2>{isSignup ? 'Create account' : 'Log in'}</h2>
+              <p>{isSignup ? 'Start your QR menu.' : 'Open your dashboard.'}</p>
             </div>
 
             {message && (

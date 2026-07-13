@@ -1,0 +1,407 @@
+/* AdminDashboard Component Styles */
+
+.admin-dashboard {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+/* Header (Hidden, replaced by AdminLayout header) */
+.admin-dashboard__header {
+  display: none;
+}
+
+/* Container */
+.admin-dashboard__container-inner {
+  padding: 0 var(--space-4);
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+
+/* Metrics Grid */
+.admin-dashboard__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.admin-dashboard__metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--glass-bg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  transition: all var(--transition-slow);
+}
+
+.admin-dashboard__metric-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-200);
+  transform: translateY(-4px);
+}
+
+.admin-dashboard__metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  color: white;
+}
+
+.admin-dashboard__metric-icon--primary {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+}
+
+.admin-dashboard__metric-icon--success {
+  background: linear-gradient(135deg, var(--success-600), var(--success-500));
+}
+
+.admin-dashboard__metric-icon--info {
+  background: linear-gradient(135deg, var(--info-600), var(--info-500));
+}
+
+.admin-dashboard__metric-icon--warning {
+  background: linear-gradient(135deg, var(--warning-600), var(--warning-500));
+}
+
+.admin-dashboard__metric-content {
+  flex: 1;
+}
+
+.admin-dashboard__metric-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.admin-dashboard__metric-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin: var(--space-1) 0 0 0;
+}
+
+/* Content Grid */
+.admin-dashboard__content-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-6);
+}
+
+.admin-dashboard__section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section Header */
+.admin-dashboard__section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.admin-dashboard__section-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-dashboard__view-all {
+  background: transparent;
+  border: none;
+  color: var(--primary-600);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: var(--text-sm);
+}
+
+.admin-dashboard__view-all:hover {
+  color: var(--primary-700);
+  transform: translateX(4px);
+}
+
+/* Orders List */
+.admin-dashboard__orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-dashboard__order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-base);
+}
+
+.admin-dashboard__order-item:hover {
+  border-color: var(--primary-200);
+  background: var(--primary-50);
+}
+
+.admin-dashboard__order-info {
+  flex: 1;
+}
+
+.admin-dashboard__order-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.admin-dashboard__order-id {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.admin-dashboard__order-customer {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.admin-dashboard__order-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin: var(--space-1) 0 0 0;
+}
+
+.admin-dashboard__order-total {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--primary-600);
+  text-align: right;
+}
+
+/* Sidebar */
+.admin-dashboard__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.admin-dashboard__card-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-4) 0;
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Quick Stats */
+.admin-dashboard__quick-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-dashboard__stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.admin-dashboard__stat-row:last-child {
+  border-bottom: none;
+}
+
+.admin-dashboard__stat-value {
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+/* Actions List */
+.admin-dashboard__actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-dashboard__action-btn {
+  width: 100%;
+}
+
+/* Notifications */
+.admin-dashboard__notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-dashboard__notification {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.admin-dashboard__notification-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--primary-600);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.admin-dashboard__notification-text {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .admin-dashboard__metric-card:hover {
+    background: var(--bg-secondary);
+  }
+
+  .admin-dashboard__order-item:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) {
+  .admin-dashboard__content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-dashboard__metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .admin-dashboard__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .admin-dashboard__header-actions {
+    align-self: flex-start;
+  }
+
+  .admin-dashboard__title {
+    font-size: var(--text-xl);
+  }
+
+  .admin-dashboard__subtitle {
+    font-size: var(--text-sm);
+  }
+
+  .admin-dashboard__container {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .admin-dashboard__metrics {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .admin-dashboard__metric-card {
+    padding: var(--space-4);
+  }
+
+  .admin-dashboard__metric-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .admin-dashboard__metric-value {
+    font-size: var(--text-2xl);
+  }
+
+  .admin-dashboard__order-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .admin-dashboard__order-total {
+    align-self: flex-start;
+    text-align: left;
+  }
+
+  .admin-dashboard__section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .admin-dashboard__view-all {
+    align-self: flex-start;
+  }
+}
+
+/* Focus visible */
+.admin-dashboard__header-btn:focus-visible,
+.admin-dashboard__view-all:focus-visible,
+.admin-dashboard__action-btn:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .admin-dashboard__metric-card,
+  .admin-dashboard__order-item,
+  .admin-dashboard__header-btn {
+    transition: none;
+  }
+
+  .admin-dashboard__notification-dot {
+    animation: none;
+  }
+
+  .admin-dashboard__metric-card:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .admin-dashboard__header-actions {
+    display: none;
+  }
+}

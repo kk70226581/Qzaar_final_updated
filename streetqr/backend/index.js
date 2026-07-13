@@ -11,6 +11,16 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const sendEmail = require('./sendmail');
 
+// ✅ Import all route modules
+const authRoutes = require('./routes-auth');
+const analyticsRoutes = require('./routes-analytics');
+const menuRoutes = require('./routes-menu');
+const ordersRoutes = require('./routes-orders');
+const cartRoutes = require('./routes-cart');
+const inventoryRoutes = require('./routes-inventory');
+const settingsRoutes = require('./routes-settings');
+const paymentsRoutes = require('./routes-payments');
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -68,73 +78,8 @@ mongoose.connect(process.env.MONGO_URI || '', { maxPoolSize: 10 })
   .then(() => console.log('MongoDB connected'))
   .catch((error) => console.error('MongoDB connection error:', error?.message || error));
 
-// ✅ Schemas
-const shopkeeperSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  menu: { type: Object, default: {} },
-  logo: { type: String, default: '' },
-  shopName: { type: String, default: '' },
-  ownerName: { type: String, default: '' },
-  tagline: { type: String, default: '' },
-  cuisineType: { type: String, default: '' },
-  contactPhone: { type: String, default: '' },
-  openHours: { type: String, default: '' },
-  address: { type: String, default: '' },
-  brandColor: { type: String, default: '#ff7a18' },
-  razorpayContactId: { type: String, default: '' },
-  resetToken: { type: String },
-  resetTokenExpiry: { type: Date }
-}, { timestamps: true });
-const Shopkeeper = mongoose.model('Shopkeeper', shopkeeperSchema);
-
-const orderSchema = new mongoose.Schema({
-  shopId: { type: String, required: true },
-  customerName: { type: String, required: true },
-  customerEmail: { type: String, default: '' },
-  customerPhone: { type: String, default: '' },
-  tableNumber: { type: String, required: true },
-  customerNote: { type: String, default: '' },
-  paymentMethod: { type: String, default: 'cash' }, // 'cash', 'upi', 'card', 'razorpay'
-  paymentStatus: { type: String, default: 'pending' }, // 'pending', 'paid', 'failed', 'refunded'
-  paymentReference: { type: String, default: '' },
-  razorpayOrderId: { type: String, default: '' },
-  razorpayPaymentId: { type: String, default: '' },
-  estimatedPrepMinutes: { type: Number, default: 15 },
-  estimatedReadyAt: { type: Date },
-  items: { type: Array, default: [] },
-  subTotal: { type: Number, default: 0 },
-  discountAmount: { type: Number, default: 0 },
-  couponCode: { type: String, default: '' },
-  taxes: { type: Number, default: 0 },
-  total: { type: Number, default: 0 },
-  status: { type: String, default: 'pending' }, // 'pending', 'preparing', 'completed', 'cancelled'
-  cancelledAt: { type: Date, default: null },
-  cancelReason: { type: String, default: '' },
-  refundAmount: { type: Number, default: 0 },
-  refundStatus: { type: String, default: '' } // 'pending', 'completed', 'failed'
-}, { timestamps: true });
-orderSchema.index({ shopId: 1, createdAt: -1 });
-orderSchema.index({ razorpayOrderId: 1 });
-const Order = mongoose.model('Order', orderSchema);
-
-const couponSchema = new mongoose.Schema({
-  shopId: { type: String, required: true },
-  code: { type: String, required: true, unique: true },
-  discountType: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
-  discountValue: { type: Number, required: true },
-  maxDiscount: { type: Number, default: null },
-  minOrderValue: { type: Number, default: 0 },
-  maxUsagePerUser: { type: Number, default: 1 },
-  totalUsageLimit: { type: Number, default: null },
-  totalUsed: { type: Number, default: 0 },
-  validFrom: { type: Date, required: true },
-  validTill: { type: Date, required: true },
-  isActive: { type: Boolean, default: true },
-  description: { type: String, default: '' }
-}, { timestamps: true });
-couponSchema.index({ shopId: 1, code: 1 });
-const Coupon = mongoose.model('Coupon', couponSchema);
+// ✅ Import Models from models.js
+const { Shopkeeper, Order, Coupon } = require('./models');
 
 const menuCache = {};
 const connectedUsers = new Map();
@@ -856,6 +801,19 @@ app.post('/api/cancel-order/:orderId', async (req, res) => {
 app.get('/', (req, res) => {
   res.send('✅ StreetQR API is live with Razorpay & WebSocket support');
 });
+
+// ✅ INTEGRATE ALL ROUTE MODULES (150+ endpoints)
+console.log('🔌 Mounting API routes...');
+app.use('/api/auth', authRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/payments', paymentsRoutes);
+
+console.log('✅ All API routes mounted successfully');
 
 // Start server
 const SERVER = httpServer.listen(PORT, () => {

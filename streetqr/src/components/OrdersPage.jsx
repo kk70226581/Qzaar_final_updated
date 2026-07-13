@@ -13,7 +13,7 @@ import { getSocket } from '../api';
 import Navbar from './Navbar';
 import './OrdersPage.css';
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 const statusOptions = ['all', 'pending', 'preparing', 'completed'];
 
@@ -204,10 +204,7 @@ function OrdersPage() {
                 Operations dashboard
               </span>
               <h1>{dashboard?.shopName || 'Live order management'}</h1>
-              <p>
-                Review incoming orders, move them through fulfillment states, and keep the service flow easy
-                to scan during busy hours.
-              </p>
+              <p>Accept, prepare, complete.</p>
               <div className="orders-live-status">
                 <span className={`orders-live-dot ${isSocketConnected ? 'is-online' : ''}`} />
                 <strong>{isSocketConnected ? 'Live updates connected' : 'Live updates reconnecting'}</strong>
@@ -218,14 +215,14 @@ function OrdersPage() {
             <div className="orders-hero__actions">
               <button type="button" className="orders-btn orders-btn--secondary" onClick={fetchData}>
                 <RefreshCw size={16} />
-                Refresh now
+                Refresh
               </button>
               <button
                 type="button"
                 className={`orders-btn ${autoRefresh ? 'orders-btn--primary' : 'orders-btn--ghost'}`}
                 onClick={() => setAutoRefresh((current) => !current)}
               >
-                Auto refresh: {autoRefresh ? 'On' : 'Off'}
+                Auto {autoRefresh ? 'On' : 'Off'}
               </button>
             </div>
           </section>
@@ -252,7 +249,7 @@ function OrdersPage() {
               <div className="orders-panel__header">
                 <div>
                   <h2>Top items</h2>
-                  <p>Best performers from completed orders.</p>
+                  <p>Completed orders.</p>
                 </div>
               </div>
 
@@ -269,7 +266,7 @@ function OrdersPage() {
                   ))}
                 </div>
               ) : (
-                <p className="orders-empty-copy">Top-selling insights will appear after orders start coming in.</p>
+                <p className="orders-empty-copy">No top items yet.</p>
               )}
             </section>
 
@@ -277,7 +274,7 @@ function OrdersPage() {
               <div className="orders-panel__header orders-panel__header--stack">
                 <div>
                   <h2>Order queue</h2>
-                  <p>Track every order from intake to completion.</p>
+                  <p>Live service queue.</p>
                 </div>
 
                 <div className="orders-filter-panel">
@@ -316,7 +313,7 @@ function OrdersPage() {
               {isLoading ? (
                 <p className="orders-empty-copy">Loading orders...</p>
               ) : filteredOrders.length === 0 ? (
-                <p className="orders-empty-copy">No orders match this filter yet.</p>
+                <p className="orders-empty-copy">No matching orders.</p>
               ) : (
                 <div className="orders-list">
                   {filteredOrders.map((order) => (

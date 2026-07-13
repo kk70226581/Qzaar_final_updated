@@ -75,9 +75,13 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
             </Link>
             {isLoggedIn && (
               <>
-                <Link className={`site-nav__link ${location.pathname === '/menu' ? 'is-active' : ''}`} to="/menu">
+                <Link className={`site-nav__link ${location.pathname === '/dashboard' ? 'is-active' : ''}`} to="/dashboard">
                   <LayoutDashboard size={16} />
-                  Builder
+                  Dashboard
+                </Link>
+                <Link className={`site-nav__link ${location.pathname === '/menu' ? 'is-active' : ''}`} to="/menu">
+                  <QrCode size={16} />
+                  Menu
                 </Link>
                 <Link className={`site-nav__link ${location.pathname === '/orders' ? 'is-active' : ''}`} to="/orders">
                   <Sparkles size={16} />

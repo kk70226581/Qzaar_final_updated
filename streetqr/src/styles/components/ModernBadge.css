@@ -1,0 +1,321 @@
+/* 🏷️ Modern Badge Component Styles
+   Status and category badges */
+
+.modern-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-weight: var(--font-semibold);
+  border-radius: var(--rounded-full);
+  white-space: nowrap;
+  user-select: none;
+  transition: var(--transition-fast);
+}
+
+/* ========== SIZES ========== */
+
+.modern-badge--sm {
+  font-size: var(--text-xs);
+  padding: 0.25rem 0.5rem;
+  height: 20px;
+  min-width: 20px;
+}
+
+.modern-badge--md {
+  font-size: var(--text-sm);
+  padding: 0.375rem 0.75rem;
+  height: 24px;
+  min-width: 24px;
+}
+
+.modern-badge--lg {
+  font-size: var(--text-base);
+  padding: 0.5rem 1rem;
+  height: 32px;
+  min-width: 32px;
+}
+
+/* ========== VARIANTS - SOLID STYLE ========== */
+
+/* Default (Neutral) */
+.modern-badge--default.modern-badge--solid {
+  background: var(--slate-100);
+  color: var(--text-primary);
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--slate-800);
+    color: var(--text-inverse);
+  }
+}
+
+/* Primary (Brand) */
+.modern-badge--primary.modern-badge--solid {
+  background: var(--primary-100);
+  color: var(--primary-700);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(242, 78, 66, 0.15);
+    color: var(--primary-300);
+  }
+}
+
+/* Success (Green) */
+.modern-badge--success.modern-badge--solid {
+  background: var(--success-100);
+  color: var(--success-700);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success-300);
+  }
+}
+
+/* Warning (Amber) */
+.modern-badge--warning.modern-badge--solid {
+  background: var(--warning-100);
+  color: var(--warning-700);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning-300);
+  }
+}
+
+/* Danger (Red) */
+.modern-badge--danger.modern-badge--solid {
+  background: var(--danger-100);
+  color: var(--danger-700);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger-300);
+  }
+}
+
+/* Info (Blue) */
+.modern-badge--info.modern-badge--solid {
+  background: var(--info-100);
+  color: var(--info-700);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(14, 165, 233, 0.15);
+    color: var(--info-300);
+  }
+}
+
+/* ========== VARIANTS - OUTLINE STYLE ========== */
+
+.modern-badge--outline {
+  background: transparent;
+  border: 1px solid;
+}
+
+.modern-badge--default.modern-badge--outline {
+  border-color: var(--border-secondary);
+  color: var(--text-secondary);
+}
+
+.modern-badge--primary.modern-badge--outline {
+  border-color: var(--primary-300);
+  color: var(--primary-600);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--primary-400);
+    color: var(--primary-400);
+  }
+}
+
+.modern-badge--success.modern-badge--outline {
+  border-color: var(--success-300);
+  color: var(--success-600);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--success-400);
+    color: var(--success-400);
+  }
+}
+
+.modern-badge--warning.modern-badge--outline {
+  border-color: var(--warning-300);
+  color: var(--warning-600);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--warning-400);
+    color: var(--warning-400);
+  }
+}
+
+.modern-badge--danger.modern-badge--outline {
+  border-color: var(--danger-300);
+  color: var(--danger-600);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--danger-400);
+    color: var(--danger-400);
+  }
+}
+
+.modern-badge--info.modern-badge--outline {
+  border-color: var(--info-300);
+  color: var(--info-600);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--info-400);
+    color: var(--info-400);
+  }
+}
+
+/* ========== VARIANTS - SUBTLE STYLE ========== */
+
+.modern-badge--subtle {
+  background: transparent;
+  border: none;
+}
+
+.modern-badge--default.modern-badge--subtle {
+  color: var(--text-secondary);
+}
+
+.modern-badge--primary.modern-badge--subtle {
+  color: var(--primary-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--primary-400);
+  }
+}
+
+.modern-badge--success.modern-badge--subtle {
+  color: var(--success-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--success-400);
+  }
+}
+
+.modern-badge--warning.modern-badge--subtle {
+  color: var(--warning-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--warning-400);
+  }
+}
+
+.modern-badge--danger.modern-badge--subtle {
+  color: var(--danger-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--danger-400);
+  }
+}
+
+.modern-badge--info.modern-badge--subtle {
+  color: var(--info-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--info-400);
+  }
+}
+
+/* ========== DOT INDICATOR ========== */
+
+.modern-badge--dot {
+  padding: 0;
+  width: auto;
+  min-width: 0;
+
+  .modern-badge__text {
+    display: none;
+  }
+}
+
+.modern-badge__dot {
+  display: inline-block;
+  border-radius: 50%;
+
+  .modern-badge--sm & {
+    width: 6px;
+    height: 6px;
+  }
+
+  .modern-badge--md & {
+    width: 8px;
+    height: 8px;
+  }
+
+  .modern-badge--lg & {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Dot colors match variant */
+  .modern-badge--primary & {
+    background: var(--primary-500);
+  }
+
+  .modern-badge--success & {
+    background: var(--success-500);
+  }
+
+  .modern-badge--warning & {
+    background: var(--warning-500);
+  }
+
+  .modern-badge--danger & {
+    background: var(--danger-500);
+  }
+
+  .modern-badge--info & {
+    background: var(--info-500);
+  }
+
+  .modern-badge--default & {
+    background: var(--slate-400);
+  }
+
+  /* Pulse animation */
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ========== ICON ========== */
+
+.modern-badge__icon {
+  flex-shrink: 0;
+}
+
+.modern-badge__text {
+  display: inline;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 640px) {
+  .modern-badge--sm {
+    font-size: 10px;
+    padding: 0.25rem 0.375rem;
+  }
+
+  .modern-badge--md {
+    font-size: var(--text-xs);
+    padding: 0.25rem 0.5rem;
+  }
+
+  .modern-badge--lg {
+    font-size: var(--text-sm);
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .modern-badge__dot {
+    animation: none;
+  }
+}
+
+/* Avoid text selection */
+.modern-badge {
+  -webkit-user-select: none;
+  user-select: none;
+}

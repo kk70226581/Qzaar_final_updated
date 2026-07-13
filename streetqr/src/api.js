@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 // ✅ Axios Instance
 export const apiClient = axios.create({

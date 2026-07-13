@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
 import Navbar from './Navbar';
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 function ResetPassword() {
   const { token } = useParams();

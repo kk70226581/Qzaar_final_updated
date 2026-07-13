@@ -14,7 +14,12 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "start": "npm --prefix streetqr start",
+    "frontend": "npm --prefix streetqr start",
+    "backend": "npm --prefix streetqr/backend start",
+    "backend:dev": "npm --prefix streetqr/backend run dev",
+    "build": "npm --prefix streetqr run build",
+    "test": "npm --prefix streetqr test",
+    "install:all": "npm install && npm --prefix streetqr install && npm --prefix streetqr/backend install"
   }
 }

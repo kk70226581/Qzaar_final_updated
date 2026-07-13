@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   BadgePercent,
+  Bell,
   ChefHat,
   Clock3,
   CreditCard,
@@ -12,14 +13,17 @@ import {
   Heart,
   Leaf,
   MapPin,
+  Moon,
   Phone,
   Plus,
   Search,
+  Sun,
   ShoppingBag,
   Sparkles,
   TrendingUp,
   UtensilsCrossed,
-  Wallet
+  Wallet,
+  X
 } from 'lucide-react';
 import PaymentGateway from './PaymentGateway';
 import CouponApplier from './CouponApplier';
@@ -84,6 +88,13 @@ function MenuView() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
+  const [dietFilter, setDietFilter] = useState('all');
+  const [selectedFood, setSelectedFood] = useState(null);
+  const [theme, setTheme] = useState(() => window.localStorage.getItem('qzaar-theme') || 'light');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem('qzaar-recent-searches') || '[]'); } catch { return []; }
+  });
 
   useEffect(() => {
     setIsLoading(true);
@@ -112,6 +123,15 @@ function MenuView() {
       .catch(() => setError('Failed to load menu. Please try again.'))
       .finally(() => setIsLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    const scannedTable = new URLSearchParams(window.location.search).get('table');
+    if (scannedTable) setTableNumber(scannedTable);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('qzaar-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const savedFavorites = window.localStorage.getItem(`${FAVORITES_STORAGE_PREFIX}${id}`);
@@ -188,10 +208,14 @@ function MenuView() {
       const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
       const matchesFeatured = !featuredOnly || item.featured;
       const matchesFavorites = !favoritesOnly || favorites.has(item.name);
+      const matchesDiet = dietFilter === 'all'
+        || (dietFilter === 'veg' && item.isVeg)
+        || (dietFilter === 'spicy' && String(item.spiceLevel).toLowerCase() === 'hot')
+        || (dietFilter === 'quick' && Number(item.prepTime || 10) <= 15);
 
-      return matchesSearch && matchesCategory && matchesFeatured && matchesFavorites;
+      return matchesSearch && matchesCategory && matchesFeatured && matchesFavorites && matchesDiet;
     });
-  }, [activeCategory, favorites, favoritesOnly, featuredOnly, flatItems, searchTerm]);
+  }, [activeCategory, dietFilter, favorites, favoritesOnly, featuredOnly, flatItems, searchTerm]);
 
   const groupedVisibleItems = useMemo(() => {
     const grouped = {};
@@ -203,6 +227,34 @@ function MenuView() {
     });
     return grouped;
   }, [visibleItems]);
+
+  const searchSuggestions = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return [];
+    return flatItems
+      .filter((item) => [item.name, item.category, item.remarks]
+        .some((value) => String(value || '').toLowerCase().includes(query)))
+      .slice(0, 5);
+  }, [flatItems, searchTerm]);
+
+  const chooseSearch = (value) => {
+    setSearchTerm(value);
+    setSearchFocused(false);
+    setRecentSearches((current) => {
+      const next = [value, ...current.filter((entry) => entry !== value)].slice(0, 5);
+      window.localStorage.setItem('qzaar-recent-searches', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const requestService = (service) => {
+    if (!tableNumber.trim()) {
+      toast.error('Add your table number before requesting service.');
+      setIsCartOpen(true);
+      return;
+    }
+    toast.success(`${service} request sent for table ${tableNumber}.`);
+  };
 
   const getItemQuantity = (itemName) => selectedItems.find((item) => item.name === itemName)?.quantity || 0;
   const totalItems = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -377,10 +429,18 @@ function MenuView() {
   }
 
   return (
-    <div className="menu-view" style={{ '--menu-accent': shop.brandColor || '#f97316' }}>
+    <div className={`menu-view menu-view--${theme}`} style={{ '--menu-accent': shop.brandColor || '#f97316' }}>
       <header className="menu-view__hero">
         <div className="menu-view__hero-background" />
         <div className="menu-view__hero-overlay" />
+        <button
+          type="button"
+          className="menu-view__theme-toggle"
+          onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+        >
+          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
 
         <div className="menu-view__hero-content">
           <div className="menu-view__hero-copy">
@@ -489,17 +549,32 @@ function MenuView() {
             </div>
           </section>
 
+          <section className="menu-view__service-bar" aria-label="Table service">
+            <div><Bell size={18} /><span>Need something at table {tableNumber || '—'}?</span></div>
+            <div>
+              <button type="button" onClick={() => requestService('Waiter')}>Call waiter</button>
+              <button type="button" onClick={() => requestService('Water')}>Request water</button>
+              <button type="button" onClick={() => requestService('Bill')}>Request bill</button>
+            </div>
+          </section>
+
           <motion.div
             className="menu-view__search-container"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="menu-view__search-bar">
+            <div
+              className="menu-view__search-bar"
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setSearchFocused(false);
+              }}
+            >
               <Search size={18} className="search-icon" />
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
+                onFocus={() => setSearchFocused(true)}
                 placeholder="Search for your favorite dishes..."
                 className="search-input"
               />
@@ -507,6 +582,18 @@ function MenuView() {
                 <button type="button" className="search-clear" onClick={() => setSearchTerm('')}>
                   Clear
                 </button>
+              )}
+              {searchFocused && (
+                <div className="menu-view__search-suggestions">
+                  <strong>{searchTerm ? 'Matching dishes' : 'Recent searches'}</strong>
+                  {(searchTerm ? searchSuggestions : recentSearches.map((name) => ({ name }))).length ? (
+                    (searchTerm ? searchSuggestions : recentSearches.map((name) => ({ name }))).map((item) => (
+                      <button type="button" key={`${item.category || 'recent'}-${item.name}`} onMouseDown={() => chooseSearch(item.name)}>
+                        <Search size={14} /><span>{item.name}</span>{item.category && <small>{item.category}</small>}
+                      </button>
+                    ))
+                  ) : <span className="menu-view__search-empty">Start typing a dish or category.</span>}
+                </div>
               )}
             </div>
           </motion.div>
@@ -528,6 +615,22 @@ function MenuView() {
                   whileTap={{ scale: 0.95 }}
                 >
                   {category}
+                </motion.button>
+              ))}
+
+              {[
+                ['veg', 'Veg only'],
+                ['spicy', 'Spicy'],
+                ['quick', 'Under 15 min']
+              ].map(([value, label]) => (
+                <motion.button
+                  key={value}
+                  type="button"
+                  className={`filter-chip ${dietFilter === value ? 'is-active' : ''}`}
+                  onClick={() => setDietFilter((current) => current === value ? 'all' : value)}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {label}
                 </motion.button>
               ))}
 
@@ -650,6 +753,14 @@ function MenuView() {
                           transition={{ delay: itemIndex * 0.05 }}
                           whileHover={isAvailable ? { y: -8 } : {}}
                           role="button"
+                          tabIndex={0}
+                          onClick={() => isAvailable && setSelectedFood(item)}
+                          onKeyDown={(event) => {
+                            if (isAvailable && (event.key === 'Enter' || event.key === ' ')) {
+                              event.preventDefault();
+                              setSelectedFood(item);
+                            }
+                          }}
                           style={{ cursor: isAvailable ? 'pointer' : 'not-allowed' }}
                         >
                           <div className="menu-card__image-wrapper">
@@ -781,6 +892,60 @@ function MenuView() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedFood && (
+          <motion.div
+            className="food-detail-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedFood(null)}
+          >
+            <motion.article
+              className="food-detail"
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.97 }}
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${selectedFood.name} details`}
+            >
+              <button type="button" className="food-detail__close" onClick={() => setSelectedFood(null)} aria-label="Close details">
+                <X size={20} />
+              </button>
+              <SmartImage
+                src={selectedFood.image}
+                alt={selectedFood.name}
+                className="food-detail__image"
+                fallbackClassName="food-detail__image food-detail__image--fallback"
+                fallbackContent={<ChefHat size={42} />}
+              />
+              <div className="food-detail__body">
+                <div className="menu-card__labels">
+                  {selectedFood.isVeg && <span className="label label--veg"><Leaf size={11} /> Veg</span>}
+                  {selectedFood.featured && <span className="label"><Sparkles size={11} /> Chef pick</span>}
+                  <span className="label label--time"><Clock3 size={11} /> {selectedFood.prepTime || 10} min</span>
+                </div>
+                <h2>{selectedFood.name}</h2>
+                <p>{selectedFood.remarks || 'Freshly prepared by the restaurant kitchen.'}</p>
+                <div className="food-detail__facts">
+                  <div><span>Category</span><strong>{selectedFood.category}</strong></div>
+                  <div><span>Spice</span><strong>{selectedFood.spiceLevel || 'Regular'}</strong></div>
+                  <div><span>Calories</span><strong>{selectedFood.calories || 'Ask kitchen'}</strong></div>
+                </div>
+                <div className="food-detail__footer">
+                  <strong>{formatCurrency(selectedFood.price)}</strong>
+                  <button type="button" onClick={() => { addToCart(selectedFood); setSelectedFood(null); }}>
+                    <Plus size={17} /> Add to order
+                  </button>
+                </div>
+              </div>
+            </motion.article>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isCartOpen && (

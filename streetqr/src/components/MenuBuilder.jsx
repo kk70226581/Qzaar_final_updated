@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
+  ArrowLeft,
+  ArrowRight,
   BadgePercent,
   Copy,
   Camera,
@@ -186,7 +188,7 @@ function ItemImageField({
 
 function MenuBuilder() {
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_URL;
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   const [items, setItems] = useState([]);
   const [shopProfile, setShopProfile] = useState(createDefaultProfile());
@@ -202,6 +204,7 @@ function MenuBuilder() {
   const [couponForm, setCouponForm] = useState(createCouponDraft());
   const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
   const [isSavingCoupon, setIsSavingCoupon] = useState(false);
+  const [activeStep, setActiveStep] = useState(1);
 
   const shopId = localStorage.getItem('shopId') || '';
   const isLoggedIn = localStorage.getItem('loggedIn') === 'true' || Boolean(shopId);
@@ -526,6 +529,26 @@ function MenuBuilder() {
     navigate('/login');
   };
 
+  const steps = [
+    { id: 1, label: 'Business', hint: 'Brand' },
+    { id: 2, label: 'Menu', hint: 'Items' },
+    { id: 3, label: 'Offers', hint: 'Coupons' },
+    { id: 4, label: 'Review', hint: 'Publish' }
+  ];
+
+  const goToStep = (nextStep) => {
+    if (nextStep > activeStep && activeStep === 1 && !shopProfile.shopName.trim()) {
+      showMessage('danger', 'Add your shop name to continue.');
+      return;
+    }
+    if (nextStep > activeStep && activeStep === 2 && items.length === 0) {
+      showMessage('danger', 'Add at least one menu item to continue.');
+      return;
+    }
+    setActiveStep(Math.max(1, Math.min(4, nextStep)));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSubmit = async () => {
     if (!items.length) {
       showMessage('danger', 'Add at least one menu item before publishing.');
@@ -594,14 +617,11 @@ function MenuBuilder() {
           <header className="builder-hero">
             <div>
               <span className="builder-kicker"><LayoutDashboard size={16} /> Business dashboard</span>
-              <h1>Manage your brand, menu, and customer ordering experience from one place.</h1>
-              <p>
-                Set up your business profile, organize your items, upload images, and keep your live menu clear,
-                accurate, and easy for customers to order from.
-              </p>
+              <h1>Build your QR menu faster.</h1>
+              <p>Brand, items, offers, publish.</p>
             </div>
             <div className="builder-hero__actions">
-              <Link className="builder-chip" to="/orders">Open live orders</Link>
+              <Link className="builder-chip" to="/orders"><LayoutDashboard size={16} /> Orders</Link>
               <button type="button" className="builder-chip builder-chip--ghost" onClick={handleLogout}>
                 <LogOut size={16} /> Logout
               </button>
@@ -609,6 +629,21 @@ function MenuBuilder() {
           </header>
 
           {statusMessage && <div className={`builder-alert builder-alert--${statusMessage.type}`}>{statusMessage.text}</div>}
+
+          <nav className="builder-steps" aria-label="Menu setup progress">
+            {steps.map((step) => (
+              <button
+                type="button"
+                key={step.id}
+                className={`builder-step ${activeStep === step.id ? 'builder-step--active' : ''} ${activeStep > step.id ? 'builder-step--done' : ''}`}
+                onClick={() => goToStep(step.id)}
+                aria-current={activeStep === step.id ? 'step' : undefined}
+              >
+                <span className="builder-step__number">{activeStep > step.id ? '✓' : step.id}</span>
+                <span><strong>{step.label}</strong><small>{step.hint}</small></span>
+              </button>
+            ))}
+          </nav>
 
           <section className="builder-stats">
             <div className="builder-stat-card"><span>Total items</span><strong>{stats.totalItems}</strong></div>
@@ -618,7 +653,7 @@ function MenuBuilder() {
             <div className="builder-stat-card builder-stat-card--accent"><span>Launch readiness</span><strong>{stats.readinessScore}%</strong></div>
           </section>
 
-          <section className="builder-story-strip">
+          <section className="builder-story-strip builder-story-strip--hidden">
             <div className="builder-story-card">
               <strong>Clear workspace</strong>
               <span>A simple dashboard with better structure, clearer actions, and a smoother editing flow.</span>
@@ -633,13 +668,13 @@ function MenuBuilder() {
             </div>
           </section>
 
-          <div className="builder-layout">
+          <div className={`builder-layout builder-layout--step-${activeStep}`}>
             <div className="builder-main">
-              <section className="builder-panel">
+              <section className="builder-panel builder-step-panel builder-step-panel--1">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Business profile</h2>
-                    <p>Present your business clearly so customers can recognize and trust your menu.</p>
+                    <p>Logo, contact, hours, location.</p>
                   </div>
                   <div className="builder-panel__header-icon"><Store size={18} /></div>
                 </div>
@@ -659,7 +694,7 @@ function MenuBuilder() {
                 <div className="builder-upload-panel">
                   <div className="builder-upload-panel__copy">
                     <strong>Brand image setup</strong>
-                    <span>Use a square logo or a clean food photo. If an image does not load, the live menu will show a branded fallback card automatically.</span>
+                    <span>Upload a logo or food photo.</span>
                     <div className="builder-brand-score">
                       <span>Profile filled</span>
                       <strong>{profileSignals}/6</strong>
@@ -683,7 +718,7 @@ function MenuBuilder() {
                       </div>
                       <div className="builder-brand-preview__body">
                         <strong>{shopProfile.shopName || 'Your storefront preview'}</strong>
-                        <span>{shopProfile.tagline || 'Add a tagline and image to strengthen your business identity.'}</span>
+                        <span>{shopProfile.tagline || 'Add a short tagline.'}</span>
                       </div>
                     </div>
                   </div>
@@ -699,27 +734,27 @@ function MenuBuilder() {
                 </div>
               </section>
 
-              <section className="builder-panel">
+              <section className="builder-panel builder-step-panel builder-step-panel--1">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Quick actions</h2>
-                    <p>Useful shortcuts for setting up, restoring, or resetting your working menu.</p>
+                    <p>Fast setup tools.</p>
                   </div>
                   <div className="builder-panel__header-icon"><Sparkles size={18} /></div>
                 </div>
 
                 <div className="builder-action-row">
-                  <button type="button" className="builder-chip" onClick={loadDemoMenu}>Load sample menu</button>
+                  <button type="button" className="builder-chip" onClick={loadDemoMenu}><Sparkles size={16} /> Sample</button>
                   <button type="button" className="builder-chip builder-chip--ghost" onClick={restoreDraft}><Copy size={16} /> Restore draft</button>
                   <button type="button" className="builder-chip builder-chip--ghost" onClick={clearDraft}><Trash2 size={16} /> Clear draft</button>
                 </div>
               </section>
 
-              <section className="builder-panel">
+              <section className="builder-panel builder-step-panel builder-step-panel--3">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Offers and campaigns</h2>
-                    <p>Create coupon codes for repeat customers, festive promotions, and limited-time offers.</p>
+                    <p>Discount codes and dates.</p>
                   </div>
                   <div className="builder-panel__header-icon"><BadgePercent size={18} /></div>
                 </div>
@@ -820,7 +855,7 @@ function MenuBuilder() {
 
                     {activeCoupons.length === 0 ? (
                       <div className="builder-empty-state">
-                        <p>Your live coupon offers will appear here once you create them.</p>
+                        <p>No offers yet.</p>
                       </div>
                     ) : (
                       activeCoupons.map((coupon) => (
@@ -843,11 +878,11 @@ function MenuBuilder() {
                 </div>
               </section>
 
-              <section className="builder-panel">
+              <section className="builder-panel builder-step-panel builder-step-panel--2">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Menu authoring</h2>
-                    <p>Add clear item details so customers can browse confidently and order faster.</p>
+                    <p>Photos, prices, availability.</p>
                   </div>
                   <div className="builder-panel__header-icon"><Plus size={18} /></div>
                 </div>
@@ -861,7 +896,7 @@ function MenuBuilder() {
                     <div className="builder-item-editor__header">
                       <div>
                         <strong>New dish</strong>
-                        <span>Add the details, upload an image, and save the item to your draft.</span>
+                        <span>Add details and photo.</span>
                       </div>
                       <button
                         type="button"
@@ -908,11 +943,11 @@ function MenuBuilder() {
                 )}
               </section>
 
-              <section className="builder-panel">
+              <section className="builder-panel builder-step-panel builder-step-panel--2">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Current menu</h2>
-                    <p>Edit, search, sort, duplicate, and publish the menu exactly as customers will see it.</p>
+                    <p>Search, sort, edit.</p>
                   </div>
                 </div>
 
@@ -924,7 +959,7 @@ function MenuBuilder() {
 
                 <div className="builder-item-list">
                   {filteredItems.length === 0 ? (
-                    <div className="builder-empty-state"><p>No items match the current filters yet.</p></div>
+                    <div className="builder-empty-state"><p>No matching items.</p></div>
                   ) : (
                     filteredItems.map((item) => {
                       const originalIndex = items.findIndex((candidate, index) =>
@@ -983,12 +1018,12 @@ function MenuBuilder() {
               </section>
             </div>
 
-            <aside className="builder-sidebar">
+            <aside className="builder-sidebar builder-step-panel builder-step-panel--4">
               <section className="builder-panel builder-panel--sticky">
                 <div className="builder-panel__header">
                   <div>
                     <h2>Publish preview</h2>
-                    <p>Preview how your business and top items will appear before publishing.</p>
+                    <p>Final customer view.</p>
                   </div>
                 </div>
 
@@ -1014,7 +1049,7 @@ function MenuBuilder() {
                     </div>
                     <div>
                       <strong>{shopProfile.shopName || 'Your shop name'}</strong>
-                      <span>{shopProfile.tagline || 'Add a tagline to explain your business clearly.'}</span>
+                      <span>{shopProfile.tagline || 'Add a short tagline.'}</span>
                     </div>
                   </div>
 
@@ -1033,7 +1068,7 @@ function MenuBuilder() {
                 <div className="builder-mini-list">
                   <h3>First look</h3>
                   {previewItems.length === 0 ? (
-                    <p>Your top items will show here after you start adding them.</p>
+                    <p>Add items to preview.</p>
                   ) : (
                     previewItems.map((item) => (
                       <div className="builder-mini-list__item" key={`${item.name}-${item.category}`}>
@@ -1091,6 +1126,20 @@ function MenuBuilder() {
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+          <div className="builder-wizard-actions">
+            <button type="button" className="builder-chip builder-chip--ghost" onClick={() => goToStep(activeStep - 1)} disabled={activeStep === 1}>
+              <ArrowLeft size={16} /> Back
+            </button>
+            <div>
+              <span>Step {activeStep} of 4</span>
+              <strong>{steps[activeStep - 1].label}</strong>
+            </div>
+            {activeStep < 4 && (
+              <button type="button" className="builder-primary-btn" onClick={() => goToStep(activeStep + 1)}>
+                {activeStep === 3 ? 'Review menu' : 'Continue'} <ArrowRight size={16} />
+              </button>
             )}
           </div>
         </div>

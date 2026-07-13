@@ -194,3 +194,149 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* About v2 - same compact product language */
+.about-shell {
+  min-height: calc(100vh - 64px);
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, #f8fafc 0, #eef4fb 280px, #f8fafc 100%);
+}
+
+.about-container {
+  width: min(1180px, 100%);
+}
+
+.about-hero,
+.about-panel,
+.about-hero__card,
+.about-creator__meta div,
+.about-feature-list li,
+.about-hero__stat {
+  border-radius: 8px;
+  border-color: #dbe3ef;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.about-hero {
+  position: relative;
+  overflow: hidden;
+  background: #0f172a;
+  color: #ffffff;
+  align-items: center;
+}
+
+.about-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.26), transparent 26%),
+    linear-gradient(45deg, transparent 0 43%, rgba(255,255,255,0.05) 43% 44%, transparent 44% 100%);
+  background-size: auto, 26px 26px;
+  pointer-events: none;
+}
+
+.about-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.about-kicker,
+.about-panel__eyebrow {
+  color: #2563eb;
+  letter-spacing: 0.06em;
+}
+
+.about-hero .about-kicker {
+  color: #93c5fd;
+}
+
+.about-hero h1,
+.about-panel h2 {
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+.about-hero h1 {
+  color: #ffffff;
+  max-width: 14ch;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+}
+
+.about-hero p {
+  color: #cbd5e1;
+  max-width: 430px;
+}
+
+.about-panel h2,
+.about-hero__stat strong {
+  color: #0f172a;
+}
+
+.about-hero p,
+.about-panel p,
+.about-feature-list li {
+  line-height: 1.45;
+}
+
+.about-hero__card,
+.about-hero__stat {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.about-hero__stat strong {
+  color: #ffffff;
+}
+
+.about-hero__stat span {
+  color: #cbd5e1;
+}
+
+.about-feature-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.about-feature-list li {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: center;
+}
+
+.about-creator__photo {
+  border-radius: 8px;
+  box-shadow: none;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.about-creator__links a {
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.about-hero,
+.about-panel {
+  animation: about-rise 440ms ease both;
+}
+
+@keyframes about-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .about-shell {
+    padding: 0.6rem;
+  }
+
+  .about-feature-list {
+    grid-template-columns: 1fr;
+  }
+}

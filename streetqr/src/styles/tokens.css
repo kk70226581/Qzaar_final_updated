@@ -1,0 +1,354 @@
+/* 🎨 QZAAR Modern Design System Tokens
+   Premium SaaS Restaurant Platform Design Tokens
+   All values follow 8px baseline, responsive scaling, and WCAG accessibility standards */
+
+:root {
+  /* ========== COLOR PALETTE ========== */
+
+  /* Primary Brand - Modern Orange-Red */
+  --brand-50: #fef3f2;
+  --brand-100: #fee4e2;
+  --brand-200: #fecdca;
+  --brand-300: #faa29a;
+  --brand-400: #f97970;
+  --brand-500: #f24e42;
+  --brand-600: #d63c2f;
+  --brand-700: #b52419;
+  --brand-800: #851810;
+  --brand-900: #5d0f0a;
+
+  /* Success - Green */
+  --success-50: #f0fdf4;
+  --success-100: #dcfce7;
+  --success-200: #bbf7d0;
+  --success-300: #86efac;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  --success-700: #15803d;
+
+  /* Warning - Amber */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-500: #eab308;
+  --warning-600: #ca8a04;
+  --warning-700: #a16207;
+
+  /* Danger - Red */
+  --danger-50: #fef2f2;
+  --danger-100: #fee2e2;
+  --danger-200: #fecaca;
+  --danger-300: #fca5a5;
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  --danger-700: #b91c1c;
+
+  /* Info - Blue */
+  --info-50: #f0f9ff;
+  --info-100: #e0f2fe;
+  --info-200: #bae6fd;
+  --info-300: #7dd3fc;
+  --info-500: #0ea5e9;
+  --info-600: #0284c7;
+  --info-700: #0369a1;
+
+  /* Neutral - Slate */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+
+  /* ========== LIGHT MODE ========== */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-inverse: #0f172a;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+
+  /* ========== SPACING (8px baseline) ========== */
+  --space-0: 0;
+  --space-1: 0.125rem;  /* 2px */
+  --space-2: 0.25rem;   /* 4px */
+  --space-3: 0.375rem;  /* 6px */
+  --space-4: 0.5rem;    /* 8px - BASE UNIT */
+  --space-6: 0.75rem;   /* 12px */
+  --space-8: 1rem;      /* 16px */
+  --space-10: 1.25rem;  /* 20px */
+  --space-12: 1.5rem;   /* 24px */
+  --space-14: 1.75rem;  /* 28px */
+  --space-16: 2rem;     /* 32px */
+  --space-20: 2.5rem;   /* 40px */
+  --space-24: 3rem;     /* 48px */
+  --space-32: 4rem;     /* 64px */
+
+  /* ========== TYPOGRAPHY ========== */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', sans-serif;
+  --font-serif: 'Georgia', 'Garamond', 'Cambria', serif;
+  --font-mono: 'Fira Code', 'Courier New', monospace;
+
+  /* Font Weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+
+  /* ========== BORDER RADIUS ========== */
+  --radius-none: 0;
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px - default */
+  --radius-lg: 0.75rem;    /* 12px - cards */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.25rem;   /* 20px */
+  --radius-3xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;   /* Circles/pills */
+
+  /* ========== SHADOWS ========== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+  /* Colored Shadows */
+  --shadow-brand: 0 4px 20px -4px rgba(242, 78, 66, 0.15);
+  --shadow-success: 0 4px 20px -4px rgba(34, 197, 94, 0.15);
+  --shadow-danger: 0 4px 20px -4px rgba(239, 68, 68, 0.15);
+
+  /* ========== TRANSITIONS ========== */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ========== COMPONENT SPECIFIC ========== */
+
+  /* Button Heights */
+  --btn-height-xs: 1.75rem;
+  --btn-height-sm: 2rem;
+  --btn-height-md: 2.5rem;
+  --btn-height-lg: 3rem;
+  --btn-height-xl: 3.5rem;
+
+  /* Input Heights */
+  --input-height: 2.75rem;
+  --input-height-sm: 2.25rem;
+  --input-height-lg: 3.25rem;
+
+  /* Focus Ring */
+  --focus-ring-width: 2px;
+  --focus-ring-color: var(--brand-500);
+  --focus-ring-offset: 2px;
+}
+
+/* ========== DARK MODE ========== */
+@media (prefers-color-scheme: dark) {
+  :root,
+  .dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-inverse: #ffffff;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
+
+    --border-primary: #334155;
+    --border-secondary: #475569;
+  }
+}
+
+/* ========== UTILITY TOKENS ========== */
+
+/* Padding/Margin Utilities */
+:root {
+  --padding-xs: var(--space-4);    /* 8px */
+  --padding-sm: var(--space-8);    /* 16px */
+  --padding-md: var(--space-12);   /* 24px */
+  --padding-lg: var(--space-16);   /* 32px */
+  --padding-xl: var(--space-20);   /* 40px */
+
+  --gap-xs: var(--space-4);
+  --gap-sm: var(--space-8);
+  --gap-md: var(--space-12);
+  --gap-lg: var(--space-16);
+  --gap-xl: var(--space-20);
+}
+
+/* Responsive Scaling Helpers */
+@media (max-width: 640px) {
+  :root {
+    /* Scale down padding on mobile */
+    --padding-lg: var(--space-12);
+    --padding-xl: var(--space-16);
+  }
+}
+
+/* Opacity Values */
+:root {
+  --opacity-disabled: 0.5;
+  --opacity-hover: 0.08;
+  --opacity-focus: 0.12;
+  --opacity-active: 0.16;
+}
+
+/* Z-index Scale */
+:root {
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* ========== ANIMATION KEYFRAMES ========== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-8));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-8) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(var(--space-12));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========== FOCUS STYLES ========== */
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

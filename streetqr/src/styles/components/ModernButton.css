@@ -1,0 +1,366 @@
+/* 🎯 Modern Button Component Styles
+   Premium buttons with multiple variants and states */
+
+.modern-button-wrapper {
+  display: inline-flex;
+}
+
+.modern-button {
+  /* Base styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-weight: var(--font-semibold);
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-base);
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+
+  /* Focus styles (accessibility) */
+  &:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+  }
+
+  /* Disabled state */
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* ========== VARIANTS ========== */
+
+/* PRIMARY VARIANT - Main CTA */
+.modern-button--primary {
+  background-color: var(--primary-600);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-md);
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-700);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--primary-700);
+    box-shadow: var(--shadow-md);
+    transform: translateY(0);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--primary-500);
+
+    &:hover:not(:disabled) {
+      background-color: var(--primary-600);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--primary-600);
+    }
+  }
+}
+
+/* SECONDARY VARIANT - Alternative CTA */
+.modern-button--secondary {
+  background-color: var(--slate-100);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(:disabled) {
+    background-color: var(--slate-200);
+    border-color: var(--border-secondary);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--slate-100);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--slate-800);
+    color: var(--text-inverse);
+    border-color: var(--border-secondary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--slate-700);
+      border-color: var(--border-tertiary);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--slate-800);
+    }
+  }
+}
+
+/* GHOST VARIANT - Minimal, text-only */
+.modern-button--ghost {
+  background-color: transparent;
+  color: var(--primary-600);
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-50);
+    color: var(--primary-700);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--primary-100);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--primary-400);
+
+    &:hover:not(:disabled) {
+      background-color: rgba(242, 78, 66, 0.15);
+      color: var(--primary-300);
+    }
+
+    &:active:not(:disabled) {
+      background-color: rgba(242, 78, 66, 0.25);
+    }
+  }
+}
+
+/* DANGER VARIANT - Destructive actions */
+.modern-button--danger {
+  background-color: var(--danger-600);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-md);
+
+  &:hover:not(:disabled) {
+    background-color: var(--danger-700);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--danger-700);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--danger-500);
+
+    &:hover:not(:disabled) {
+      background-color: var(--danger-600);
+    }
+  }
+}
+
+/* SUCCESS VARIANT - Positive actions */
+.modern-button--success {
+  background-color: var(--success-600);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-md);
+
+  &:hover:not(:disabled) {
+    background-color: var(--success-700);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--success-700);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--success-500);
+
+    &:hover:not(:disabled) {
+      background-color: var(--success-600);
+    }
+  }
+}
+
+/* OUTLINE VARIANT - Bordered style */
+.modern-button--outline {
+  background-color: transparent;
+  color: var(--primary-600);
+  border: 2px solid var(--primary-600);
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-50);
+    border-color: var(--primary-700);
+    color: var(--primary-700);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--primary-100);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--primary-400);
+    color: var(--primary-400);
+
+    &:hover:not(:disabled) {
+      background-color: rgba(242, 78, 66, 0.1);
+      border-color: var(--primary-300);
+      color: var(--primary-300);
+    }
+
+    &:active:not(:disabled) {
+      background-color: rgba(242, 78, 66, 0.2);
+    }
+  }
+}
+
+/* ========== SIZES ========== */
+
+.modern-button--xs {
+  padding: 0.375rem 0.75rem;
+  font-size: var(--text-xs);
+  border-radius: var(--rounded-md);
+  min-height: 28px;
+}
+
+.modern-button--sm {
+  padding: 0.5rem 1rem;
+  font-size: var(--text-sm);
+  border-radius: var(--rounded-md);
+  min-height: 36px;
+}
+
+.modern-button--md {
+  padding: 0.75rem 1.25rem;
+  font-size: var(--text-base);
+  border-radius: var(--rounded-lg);
+  min-height: 44px; /* Touch-friendly */
+}
+
+.modern-button--lg {
+  padding: 1rem 1.5rem;
+  font-size: var(--text-lg);
+  border-radius: var(--rounded-lg);
+  min-height: 48px; /* Touch-friendly */
+}
+
+.modern-button--xl {
+  padding: 1.25rem 2rem;
+  font-size: var(--text-lg);
+  border-radius: var(--rounded-xl);
+  min-height: 56px; /* Large touch target */
+}
+
+/* ========== FULL WIDTH ========== */
+
+.modern-button--full-width {
+  width: 100%;
+}
+
+/* ========== DISABLED STATE ========== */
+
+.modern-button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+
+  &:hover,
+  &:active,
+  &:focus {
+    transform: none !important;
+  }
+}
+
+/* ========== ICON STYLES ========== */
+
+.modern-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modern-button__icon--left {
+  margin-right: -0.25rem;
+}
+
+.modern-button__icon--right {
+  margin-left: -0.25rem;
+}
+
+/* ========== LOADING STATE ========== */
+
+.modern-button__spinner {
+  display: inline-flex;
+  animation: spin var(--duration-slow) linear infinite;
+  flex-shrink: 0;
+}
+
+.modern-button__text {
+  display: inline;
+}
+
+.modern-button__text--loading {
+  margin-left: var(--space-1);
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 640px) {
+  /* Make buttons larger on mobile for touch */
+  .modern-button--md,
+  .modern-button--lg,
+  .modern-button--xl {
+    min-height: 48px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .modern-button--full-width {
+    /* Already full width, no change needed */
+  }
+}
+
+/* ========== RIPPLE EFFECT (Optional Premium Interaction) ========== */
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.modern-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background-color: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modern-button:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .modern-button {
+    transition: none;
+  }
+
+  .modern-button__spinner {
+    animation: none;
+  }
+
+  .modern-button::after {
+    animation: none;
+  }
+
+  .modern-button:active::after {
+    animation: none;
+  }
+}

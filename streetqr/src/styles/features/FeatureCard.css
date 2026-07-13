@@ -1,0 +1,135 @@
+/* 💎 Feature Card Component Styles
+   Feature showcase cards */
+
+.feature-card {
+  height: 100%;
+}
+
+.feature-card__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8);
+  height: 100%;
+  gap: var(--space-4);
+}
+
+/* ========== ICON WRAPPER ========== */
+
+.feature-card__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(242, 78, 66, 0.1), rgba(242, 78, 66, 0.05));
+  border-radius: var(--rounded-2xl);
+  flex-shrink: 0;
+}
+
+/* ========== ICON ========== */
+
+.feature-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 36px;
+  transition: var(--transition-base);
+
+  .feature-card:hover & {
+    transform: scale(1.1);
+  }
+
+  svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ========== CONTENT ========== */
+
+.feature-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* ========== TITLE ========== */
+
+.feature-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--leading-normal);
+}
+
+/* ========== DESCRIPTION ========== */
+
+.feature-card__description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+/* ========== CTA ========== */
+
+.feature-card__cta {
+  margin-top: var(--space-3);
+  width: 100%;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 640px) {
+  .feature-card__inner {
+    padding: var(--space-6);
+  }
+
+  .feature-card__icon-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .feature-card__icon {
+    font-size: 28px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .feature-card__title {
+    font-size: var(--text-base);
+  }
+
+  .feature-card__description {
+    font-size: var(--text-xs);
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+@media (prefers-color-scheme: dark) {
+  .feature-card__icon-wrapper {
+    background: rgba(242, 78, 66, 0.08);
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card__icon {
+    transition: none;
+  }
+
+  .feature-card:hover .feature-card__icon {
+    transform: none;
+  }
+}

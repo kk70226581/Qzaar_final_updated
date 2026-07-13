@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
+  Activity,
   BarChart3,
   BellRing,
   CheckCircle2,
-  Clock3,
   CreditCard,
-  LayoutDashboard,
+  ChevronLeft,
+  ChevronRight,
   QrCode,
   ReceiptText,
   ScanLine,
@@ -35,56 +36,74 @@ const staggerChildren = {
   }
 };
 
-const heroSignals = ['No app required', 'Fast setup', 'Live order flow'];
-
-const platformStats = [
-  { label: 'Live menu modules', value: '4' },
-  { label: 'Orders live', value: '18' },
-  { label: 'Average prep', value: '14m' },
-  { label: 'Launch setup', value: '8 min' }
+const heroSignals = [
+  { icon: QrCode, label: 'Scan' },
+  { icon: BellRing, label: 'Order' },
+  { icon: CheckCircle2, label: 'Track' }
 ];
 
-const queueRows = [
-  { id: '#A104', table: 'Table 04', value: 'Rs 370', status: 'Preparing', tone: 'amber' },
-  { id: '#A105', table: 'Counter', value: 'Rs 220', status: 'Accepted', tone: 'blue' },
-  { id: '#A106', table: 'Table 02', value: 'Rs 540', status: 'Ready', tone: 'green' }
+const platformStats = [
+  { icon: QrCode, label: 'Menus', value: '4' },
+  { icon: ReceiptText, label: 'Orders', value: '18' },
+  { icon: Activity, label: 'Prep', value: '14m' },
+  { icon: ScanLine, label: 'Setup', value: '8m' }
+];
+
+const slides = [
+  { image: '/images/landing/slide-1.png', eyebrow: 'Food discovery', title: 'A menu that makes every dish look irresistible.' },
+  { image: '/images/landing/slide-5.png', eyebrow: 'QR ordering', title: 'Scan, browse, order without downloading an app.' },
+  { image: '/images/landing/slide-7.png', eyebrow: 'Live experience', title: 'Track every order from kitchen to table.' },
+  { image: '/images/landing/slide-3.png', eyebrow: 'Faster checkout', title: 'Simple payments and a smoother guest journey.' },
+  { image: '/images/landing/slide-8.png', eyebrow: 'Restaurant control', title: 'One polished system for the entire service.' }
 ];
 
 const modules = [
   {
     icon: QrCode,
     title: 'QR storefront',
-    text: 'Publish a customer menu that feels branded, fast, and easy to scan.'
+    text: 'Fast branded menu.'
   },
   {
     icon: BellRing,
     title: 'Live order desk',
-    text: 'Track pending, preparing, ready, and fulfilled orders from one dashboard.'
+    text: 'Status in one view.'
   },
   {
     icon: CreditCard,
     title: 'Payment workflow',
-    text: 'Support counter payment and online checkout without complicating service.'
+    text: 'Simple checkout.'
   },
   {
     icon: BarChart3,
     title: 'Daily visibility',
-    text: 'See menu depth, featured items, sales signals, and readiness at a glance.'
+    text: 'Quick insights.'
   }
 ];
 
 const workflow = [
-  { icon: Store, title: 'Set the brand', text: 'Add business identity, hours, address, contact details, and visual style.' },
-  { icon: UtensilsCrossed, title: 'Structure the menu', text: 'Organize categories, pricing, item photos, prep time, tags, and availability.' },
-  { icon: ScanLine, title: 'Place the QR', text: 'Use one public scan link for tables, counters, packaging, and campaigns.' },
-  { icon: CheckCircle2, title: 'Operate live', text: 'Receive orders, confirm payments, manage status, and keep customers updated.' }
+  { icon: Store, title: 'Brand', text: 'Logo, hours, contact.' },
+  { icon: UtensilsCrossed, title: 'Menu', text: 'Items, photos, prices.' },
+  { icon: ScanLine, title: 'QR', text: 'One scan link.' },
+  { icon: CheckCircle2, title: 'Live', text: 'Accept and track.' }
 ];
 
 function HomePage() {
+  const [activeSlide, setActiveSlide] = useState(0);
   const isAuthenticated = useMemo(
     () => localStorage.getItem('loggedIn') === 'true' || Boolean(localStorage.getItem('shopId')),
     []
   );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const moveSlide = (direction) => {
+    setActiveSlide((current) => (current + direction + slides.length) % slides.length);
+  };
 
   return (
     <div className="landing-shell">
@@ -105,88 +124,74 @@ function HomePage() {
                 <ShieldCheck size={16} />
                 Built for serious food operations
               </span>
-              <h1>Run QR ordering like a real, polished restaurant system.</h1>
-              <p>
-                Qzaar gives food businesses a clean digital menu, order desk, coupon engine,
-                payment flow, and tracking experience without making the brand look childish.
-              </p>
+              <h1>QR menus. Live orders. Smooth service.</h1>
+              <p>Build your shop menu, publish a QR, and manage orders from one clean dashboard.</p>
 
               <div className="home-signals">
-                {heroSignals.map((signal) => (
-                  <span className="home-signals__item" key={signal}>
-                    {signal}
+                {heroSignals.map((signal) => {
+                  const Icon = signal.icon;
+                  return (
+                  <span className="home-signals__item" key={signal.label}>
+                    <Icon size={16} />
+                    {signal.label}
                   </span>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="home-hero__actions">
-                <Link className="home-button home-button--primary" to={isAuthenticated ? '/menu' : '/login'}>
+                <Link className="home-button home-button--primary" to={isAuthenticated ? '/dashboard' : '/login'}>
                   {isAuthenticated ? 'Open Dashboard' : 'Start Workspace'}
                   <ArrowRight size={18} />
                 </Link>
                 <Link className="home-button home-button--secondary" to="/about">
                   See Platform
                 </Link>
+                <Link className="home-button home-button--secondary" to="/modern/menu">
+                  Preview Menu
+                  <UtensilsCrossed size={18} />
+                </Link>
               </div>
             </motion.div>
 
             <motion.div
-              className="ops-console"
+              className="home-showcase"
               initial="hidden"
               animate="visible"
               variants={fadeInUp}
               transition={{ duration: 0.55, delay: 0.1 }}
             >
-              <div className="ops-console__top">
-                <div>
-                  <span>Qzaar Command</span>
-                  <strong>Today&apos;s service</strong>
+              <div className="home-showcase__frame">
+                {slides.map((slide, index) => (
+                  <motion.img
+                    key={slide.image}
+                    src={slide.image}
+                    alt={slide.title}
+                    className={`home-showcase__image ${index === activeSlide ? 'is-active' : ''}`}
+                    initial={false}
+                    animate={{ opacity: index === activeSlide ? 1 : 0, scale: index === activeSlide ? 1 : 1.04 }}
+                    transition={{ duration: 0.7 }}
+                  />
+                ))}
+                <div className="home-showcase__overlay" />
+                <div className="home-showcase__caption">
+                  <span>{slides[activeSlide].eyebrow}</span>
+                  <strong>{slides[activeSlide].title}</strong>
                 </div>
-                <b>Live</b>
-              </div>
-
-              <div className="ops-console__metrics">
-                <div>
-                  <span>Revenue</span>
-                  <strong>Rs 24.5k</strong>
-                </div>
-                <div>
-                  <span>Open orders</span>
-                  <strong>18</strong>
-                </div>
-                <div>
-                  <span>Avg prep</span>
-                  <strong>14m</strong>
-                </div>
-              </div>
-
-              <div className="ops-console__body">
-                <div className="ops-console__queue">
-                  <div className="ops-console__section-head">
-                    <LayoutDashboard size={17} />
-                    <span>Kitchen queue</span>
+                <div className="home-showcase__controls">
+                  <button type="button" onClick={() => moveSlide(-1)} aria-label="Previous image"><ChevronLeft size={20} /></button>
+                  <div>
+                    {slides.map((slide, index) => (
+                      <button
+                        type="button"
+                        key={slide.image}
+                        className={index === activeSlide ? 'is-active' : ''}
+                        onClick={() => setActiveSlide(index)}
+                        aria-label={`Show slide ${index + 1}`}
+                      />
+                    ))}
                   </div>
-                  {queueRows.map((row) => (
-                    <div className="queue-row" key={row.id}>
-                      <strong>{row.id}</strong>
-                      <span>{row.table}</span>
-                      <span>{row.value}</span>
-                      <b className={`queue-row__status queue-row__status--${row.tone}`}>{row.status}</b>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="ops-console__side">
-                  <div className="qr-card">
-                    <QrCode size={42} />
-                    <span>Public scan link</span>
-                    <strong>Ready</strong>
-                  </div>
-                  <div className="prep-card">
-                    <Clock3 size={18} />
-                    <span>Peak window</span>
-                    <strong>7-10 PM</strong>
-                  </div>
+                  <button type="button" onClick={() => moveSlide(1)} aria-label="Next image"><ChevronRight size={20} /></button>
                 </div>
               </div>
             </motion.div>
@@ -201,23 +206,23 @@ function HomePage() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.35 }}
           >
-            {platformStats.map((item) => (
+            {platformStats.map((item) => {
+              const Icon = item.icon;
+              return (
               <motion.div className="signal-tile" key={item.label} variants={fadeInUp} transition={{ duration: 0.4 }}>
+                <Icon size={18} />
                 <strong>{item.value}</strong>
                 <span>{item.label}</span>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         </section>
 
         <section className="platform-section">
           <div className="landing-container platform-section__header">
             <span className="section-kicker">Operations stack</span>
-            <h2>Designed for scanning, ordering, payment, and follow-through.</h2>
-            <p>
-              A food business should not need five disconnected tools to accept QR orders.
-              Qzaar keeps the customer menu and owner dashboard moving together.
-            </p>
+            <h2>Everything customers and owners need.</h2>
           </div>
 
           <motion.div
@@ -273,9 +278,9 @@ function HomePage() {
           <div className="landing-container final-cta__inner">
             <div>
               <span className="section-kicker">Ready to publish</span>
-              <h2>Give customers a menu that feels reliable before they place the first order.</h2>
+              <h2>Launch a cleaner ordering flow today.</h2>
             </div>
-            <Link className="home-button home-button--primary" to={isAuthenticated ? '/menu' : '/login'}>
+            <Link className="home-button home-button--primary" to={isAuthenticated ? '/dashboard' : '/login'}>
               {isAuthenticated ? 'Resume' : 'Get Started'}
               <ReceiptText size={18} />
             </Link>

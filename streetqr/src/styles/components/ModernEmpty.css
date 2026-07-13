@@ -1,0 +1,223 @@
+/* ModernEmpty Component Styles */
+
+.modern-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-4);
+  min-height: 300px;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary),
+    rgba(0, 0, 0, 0.02)
+  );
+  border-radius: var(--radius-xl);
+  gap: var(--space-6);
+}
+
+/* Visual container */
+.modern-empty__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon wrapper */
+.modern-empty__icon-wrapper {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-100), var(--primary-50));
+  border-radius: var(--radius-full);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-empty__icon-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+}
+
+.modern-empty__icon {
+  color: var(--primary-600);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Illustration container */
+.modern-empty__illustration {
+  max-width: 200px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Title */
+.modern-empty__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--leading-tight);
+}
+
+/* Description */
+.modern-empty__description {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 400px;
+  line-height: var(--leading-relaxed);
+}
+
+/* Actions container */
+.modern-empty__actions {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.modern-empty__cta-primary,
+.modern-empty__cta-secondary {
+  min-width: 160px;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .modern-empty {
+    background: linear-gradient(
+      135deg,
+      var(--bg-secondary),
+      rgba(255, 255, 255, 0.02)
+    );
+  }
+
+  .modern-empty__icon-wrapper {
+    background: linear-gradient(
+      135deg,
+      var(--primary-900),
+      var(--primary-950)
+    );
+  }
+
+  .modern-empty__icon {
+    color: var(--primary-400);
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 768px) {
+  .modern-empty {
+    padding: var(--space-8) var(--space-3);
+    min-height: 250px;
+    gap: var(--space-5);
+  }
+
+  .modern-empty__title {
+    font-size: var(--text-xl);
+  }
+
+  .modern-empty__description {
+    font-size: var(--text-sm);
+  }
+
+  .modern-empty__icon-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .modern-empty__icon {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .modern-empty {
+    padding: var(--space-6) var(--space-3);
+    min-height: 200px;
+    gap: var(--space-4);
+  }
+
+  .modern-empty__title {
+    font-size: var(--text-lg);
+  }
+
+  .modern-empty__description {
+    font-size: var(--text-xs);
+    max-width: 100%;
+  }
+
+  .modern-empty__icon-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .modern-empty__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .modern-empty__actions {
+    gap: var(--space-3);
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .modern-empty__cta-primary,
+  .modern-empty__cta-secondary {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .modern-empty__visual,
+  .modern-empty__title,
+  .modern-empty__description,
+  .modern-empty__actions {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  .modern-empty__icon-wrapper {
+    border: 2px solid var(--primary-600);
+    background: var(--bg-primary);
+  }
+
+  .modern-empty {
+    border: 1px solid var(--border-color);
+  }
+}
+
+/* Print styles */
+@media print {
+  .modern-empty {
+    min-height: auto;
+    page-break-inside: avoid;
+  }
+}
+
+/* Accessibility - focus visible */
+.modern-empty__cta-primary:focus-visible,
+.modern-empty__cta-secondary:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
