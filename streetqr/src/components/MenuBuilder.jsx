@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
@@ -12,7 +12,6 @@ import {
   Clock3,
   ImageOff,
   ImagePlus,
-  LayoutDashboard,
   Leaf,
   LoaderCircle,
   LogOut,
@@ -533,10 +532,10 @@ function MenuBuilder() {
   };
 
   const steps = [
-    { id: 1, label: 'Business', hint: 'Brand' },
-    { id: 2, label: 'Menu', hint: 'Items' },
-    { id: 3, label: 'Offers', hint: 'Coupons' },
-    { id: 4, label: 'Review', hint: 'Publish' }
+    { id: 1, label: 'Brand', hint: 'Your place' },
+    { id: 2, label: 'Menu', hint: 'Your dishes' },
+    { id: 3, label: 'Offers', hint: 'Optional' },
+    { id: 4, label: 'Publish', hint: 'Go live' }
   ];
 
   const goToStep = (nextStep) => {
@@ -597,19 +596,6 @@ function MenuBuilder() {
   };
 
   const previewItems = filteredItems.slice(0, 3);
-  const profileSignals = [
-    shopProfile.shopName,
-    shopProfile.tagline,
-    shopProfile.cuisineType,
-    shopProfile.address,
-    shopProfile.contactPhone,
-    shopProfile.logo
-  ].filter(Boolean).length;
-  const brandChecklist = [
-    { label: 'Brand image', status: shopProfile.logo ? 'Added' : 'Missing' },
-    { label: 'Store story', status: shopProfile.tagline ? 'Added' : 'Add tagline' },
-    { label: 'Customer trust', status: shopProfile.contactPhone && shopProfile.address ? 'Strong' : 'Add phone + address' }
-  ];
   const activeCoupons = coupons.filter((coupon) => coupon.isActive !== false);
 
   return (
@@ -617,18 +603,12 @@ function MenuBuilder() {
       <Navbar showAuthLinks={false} />
       <div className="builder-shell">
         <div className="builder-container">
-          <header className="builder-hero">
+          <header className="builder-workbench-header">
             <div>
-              <span className="builder-kicker"><LayoutDashboard size={16} /> Menu studio</span>
-              <h1>Make the menu look delicious.</h1>
-              <p>Build, style, publish.</p>
+              <span>Menu builder</span>
+              <strong>{steps[activeStep - 1].label}</strong>
             </div>
-            <div className="builder-hero__actions">
-              <Link className="builder-chip" to="/orders"><LayoutDashboard size={16} /> Orders</Link>
-              <button type="button" className="builder-chip builder-chip--ghost" onClick={handleLogout}>
-                <LogOut size={16} /> Logout
-              </button>
-            </div>
+            <button type="button" className="builder-icon-button" onClick={handleLogout} aria-label="Log out" title="Log out"><LogOut size={17} /></button>
           </header>
 
           {statusMessage && <div className={`builder-alert builder-alert--${statusMessage.type}`}>{statusMessage.text}</div>}
@@ -648,93 +628,56 @@ function MenuBuilder() {
             ))}
           </nav>
 
-          <section className="builder-stats">
-            <div className="builder-stat-card"><span>Total items</span><strong>{stats.totalItems}</strong></div>
-            <div className="builder-stat-card"><span>Featured dishes</span><strong>{stats.featuredItems}</strong></div>
-            <div className="builder-stat-card"><span>Available now</span><strong>{stats.availableItems}</strong></div>
-            <div className="builder-stat-card"><span>Average price</span><strong>{formatCurrency(stats.averagePrice)}</strong></div>
-            <div className="builder-stat-card builder-stat-card--accent"><span>Launch readiness</span><strong>{stats.readinessScore}%</strong></div>
-          </section>
-
-          <section className="builder-story-strip builder-story-strip--hidden">
-            <div className="builder-story-card">
-              <strong>Clear workspace</strong>
-              <span>A simple dashboard with better structure, clearer actions, and a smoother editing flow.</span>
-            </div>
-            <div className="builder-story-card">
-              <strong>Local image upload</strong>
-              <span>Add menu photos and logo files directly from your device without needing hosted URLs.</span>
-            </div>
-            <div className="builder-story-card">
-              <strong>Operational visibility</strong>
-              <span>Keep your business profile complete and your menu ready to publish at any time.</span>
-            </div>
-          </section>
-
           <div className={`builder-layout builder-layout--step-${activeStep}`}>
             <div className="builder-main">
               <section className="builder-panel builder-step-panel builder-step-panel--1">
                 <div className="builder-panel__header">
-                  <div>
-                    <h2>Business profile</h2>
-                    <p>Logo, contact, hours, location.</p>
-                  </div>
+                  <div><h2>Your place</h2><p>What customers see first.</p></div>
                   <div className="builder-panel__header-icon"><Store size={18} /></div>
                 </div>
 
+                <div className="builder-profile-layout">
                 <div className="builder-form-grid">
                   <label><span>Shop name</span><input value={shopProfile.shopName} onChange={(event) => handleProfileChange('shopName', event.target.value)} placeholder="Street stall or cafe name" /></label>
-                  <label><span>Owner name</span><input value={shopProfile.ownerName} onChange={(event) => handleProfileChange('ownerName', event.target.value)} placeholder="Founder or operator" /></label>
-                  <label className="builder-form-grid__wide"><span>Tagline</span><input value={shopProfile.tagline} onChange={(event) => handleProfileChange('tagline', event.target.value)} placeholder="What makes this food business memorable?" /></label>
-                  <label><span>Cuisine type</span><input value={shopProfile.cuisineType} onChange={(event) => handleProfileChange('cuisineType', event.target.value)} placeholder="Street food, cafe..." /></label>
-                  <label><span>Open hours</span><input value={shopProfile.openHours} onChange={(event) => handleProfileChange('openHours', event.target.value)} placeholder="11 AM - 11 PM" /></label>
-                  <label><span>Contact phone</span><input value={shopProfile.contactPhone} onChange={(event) => handleProfileChange('contactPhone', event.target.value)} placeholder="+91 ..." /></label>
-                  <label><span>Logo or cover image URL</span><input value={shopProfile.logo} onChange={(event) => handleProfileChange('logo', event.target.value)} placeholder="Paste a direct image URL" /></label>
+                  <label><span>Cuisine</span><input value={shopProfile.cuisineType} onChange={(event) => handleProfileChange('cuisineType', event.target.value)} placeholder="Street food, cafe..." /></label>
+                  <label className="builder-form-grid__wide"><span>One-line description</span><input value={shopProfile.tagline} onChange={(event) => handleProfileChange('tagline', event.target.value)} placeholder="Fresh food, made your way" /></label>
                   <label><span>Brand color</span><div className="builder-color-input"><input type="color" value={shopProfile.brandColor} onChange={(event) => handleProfileChange('brandColor', event.target.value)} /><input value={shopProfile.brandColor} onChange={(event) => handleProfileChange('brandColor', event.target.value)} placeholder="#f97316" /></div></label>
-                  <label className="builder-form-grid__wide"><span>Address</span><input value={shopProfile.address} onChange={(event) => handleProfileChange('address', event.target.value)} placeholder="Location customers will recognize" /></label>
+                  <details className="builder-advanced-fields builder-form-grid__wide">
+                    <summary>More details</summary>
+                    <div className="builder-form-grid">
+                      <label><span>Owner</span><input value={shopProfile.ownerName} onChange={(event) => handleProfileChange('ownerName', event.target.value)} placeholder="Owner name" /></label>
+                      <label><span>Hours</span><input value={shopProfile.openHours} onChange={(event) => handleProfileChange('openHours', event.target.value)} placeholder="11 AM - 11 PM" /></label>
+                      <label><span>Phone</span><input value={shopProfile.contactPhone} onChange={(event) => handleProfileChange('contactPhone', event.target.value)} placeholder="+91 ..." /></label>
+                      <label><span>Image URL</span><input value={shopProfile.logo} onChange={(event) => handleProfileChange('logo', event.target.value)} placeholder="Paste image URL" /></label>
+                      <label className="builder-form-grid__wide"><span>Address</span><input value={shopProfile.address} onChange={(event) => handleProfileChange('address', event.target.value)} placeholder="Location customers recognize" /></label>
+                    </div>
+                  </details>
+                </div>
+
+                <div className="builder-brand-stage" style={{ '--builder-brand': shopProfile.brandColor }}>
+                  <SmartImage src={shopProfile.logo || '/images/showcase/showcase-2.png'} alt={shopProfile.shopName || 'Brand cover'} className="builder-brand-stage__image" fallbackClassName="builder-brand-stage__fallback" fallbackContent={<Store size={34} />} />
+                  <div className="builder-brand-stage__overlay">
+                    <span>{shopProfile.cuisineType || 'Your cuisine'}</span>
+                    <strong>{shopProfile.shopName || 'Your shop'}</strong>
+                    <small>{shopProfile.tagline || 'A short description goes here.'}</small>
+                  </div>
+                </div>
                 </div>
 
                 <div className="builder-upload-panel">
                   <div className="builder-upload-panel__copy">
-                    <strong>Brand image setup</strong>
-                    <span>Upload a logo or food photo.</span>
-                    <div className="builder-brand-score">
-                      <span>Profile filled</span>
-                      <strong>{profileSignals}/6</strong>
-                    </div>
+                    <strong>Cover image</strong>
+                    <span>Food photo or logo.</span>
                   </div>
                   <div className="builder-upload-panel__actions">
                     <label className="builder-upload-btn">
                       <ImagePlus size={16} />
-                      Upload image from device
+                      Upload image
                       <input type="file" accept="image/*" onChange={(event) => handleProfileImageUpload(event, 'logo')} />
                     </label>
-                    <div className="builder-brand-preview" style={{ '--builder-brand': shopProfile.brandColor }}>
-                      <div className="builder-brand-preview__media">
-                        <SmartImage
-                          src={shopProfile.logo}
-                          alt={shopProfile.shopName || 'Brand preview'}
-                          className="builder-brand-preview__image"
-                          fallbackClassName="builder-brand-preview__fallback"
-                          fallbackContent={<Store size={28} />}
-                        />
-                      </div>
-                      <div className="builder-brand-preview__body">
-                        <strong>{shopProfile.shopName || 'Your storefront preview'}</strong>
-                        <span>{shopProfile.tagline || 'Add a short tagline.'}</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
-                <div className="builder-brand-checklist">
-                  {brandChecklist.map((entry) => (
-                    <div key={entry.label}>
-                      <span>{entry.label}</span>
-                      <strong>{entry.status}</strong>
-                    </div>
-                  ))}
-                </div>
               </section>
 
               <section className="builder-panel builder-step-panel builder-step-panel--1">
