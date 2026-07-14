@@ -8,6 +8,8 @@ import {
   BadgePercent,
   Copy,
   Camera,
+  ChevronDown,
+  Clock3,
   ImageOff,
   ImagePlus,
   LayoutDashboard,
@@ -194,6 +196,7 @@ function MenuBuilder() {
   const [shopProfile, setShopProfile] = useState(createDefaultProfile());
   const [newItem, setNewItem] = useState(createEmptyItem());
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [expandedItem, setExpandedItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortMode, setSortMode] = useState('category');
@@ -616,9 +619,9 @@ function MenuBuilder() {
         <div className="builder-container">
           <header className="builder-hero">
             <div>
-              <span className="builder-kicker"><LayoutDashboard size={16} /> Business dashboard</span>
-              <h1>Build your QR menu faster.</h1>
-              <p>Brand, items, offers, publish.</p>
+              <span className="builder-kicker"><LayoutDashboard size={16} /> Menu studio</span>
+              <h1>Make the menu look delicious.</h1>
+              <p>Build, style, publish.</p>
             </div>
             <div className="builder-hero__actions">
               <Link className="builder-chip" to="/orders"><LayoutDashboard size={16} /> Orders</Link>
@@ -880,10 +883,7 @@ function MenuBuilder() {
 
               <section className="builder-panel builder-step-panel builder-step-panel--2">
                 <div className="builder-panel__header">
-                  <div>
-                    <h2>Menu authoring</h2>
-                    <p>Photos, prices, availability.</p>
-                  </div>
+                  <div><h2>Add a dish</h2></div>
                   <div className="builder-panel__header-icon"><Plus size={18} /></div>
                 </div>
 
@@ -947,7 +947,7 @@ function MenuBuilder() {
                 <div className="builder-panel__header">
                   <div>
                     <h2>Current menu</h2>
-                    <p>Search, sort, edit.</p>
+                    <p>{filteredItems.length} items</p>
                   </div>
                 </div>
 
@@ -971,19 +971,36 @@ function MenuBuilder() {
                       );
 
                       return (
-                          <article className="builder-item-editor" key={`${item.name}-${originalIndex}`}>
-                            <div className="builder-item-editor__header">
-                              <div>
-                                <strong>{item.name || 'Untitled item'}</strong>
-                                <span>{item.category} | {formatCurrency(item.price || 0)} | {item.prepTime || 0} min</span>
+                          <article className={`builder-item-editor builder-menu-card ${expandedItem === originalIndex ? 'builder-menu-card--expanded' : ''}`} key={`${item.name}-${originalIndex}`}>
+                            <div className="builder-menu-card__summary">
+                              <SmartImage
+                                src={item.image}
+                                alt={item.name || 'Menu item'}
+                                className="builder-menu-card__image"
+                                fallbackClassName="builder-menu-card__image builder-menu-card__fallback"
+                                fallbackContent={<Camera size={22} />}
+                              />
+                              <div className="builder-menu-card__details">
+                                <div className="builder-menu-card__title-row">
+                                  <strong>{item.name || 'Untitled item'}</strong>
+                                  <b>{formatCurrency(item.price || 0)}</b>
+                                </div>
+                                <div className="builder-menu-card__meta">
+                                  <span>{item.category}</span><span><Clock3 size={13} /> {item.prepTime || 0}m</span>
+                                  {item.isVeg && <span className="builder-menu-card__veg"><Leaf size={13} /> Veg</span>}
+                                  {item.featured && <span className="builder-menu-card__feature"><Star size={13} /> Featured</span>}
+                                </div>
                               </div>
-                              <div className="builder-action-row builder-action-row--tight">
-                                <button type="button" className="builder-chip builder-chip--ghost" onClick={() => duplicateItem(originalIndex)}><Copy size={16} /> Duplicate</button>
-                                <button type="button" className="builder-chip builder-chip--ghost builder-chip--danger" onClick={() => removeItem(originalIndex)}><Trash2 size={16} /> Remove</button>
+                              <div className="builder-menu-card__actions">
+                                <button type="button" className="builder-icon-button" onClick={() => duplicateItem(originalIndex)} aria-label={`Duplicate ${item.name || 'item'}`} title="Duplicate"><Copy size={16} /></button>
+                                <button type="button" className="builder-icon-button builder-icon-button--danger" onClick={() => removeItem(originalIndex)} aria-label={`Remove ${item.name || 'item'}`} title="Remove"><Trash2 size={16} /></button>
+                                <button type="button" className="builder-expand-button" onClick={() => setExpandedItem(expandedItem === originalIndex ? null : originalIndex)} aria-expanded={expandedItem === originalIndex}>
+                                  <span>{expandedItem === originalIndex ? 'Close' : 'Edit'}</span><ChevronDown size={17} />
+                                </button>
                               </div>
                             </div>
 
-                            <div className="builder-item-editor__top">
+                            {expandedItem === originalIndex && <div className="builder-menu-card__editor">
                               <div className="builder-item-editor__grid">
                               <label><span>Item name</span><input value={item.name} onChange={(event) => handleItemChange(originalIndex, 'name', event.target.value)} /></label>
                               <label><span>Price</span><input value={item.price} onChange={(event) => handleItemChange(originalIndex, 'price', event.target.value)} /></label>
@@ -991,8 +1008,7 @@ function MenuBuilder() {
                               <label><span>Prep time</span><input type="number" min="1" value={item.prepTime} onChange={(event) => handleItemChange(originalIndex, 'prepTime', event.target.value)} /></label>
                               <label><span>Spice level</span><select value={item.spiceLevel} onChange={(event) => handleItemChange(originalIndex, 'spiceLevel', event.target.value)}><option value="Mild">Mild</option><option value="Medium">Medium</option><option value="Hot">Hot</option></select></label>
                               <label className="builder-item-editor__grid-wide"><span>Description</span><textarea rows="3" value={item.remarks} onChange={(event) => handleItemChange(originalIndex, 'remarks', event.target.value)} /></label>
-                            </div>
-                          </div>
+                              </div>
 
                           <ItemImageField
                             itemName={item.name}
@@ -1010,6 +1026,7 @@ function MenuBuilder() {
                               <label className="builder-toggle"><input type="checkbox" checked={item.available} onChange={(event) => handleItemChange(originalIndex, 'available', event.target.checked)} /><span>Available now</span></label>
                             </div>
                           </div>
+                            </div>}
                         </article>
                       );
                     })

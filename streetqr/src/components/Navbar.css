@@ -255,3 +255,28 @@
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.24);
   }
 }
+
+/* Icon-led desktop navigation with compact labels restored in the mobile tray. */
+@media (min-width: 961px) {
+  .site-nav__link,
+  .site-nav__cta {
+    width: 2.45rem;
+    height: 2.45rem;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .site-nav__link span,
+  .site-nav__cta span { display: none; }
+
+  .site-nav__link {
+    border: 1px solid transparent;
+  }
+
+  .site-nav__link:hover,
+  .site-nav__link.is-active,
+  .site-nav__link--button:hover {
+    border-color: #334155;
+    transform: translateY(-1px);
+  }
+}
