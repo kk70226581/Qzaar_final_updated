@@ -79,26 +79,30 @@ const CategoryTabs = ({
         className="category-tabs__container"
         onScroll={checkScroll}
       >
-        {categories.map((category) => (
-          <motion.button
-            key={category.id}
-            className={`category-tab ${
-              category.id === activeId ? 'category-tab--active' : ''
-            }`}
-            onClick={() => onCategoryClick(category.id)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {category.name}
-            {category.id === activeId && (
-              <motion.div
-                className="category-tab__indicator"
-                layoutId="category-indicator"
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              />
-            )}
-          </motion.button>
-        ))}
+        {categories.map((category) => {
+          const Icon = category.icon;
+          return (
+            <motion.button
+              key={category.id}
+              className={`category-tab ${
+                category.id === activeId ? 'category-tab--active' : ''
+              }`}
+              onClick={() => onCategoryClick(category.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {Icon && <Icon size={16} className="category-tab__icon" />}
+              <span>{category.name}</span>
+              {category.id === activeId && (
+                <motion.div
+                  className="category-tab__indicator"
+                  layoutId="category-indicator"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* RIGHT SCROLL BUTTON */}

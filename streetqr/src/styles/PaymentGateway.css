@@ -16,13 +16,14 @@
 .payment-launcher__card {
   position: relative;
   z-index: 1;
-  width: min(420px, calc(100% - 1.5rem));
-  padding: 1.8rem;
-  border-radius: 1.75rem;
-  background: rgba(255, 252, 247, 0.96);
-  border: 1px solid rgba(92, 63, 41, 0.12);
+  width: min(460px, calc(100% - 1.5rem));
+  padding: 1rem 1rem 1.4rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 28px 60px rgba(15, 23, 42, 0.18);
   text-align: center;
+  overflow: hidden;
 }
 
 .payment-launcher__close {
@@ -41,11 +42,25 @@
   cursor: pointer;
 }
 
+.payment-launcher__media {
+  height: 132px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.payment-launcher__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .payment-launcher__icon {
   width: 4rem;
   height: 4rem;
   margin: 0 auto 1rem;
-  border-radius: 1.3rem;
+  border-radius: 8px;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #f97316, #ffb566);
@@ -60,8 +75,9 @@
 .payment-launcher__card h3 {
   margin: 0;
   color: #171311;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.7rem;
+  font-size: 1.45rem;
+  font-weight: 850;
+  letter-spacing: 0;
 }
 
 .payment-launcher__card p {
@@ -75,11 +91,38 @@
   padding: 0.9rem 1rem;
   width: fit-content;
   min-width: 160px;
-  border-radius: 999px;
-  background: rgba(255, 122, 24, 0.12);
+  border-radius: 8px;
+  background: #fff7ed;
   color: #c2410c;
   font-weight: 800;
   font-size: 1.15rem;
+}
+
+.payment-launcher__steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.payment-launcher__steps span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 34px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.payment-launcher__steps span.is-active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
 }
 
 .payment-launcher__trust {

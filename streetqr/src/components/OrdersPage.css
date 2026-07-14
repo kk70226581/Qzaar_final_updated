@@ -377,6 +377,21 @@
   }
 }
 
+.orders-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../../public/images/landing/slide-8.png') right center / cover no-repeat;
+  opacity: 0.22;
+  transform: scale(1.03);
+}
+
+.orders-hero::after {
+  z-index: 0;
+  width: 58%;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.4));
+}
+
 /* Complete orders page redesign: compact ops dashboard */
 .orders-shell {
   min-height: calc(100vh - 64px);

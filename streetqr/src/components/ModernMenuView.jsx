@@ -705,16 +705,18 @@ function ModernMenuView() {
       {/* Payment Gateway Modal */}
       {showPaymentGateway && (
         <PaymentGateway
-          isOpen={showPaymentGateway}
+          amount={finalTotal}
+          customerName={customerName}
+          customerEmail={customerEmail}
+          customerPhone={customerPhone}
+          tableNumber={tableNumber}
+          shopId={id}
+          items={selectedItems}
           onClose={() => setShowPaymentGateway(false)}
-          orderData={{
-            customerName,
-            customerEmail,
-            customerPhone,
-            tableNumber,
-            items: selectedItems,
-            total: finalTotal,
-            shopId: id,
+          onSuccess={(order) => {
+            setSelectedItems([]);
+            setShowPaymentGateway(false);
+            navigate(`/track-order/${order?._id || order?.id || order?.orderId}`);
           }}
         />
       )}

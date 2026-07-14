@@ -277,3 +277,9 @@
     padding: 1rem;
   }
 }
+
+.qr-code-card {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.64)),
+    url('../../public/images/landing/slide-5.png') center / cover no-repeat;
+}

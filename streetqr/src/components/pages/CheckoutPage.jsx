@@ -2,47 +2,79 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ChevronLeft,
-  MapPin,
-  Phone,
-  Mail,
-  CreditCard,
-  Wallet,
-  Smartphone,
-  DollarSign,
-  CheckCircle,
   AlertCircle,
+  BadgeCheck,
+  Banknote,
+  CheckCircle,
+  ChevronLeft,
+  Clock3,
+  CreditCard,
+  Home,
+  LockKeyhole,
+  Mail,
+  MapPin,
+  MessageSquareText,
+  Phone,
+  ReceiptText,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Truck,
+  Wallet,
 } from 'lucide-react';
 import {
-  ModernButton,
-  ModernInput,
-  ModernCard,
   ModernBadge,
+  ModernButton,
+  ModernCard,
+  ModernInput,
 } from '../ui';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import '../../styles/pages/CheckoutPage.css';
 
-/**
- * CheckoutPage - Complete checkout flow
- * 
- * Features:
- * - Delivery address form
- * - Contact information
- * - Payment method selection
- * - Order notes
- * - Estimated delivery time
- * - Order confirmation
- * - Mobile optimized
- */
+const formatCurrency = (value) => `\u20b9${value}`;
+
+const orderItems = [
+  { name: 'Butter Paneer Tikka', qty: 2, price: 598, image: '/images/showcase/showcase-1.png' },
+  { name: 'Garlic Naan', qty: 1, price: 79, image: '/images/showcase/showcase-3.png' },
+  { name: 'Mango Lassi', qty: 1, price: 89, image: '/images/showcase/showcase-6.png' },
+];
+
+const paymentMethods = [
+  {
+    id: 'card',
+    name: 'Credit or debit card',
+    icon: CreditCard,
+    description: 'Visa, Mastercard, RuPay',
+    accent: 'blue',
+  },
+  {
+    id: 'upi',
+    name: 'UPI',
+    icon: Smartphone,
+    description: 'Google Pay, PhonePe, BHIM',
+    accent: 'green',
+  },
+  {
+    id: 'wallet',
+    name: 'Wallet',
+    icon: Wallet,
+    description: 'Paytm, Amazon Pay',
+    accent: 'orange',
+  },
+  {
+    id: 'cash',
+    name: 'Pay on delivery',
+    icon: Banknote,
+    description: 'Cash or counter payment',
+    accent: 'slate',
+  },
+];
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
 
-  // State
-  const [step, setStep] = useState('details'); // details, payment, confirm
+  const [step, setStep] = useState('details');
   const [loading, setLoading] = useState(false);
-
-  // Form data
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -52,11 +84,9 @@ const CheckoutPage = () => {
     zipCode: '',
     notes: '',
   });
-
   const [selectedPayment, setSelectedPayment] = useState('card');
   const [orderPlaced, setOrderPlaced] = useState(false);
 
-  // Order summary (from cart)
   const orderSummary = {
     subtotal: 766,
     deliveryFee: 30,
@@ -65,12 +95,14 @@ const CheckoutPage = () => {
     total: 836,
     items: 3,
     estimatedTime: '25-30 mins',
-    orderId: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+    orderId: `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
   };
+
+  const selectedPaymentMethod = paymentMethods.find((method) => method.id === selectedPayment);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -92,10 +124,10 @@ const CheckoutPage = () => {
       return;
     }
 
+    setStep('payment');
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setOrderPlaced(true);
       setStep('confirm');
     } catch (error) {
@@ -109,20 +141,19 @@ const CheckoutPage = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 },
+      transition: { staggerChildren: 0.08 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 18 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 30 },
+      transition: { type: 'spring', stiffness: 280, damping: 28 },
     },
   };
 
-  // Confirmation screen
   if (orderPlaced) {
     return (
       <ResponsiveLayout>
@@ -142,52 +173,30 @@ const CheckoutPage = () => {
               <CheckCircle size={80} />
             </motion.div>
 
-            <motion.h1
-              className="checkout__success-title"
-              variants={itemVariants}
-            >
-              Order Confirmed! 🎉
+            <motion.h1 className="checkout__success-title" variants={itemVariants}>
+              Order confirmed
             </motion.h1>
 
-            <motion.p
-              className="checkout__success-subtitle"
-              variants={itemVariants}
-            >
-              Thank you for your order
+            <motion.p className="checkout__success-subtitle" variants={itemVariants}>
+              Your kitchen ticket is live and payment is recorded.
             </motion.p>
 
-            <motion.div
-              className="checkout__order-details"
-              variants={itemVariants}
-            >
+            <motion.div className="checkout__order-details" variants={itemVariants}>
               <div className="checkout__detail-row">
-                <span className="checkout__detail-label">Order ID:</span>
-                <span className="checkout__detail-value">
-                  {orderSummary.orderId}
-                </span>
+                <span className="checkout__detail-label">Order ID</span>
+                <span className="checkout__detail-value">{orderSummary.orderId}</span>
               </div>
-
               <div className="checkout__detail-row">
-                <span className="checkout__detail-label">
-                  Estimated Delivery:
-                </span>
-                <span className="checkout__detail-value">
-                  {orderSummary.estimatedTime}
-                </span>
+                <span className="checkout__detail-label">Estimated delivery</span>
+                <span className="checkout__detail-value">{orderSummary.estimatedTime}</span>
               </div>
-
               <div className="checkout__detail-row">
-                <span className="checkout__detail-label">Total Amount:</span>
-                <span className="checkout__detail-value">
-                  ₹{orderSummary.total}
-                </span>
+                <span className="checkout__detail-label">Total amount</span>
+                <span className="checkout__detail-value">{formatCurrency(orderSummary.total)}</span>
               </div>
             </motion.div>
 
-            <motion.div
-              className="checkout__confirmation-actions"
-              variants={itemVariants}
-            >
+            <motion.div className="checkout__confirmation-actions" variants={itemVariants}>
               <ModernButton
                 variant="primary"
                 size="lg"
@@ -205,16 +214,10 @@ const CheckoutPage = () => {
               </ModernButton>
             </motion.div>
 
-            <motion.div
-              className="checkout__confirmation-note"
-              variants={itemVariants}
-            >
+            <motion.div className="checkout__confirmation-note" variants={itemVariants}>
+              <Mail size={18} />
               <p>
-                📧 A confirmation email has been sent to{' '}
-                <strong>{formData.email}</strong>
-              </p>
-              <p>
-                📱 You can also track your order from the app or website
+                A confirmation email has been sent to <strong>{formData.email}</strong>.
               </p>
             </motion.div>
           </div>
@@ -231,8 +234,7 @@ const CheckoutPage = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* HEADER */}
-        <header className="checkout__header">
+        <header className="checkout__hero">
           <button
             className="checkout__back"
             onClick={() => navigate('/modern/cart')}
@@ -240,23 +242,68 @@ const CheckoutPage = () => {
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="checkout__title">Checkout</h1>
-          <div className="checkout__header-spacer" />
+
+          <div className="checkout__hero-copy">
+            <ModernBadge variant="success" size="sm" icon={ShieldCheck}>
+              Protected payment
+            </ModernBadge>
+            <h1 className="checkout__title">Checkout and payment</h1>
+            <p>Confirm your details, choose a payment method, and send the order to the kitchen.</p>
+          </div>
+
+          <motion.div
+            className="checkout__hero-art"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+          >
+            <img src="/images/ads/cart-cartoon-banner.png" alt="Cartoon payment basket" />
+          </motion.div>
         </header>
 
+        <div className="checkout__steps" aria-label="Checkout progress">
+          {[
+            { id: 'details', label: 'Details', icon: Home },
+            { id: 'payment', label: 'Payment', icon: LockKeyhole },
+            { id: 'confirm', label: 'Confirm', icon: BadgeCheck },
+          ].map((progressStep) => {
+            const Icon = progressStep.icon;
+            const isActive =
+              step === progressStep.id ||
+              (step === 'payment' && progressStep.id === 'details') ||
+              (step === 'confirm' && progressStep.id !== 'confirm');
+
+            return (
+              <span
+                key={progressStep.id}
+                className={`checkout__step ${isActive ? 'is-active' : ''}`}
+              >
+                <Icon size={16} />
+                {progressStep.label}
+              </span>
+            );
+          })}
+        </div>
+
         <div className="checkout__container">
-          {/* MAIN CONTENT */}
-          <motion.section
-            className="checkout__main"
-            variants={itemVariants}
-          >
-            {/* DELIVERY DETAILS */}
-            <ModernCard variant="elevated">
+          <motion.section className="checkout__main" variants={itemVariants}>
+            <ModernCard variant="elevated" className="checkout__card">
               <div className="checkout__section">
                 <h2 className="checkout__section-title">
                   <MapPin size={20} />
-                  Delivery Address
+                  Delivery address
                 </h2>
+
+                <div className="checkout__contact-strip">
+                  <span>
+                    <Phone size={16} />
+                    10 digit phone required
+                  </span>
+                  <span>
+                    <Mail size={16} />
+                    Receipt sent by email
+                  </span>
+                </div>
 
                 <div className="checkout__form-row">
                   <ModernInput
@@ -265,10 +312,9 @@ const CheckoutPage = () => {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    placeholder="John Doe"
+                    placeholder="Karan Sharma"
                     required
                   />
-
                   <ModernInput
                     type="tel"
                     label="Phone Number"
@@ -286,7 +332,7 @@ const CheckoutPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="john@example.com"
+                  placeholder="karan@example.com"
                   required
                 />
 
@@ -307,17 +353,16 @@ const CheckoutPage = () => {
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    placeholder="New York"
+                    placeholder="New Delhi"
                     required
                   />
-
                   <ModernInput
                     type="text"
-                    label="Zip Code"
+                    label="PIN Code"
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleInputChange}
-                    placeholder="10001"
+                    placeholder="110001"
                     maxLength="6"
                     required
                   />
@@ -325,75 +370,61 @@ const CheckoutPage = () => {
               </div>
             </ModernCard>
 
-            {/* PAYMENT METHOD */}
-            <ModernCard variant="elevated">
+            <ModernCard variant="elevated" className="checkout__card">
               <div className="checkout__section">
                 <h2 className="checkout__section-title">
                   <CreditCard size={20} />
-                  Payment Method
+                  Payment method
                 </h2>
 
                 <div className="checkout__payment-options">
-                  {[
-                    {
-                      id: 'card',
-                      name: 'Credit/Debit Card',
-                      icon: <CreditCard size={24} />,
-                      description: 'Visa, Mastercard, Amex',
-                    },
-                    {
-                      id: 'upi',
-                      name: 'UPI',
-                      icon: <Smartphone size={24} />,
-                      description: 'Google Pay, PhonePe, BHIM',
-                    },
-                    {
-                      id: 'wallet',
-                      name: 'Wallet',
-                      icon: <Wallet size={24} />,
-                      description: 'PayTM, Amazon Pay',
-                    },
-                    {
-                      id: 'cash',
-                      name: 'Cash on Delivery',
-                      icon: <DollarSign size={24} />,
-                      description: 'Pay when your order arrives',
-                    },
-                  ].map(method => (
-                    <button
-                      key={method.id}
-                      className={`checkout__payment-option ${
-                        selectedPayment === method.id ? 'active' : ''
-                      }`}
-                      onClick={() => setSelectedPayment(method.id)}
-                    >
-                      <div className="checkout__payment-icon">
-                        {method.icon}
-                      </div>
-                      <div className="checkout__payment-info">
-                        <h3 className="checkout__payment-name">
-                          {method.name}
-                        </h3>
-                        <p className="checkout__payment-desc">
-                          {method.description}
-                        </p>
-                      </div>
-                      <div
-                        className={`checkout__payment-radio ${
-                          selectedPayment === method.id ? 'checked' : ''
-                        }`}
-                      />
-                    </button>
-                  ))}
+                  {paymentMethods.map((method) => {
+                    const Icon = method.icon;
+                    const isSelected = selectedPayment === method.id;
+
+                    return (
+                      <button
+                        key={method.id}
+                        type="button"
+                        className={`checkout__payment-option checkout__payment-option--${method.accent} ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedPayment(method.id);
+                          setStep('payment');
+                        }}
+                      >
+                        <motion.div
+                          className="checkout__payment-icon"
+                          animate={isSelected ? { y: [0, -2, 0] } : {}}
+                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          <Icon size={24} />
+                        </motion.div>
+                        <div className="checkout__payment-info">
+                          <h3 className="checkout__payment-name">{method.name}</h3>
+                          <p className="checkout__payment-desc">{method.description}</p>
+                        </div>
+                        <div className={`checkout__payment-radio ${isSelected ? 'checked' : ''}`} />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="checkout__payment-note">
+                  <AlertCircle size={16} />
+                  <span>
+                    {selectedPayment === 'cash'
+                      ? 'No online charge now. Pay when your order arrives.'
+                      : `${selectedPaymentMethod?.name} will be processed through a secure gateway.`}
+                  </span>
                 </div>
               </div>
             </ModernCard>
 
-            {/* ORDER NOTES */}
-            <ModernCard variant="elevated">
+            <ModernCard variant="elevated" className="checkout__card">
               <div className="checkout__section">
                 <h2 className="checkout__section-title">
-                  Special Instructions (Optional)
+                  <MessageSquareText size={20} />
+                  Special instructions
                 </h2>
 
                 <ModernInput
@@ -402,25 +433,19 @@ const CheckoutPage = () => {
                   name="notes"
                   value={formData.notes}
                   onChange={handleInputChange}
-                  placeholder="e.g., Extra spicy, no onions, etc."
+                  placeholder="Extra spicy, no onions, ring the bell twice..."
                   rows="3"
                 />
               </div>
             </ModernCard>
 
-            {/* TERMS & CONDITIONS */}
             <div className="checkout__terms">
-              <input
-                type="checkbox"
-                id="terms"
-                defaultChecked
-              />
+              <input type="checkbox" id="terms" defaultChecked />
               <label htmlFor="terms">
-                I agree to the terms and conditions and privacy policy
+                I agree to the terms and conditions and privacy policy.
               </label>
             </div>
 
-            {/* PLACE ORDER BUTTON */}
             <ModernButton
               variant="primary"
               size="lg"
@@ -428,62 +453,71 @@ const CheckoutPage = () => {
               onClick={handlePlaceOrder}
               disabled={loading}
             >
-              {loading ? 'Placing Order...' : 'Place Order'}
+              {loading ? 'Processing payment...' : `Pay ${formatCurrency(orderSummary.total)} and place order`}
             </ModernButton>
           </motion.section>
 
-          {/* SIDEBAR - ORDER SUMMARY */}
-          <motion.aside
-            className="checkout__sidebar"
-            variants={itemVariants}
-          >
-            <ModernCard variant="elevated">
+          <motion.aside className="checkout__sidebar" variants={itemVariants}>
+            <ModernCard variant="elevated" className="checkout__summary-card">
               <div className="checkout__summary">
-                <h2 className="checkout__summary-title">Order Summary</h2>
-
-                {/* ORDER ITEMS */}
-                <div className="checkout__items-preview">
-                  <p className="checkout__items-count">
-                    {orderSummary.items} items in your order
-                  </p>
-                </div>
-
-                {/* PRICE BREAKDOWN */}
-                <div className="checkout__summary-rows">
-                  <div className="checkout__summary-row">
-                    <span>Subtotal</span>
-                    <span>₹{orderSummary.subtotal}</span>
+                <div className="checkout__summary-header">
+                  <div>
+                    <h2 className="checkout__summary-title">Order summary</h2>
+                    <p>{orderSummary.items} dishes prepared fresh</p>
                   </div>
-
-                  <div className="checkout__summary-row">
-                    <span>Delivery Fee</span>
-                    <span>₹{orderSummary.deliveryFee}</span>
-                  </div>
-
-                  <div className="checkout__summary-row">
-                    <span>GST & Taxes</span>
-                    <span>₹{orderSummary.gst}</span>
-                  </div>
-
-                  <div className="checkout__summary-divider" />
-
-                  <div className="checkout__summary-row checkout__summary-total">
-                    <span>Total Amount</span>
-                    <span>₹{orderSummary.total}</span>
-                  </div>
-                </div>
-
-                {/* ESTIMATED TIME */}
-                <div className="checkout__estimated-time">
-                  <span className="checkout__estimated-icon">⏱️</span>
-                  <span className="checkout__estimated-text">
-                    Estimated Delivery: <strong>{orderSummary.estimatedTime}</strong>
+                  <span>
+                    <ReceiptText size={18} />
                   </span>
                 </div>
 
-                {/* SECURE BADGE */}
+                <div className="checkout__items-preview">
+                  {orderItems.map((item) => (
+                    <div key={item.name} className="checkout__item-preview">
+                      <img src={item.image} alt={item.name} />
+                      <div>
+                        <strong>{item.name}</strong>
+                        <span>Qty {item.qty}</span>
+                      </div>
+                      <b>{formatCurrency(item.price)}</b>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="checkout__summary-rows">
+                  <div className="checkout__summary-row">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(orderSummary.subtotal)}</span>
+                  </div>
+                  <div className="checkout__summary-row">
+                    <span>Delivery fee</span>
+                    <span>{formatCurrency(orderSummary.deliveryFee)}</span>
+                  </div>
+                  <div className="checkout__summary-row">
+                    <span>GST and taxes</span>
+                    <span>{formatCurrency(orderSummary.gst)}</span>
+                  </div>
+                  <div className="checkout__summary-divider" />
+                  <div className="checkout__summary-row checkout__summary-total">
+                    <span>Total amount</span>
+                    <span>{formatCurrency(orderSummary.total)}</span>
+                  </div>
+                </div>
+
+                <div className="checkout__estimated-time">
+                  <Clock3 size={18} />
+                  <span>
+                    Estimated delivery <strong>{orderSummary.estimatedTime}</strong>
+                  </span>
+                </div>
+
+                <div className="checkout__delivery-card">
+                  <Truck size={18} />
+                  <span>Live order tracking after confirmation</span>
+                </div>
+
                 <div className="checkout__secure-badge">
-                  <span>🔒 Secure Checkout</span>
+                  <Sparkles size={16} />
+                  <span>Secure checkout with encrypted payment details</span>
                 </div>
               </div>
             </ModernCard>

@@ -9,6 +9,10 @@ import {
   TrendingUp,
   Award,
   ChevronRight,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  UtensilsCrossed,
 } from 'lucide-react';
 import HeroSection from '../features/HeroSection';
 import FeatureCard from '../features/FeatureCard';
@@ -93,7 +97,7 @@ const LandingPage = () => {
       <main className="landing-page">
         {/* HERO SECTION */}
         <HeroSection
-          backgroundGradient="var(--grad-premium)"
+          backgroundImage="/images/landing/slide-2.png"
           title="Your Favorite Food, Delivered Fast"
           subtitle="Order from the best restaurants in your city. Fresh, delicious, and delivered to your table."
           height="full"
@@ -198,8 +202,9 @@ const LandingPage = () => {
                   description: 'Eat delicious food and rate your experience',
                   icon: '😋',
                 },
-              ].map((item, index) => (
-                <motion.div
+              ].map((item, index) => {
+                const StepIcon = [Search, SlidersHorizontal, MapPin, UtensilsCrossed][index];
+                return <motion.div
                   key={index}
                   className="landing-page__step"
                   variants={itemVariants}
@@ -209,7 +214,7 @@ const LandingPage = () => {
                     {item.step}
                   </div>
                   <div className="landing-page__step-emoji">
-                    {item.icon}
+                    <StepIcon size={28} />
                   </div>
                   <h3 className="landing-page__step-title">
                     {item.title}
@@ -217,8 +222,8 @@ const LandingPage = () => {
                   <p className="landing-page__step-description">
                     {item.description}
                   </p>
-                </motion.div>
-              ))}
+                </motion.div>;
+              })}
             </motion.div>
           </div>
         </section>

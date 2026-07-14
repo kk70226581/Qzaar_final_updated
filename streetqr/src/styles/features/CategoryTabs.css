@@ -53,6 +53,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
+}
+
+.category-tab__icon {
+  color: currentColor;
+  flex: 0 0 auto;
+  transition: transform var(--transition-base);
+}
+
+.category-tab:hover .category-tab__icon,
+.category-tab--active .category-tab__icon {
+  transform: translateY(-1px) rotate(-6deg);
 }
 
 .category-tab:hover {

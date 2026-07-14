@@ -195,6 +195,20 @@
   }
 }
 
+.about-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../../public/images/landing/slide-3.png') center / cover no-repeat;
+  opacity: 0.27;
+  transform: scale(1.03);
+}
+
+.about-hero::after {
+  z-index: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.56));
+}
+
 /* About v2 - same compact product language */
 .about-shell {
   min-height: calc(100vh - 64px);

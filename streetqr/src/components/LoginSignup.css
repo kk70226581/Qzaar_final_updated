@@ -461,3 +461,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Image-led identity without obscuring the access form. */
+.auth-showcase::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../../public/images/landing/slide-7.png') center / cover no-repeat;
+  opacity: 0.26;
+  transform: scale(1.04);
+}
+
+.auth-showcase::after {
+  z-index: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.64));
+}

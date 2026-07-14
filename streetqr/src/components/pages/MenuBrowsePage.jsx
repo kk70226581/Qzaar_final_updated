@@ -3,12 +3,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowUpDown,
+  CakeSlice,
+  ChefHat,
   Clock3,
+  CupSoda,
+  Drumstick,
   Filter,
   Leaf,
+  ScanLine,
   Search,
+  ShoppingCart,
+  SlidersHorizontal,
   Sparkles,
   Star,
+  UtensilsCrossed,
+  Zap,
 } from 'lucide-react';
 import {
   ModernFoodCard,
@@ -22,19 +31,25 @@ import ResponsiveLayout from '../layout/ResponsiveLayout';
 import '../../styles/pages/MenuBrowsePage.css';
 
 const categories = [
-  { id: 'all', name: 'All Items' },
-  { id: 'popular', name: 'Popular' },
-  { id: 'appetizers', name: 'Appetizers' },
-  { id: 'main', name: 'Main Course' },
-  { id: 'desserts', name: 'Desserts' },
-  { id: 'beverages', name: 'Beverages' },
-  { id: 'specials', name: 'Chef Specials' },
+  { id: 'all', name: 'All Items', icon: UtensilsCrossed },
+  { id: 'popular', name: 'Popular', icon: Star },
+  { id: 'appetizers', name: 'Appetizers', icon: Sparkles },
+  { id: 'main', name: 'Main Course', icon: Drumstick },
+  { id: 'desserts', name: 'Desserts', icon: CakeSlice },
+  { id: 'beverages', name: 'Beverages', icon: CupSoda },
+  { id: 'specials', name: 'Chef Specials', icon: ChefHat },
 ];
 
 const heroStats = [
   { icon: Star, value: '4.8', label: 'Guest rating' },
   { icon: Clock3, value: '18m', label: 'Avg prep' },
   { icon: Sparkles, value: '32+', label: 'Fresh picks' },
+];
+
+const menuPromos = [
+  { icon: ScanLine, title: 'Scan to table', text: 'QR orders land straight in the kitchen.' },
+  { icon: Zap, title: 'Fast favourites', text: 'Popular combos and chef picks stay one tap away.' },
+  { icon: ShoppingCart, title: 'Smart cart', text: 'Clear totals, offers, and checkout in one flow.' },
 ];
 
 const mockFoods = [
@@ -284,6 +299,17 @@ const MenuBrowsePage = () => {
                 );
               })}
             </div>
+
+            <div className="menu-browse__hero-actions">
+              <button type="button" onClick={() => navigate('/modern/cart')}>
+                <ShoppingCart size={18} />
+                View cart
+              </button>
+              <button type="button" onClick={() => setShowFilters(true)}>
+                <SlidersHorizontal size={18} />
+                Tune menu
+              </button>
+            </div>
           </div>
 
           <motion.div
@@ -292,13 +318,40 @@ const MenuBrowsePage = () => {
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ type: 'spring', stiffness: 220, damping: 24 }}
           >
-            <img src="/images/landing/slide-5.png" alt="QR menu preview" />
+            <img src="/images/ads/menu-cartoon-banner.png" alt="Cartoon QR menu preview" />
             <div>
               <span>Now serving</span>
-              <strong>Chef specials and fast checkout</strong>
+              <strong>Cartoon-fresh picks with fast checkout</strong>
             </div>
           </motion.div>
         </header>
+
+        <section className="menu-browse__promo-strip" aria-label="Ordering highlights">
+          {menuPromos.map((promo, index) => {
+            const Icon = promo.icon;
+            return (
+              <motion.article
+                key={promo.title}
+                className="menu-browse__promo-card"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.08 }}
+              >
+                <motion.span
+                  className="menu-browse__promo-icon"
+                  animate={{ y: [0, -3, 0], rotate: [0, -4, 4, 0] }}
+                  transition={{ duration: 3 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Icon size={20} />
+                </motion.span>
+                <div>
+                  <h2>{promo.title}</h2>
+                  <p>{promo.text}</p>
+                </div>
+              </motion.article>
+            );
+          })}
+        </section>
 
         {!loading && (
           <nav className="menu-browse__nav">

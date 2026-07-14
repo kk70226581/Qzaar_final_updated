@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Loader2, ShieldCheck, X } from 'lucide-react';
+import { CreditCard, Loader2, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { createRazorpayOrder, verifyPayment } from '../api';
 import '../styles/PaymentGateway.css';
 
@@ -158,6 +158,10 @@ function PaymentGateway({
           <X size={18} />
         </button>
 
+        <div className="payment-launcher__media">
+          <img src="/images/ads/cart-cartoon-banner.png" alt="" />
+        </div>
+
         <div className="payment-launcher__icon">
           <Loader2 size={24} className={isLaunching ? 'payment-launcher__spinner' : ''} />
         </div>
@@ -165,7 +169,13 @@ function PaymentGateway({
         <h3>Redirecting to Razorpay</h3>
         <p>{status}</p>
 
-        <div className="payment-launcher__amount">Rs {amount.toFixed(2)}</div>
+        <div className="payment-launcher__amount">Rs {Number(amount || 0).toFixed(2)}</div>
+
+        <div className="payment-launcher__steps" aria-hidden="true">
+          <span className="is-active"><LockKeyhole size={14} /> Secure</span>
+          <span><CreditCard size={14} /> Pay</span>
+          <span><ShieldCheck size={14} /> Verify</span>
+        </div>
 
         <div className="payment-launcher__trust">
           <ShieldCheck size={16} />

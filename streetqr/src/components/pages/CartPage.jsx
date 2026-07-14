@@ -1,48 +1,42 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Trash2,
-  Plus,
-  Minus,
-  ShoppingCart,
   ArrowRight,
-  Trash,
+  BadgeCheck,
+  Clock3,
+  CreditCard,
+  Gift,
+  Minus,
+  Plus,
+  ShieldCheck,
+  ShoppingBag,
+  ShoppingCart,
+  TicketPercent,
+  Trash2,
+  UtensilsCrossed,
 } from 'lucide-react';
 import {
   ModernButton,
-  ModernInput,
-  ModernEmpty,
   ModernCard,
+  ModernEmpty,
+  ModernInput,
 } from '../ui';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import '../../styles/pages/CartPage.css';
 
-/**
- * CartPage - Shopping cart with item management
- * 
- * Features:
- * - Add/remove items
- * - Quantity management
- * - Coupon code support
- * - Order summary
- * - Tax and fee calculation
- * - Checkout button
- * - Mobile optimized
- * - Item customization display
- */
+const formatCurrency = (value) => `\u20b9${value}`;
 
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // Mock cart data
   const [items, setItems] = useState([
     {
       id: 1,
       name: 'Butter Paneer Tikka',
       price: 299,
       quantity: 2,
-      image: '/images/food1.jpg',
+      image: '/images/showcase/showcase-1.png',
       customization: {
         size: 'Medium',
         spice: 'Medium',
@@ -55,7 +49,7 @@ const CartPage = () => {
       name: 'Garlic Naan',
       price: 79,
       quantity: 1,
-      image: '/images/food2.jpg',
+      image: '/images/showcase/showcase-3.png',
       customization: {
         addOns: [],
       },
@@ -66,7 +60,7 @@ const CartPage = () => {
       name: 'Mango Lassi',
       price: 89,
       quantity: 1,
-      image: '/images/food3.jpg',
+      image: '/images/showcase/showcase-6.png',
       customization: {},
       itemTotal: 89,
     },
@@ -75,9 +69,8 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  // Calculate totals
-  const subtotal = useMemo(() =>
-    items.reduce((sum, item) => sum + item.itemTotal, 0),
+  const subtotal = useMemo(
+    () => items.reduce((sum, item) => sum + item.itemTotal, 0),
     [items]
   );
 
@@ -85,13 +78,22 @@ const CartPage = () => {
   const gst = Math.round(subtotal * 0.05);
   const discount = appliedCoupon ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + deliveryFee + gst - discount;
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const estimatedTime = '24-30 mins';
+
+  const cartPerks = [
+    { icon: Clock3, label: 'Prep time', value: estimatedTime },
+    { icon: ShieldCheck, label: 'Payment', value: 'Encrypted' },
+    { icon: Gift, label: 'Offer', value: appliedCoupon ? `${appliedCoupon.discount}% off` : 'Try SAVE10' },
+  ];
 
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity <= 0) {
       removeItem(id);
       return;
     }
-    setItems(items.map(item =>
+
+    setItems(items.map((item) =>
       item.id === id
         ? { ...item, quantity: newQuantity, itemTotal: item.price * newQuantity }
         : item
@@ -99,15 +101,14 @@ const CartPage = () => {
   };
 
   const removeItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
+    setItems(items.filter((item) => item.id !== id));
   };
 
   const applyCoupon = () => {
     if (couponCode.trim()) {
-      // Mock coupon validation
       setAppliedCoupon({
-        code: couponCode,
-        discount: 10, // 10% discount
+        code: couponCode.trim().toUpperCase(),
+        discount: 10,
       });
       setCouponCode('');
     }
@@ -124,10 +125,10 @@ const CartPage = () => {
           <ModernEmpty
             type="cart"
             title="Your cart is empty"
-            description="Browse our menu and add delicious items to your cart"
+            description="Browse our menu and add delicious items to your cart."
             primaryCTA={{
               label: 'Browse Menu',
-              onClick: () => navigate('/menu/1'),
+              onClick: () => navigate('/modern/menu'),
             }}
           />
         </div>
@@ -139,7 +140,7 @@ const CartPage = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 },
+      transition: { staggerChildren: 0.08 },
     },
   };
 
@@ -148,7 +149,7 @@ const CartPage = () => {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 30 },
+      transition: { type: 'spring', stiffness: 280, damping: 28 },
     },
     exit: {
       opacity: 0,
@@ -160,92 +161,116 @@ const CartPage = () => {
   return (
     <ResponsiveLayout>
       <main className="cart">
-        {/* HEADER */}
         <header className="cart__header">
-          <h1 className="cart__title">Shopping Cart</h1>
-          <span className="cart__item-count">
-            {items.length} {items.length === 1 ? 'item' : 'items'}
-          </span>
+          <div className="cart__header-copy">
+            <span className="cart__eyebrow">
+              <ShoppingBag size={16} />
+              Ready for checkout
+            </span>
+            <h1 className="cart__title">Your table cart</h1>
+            <p className="cart__subtitle">
+              Review items, apply offers, and move to secure payment when everything looks right.
+            </p>
+            <div className="cart__perks">
+              {cartPerks.map((perk) => {
+                const Icon = perk.icon;
+                return (
+                  <span key={perk.label}>
+                    <Icon size={16} />
+                    <strong>{perk.value}</strong>
+                    {perk.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <motion.div
+            className="cart__hero-art"
+            initial={{ opacity: 0, y: 18, rotate: 1 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+          >
+            <img src="/images/ads/cart-cartoon-banner.png" alt="Cartoon checkout basket" />
+            <div className="cart__hero-badge">
+              <CreditCard size={18} />
+              <span>Secure payment next</span>
+            </div>
+          </motion.div>
         </header>
 
         <div className="cart__container">
-          {/* ITEMS LIST */}
           <motion.section
             className="cart__items"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <h2 className="cart__section-title">Items in Cart</h2>
+            <div className="cart__section-heading">
+              <div>
+                <h2 className="cart__section-title">Items in cart</h2>
+                <p>{totalItems} total servings across {items.length} dishes</p>
+              </div>
+              <button type="button" onClick={() => navigate('/modern/menu')}>
+                <UtensilsCrossed size={17} />
+                Add more
+              </button>
+            </div>
 
             <AnimatePresence>
-              {items.map(item => (
+              {items.map((item) => (
                 <motion.div
                   key={item.id}
                   className="cart__item"
                   variants={itemVariants}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  exit="exit"
                 >
-                  {/* ITEM IMAGE */}
                   <div className="cart__item-image">
                     <img
                       src={item.image}
                       alt={item.name}
-                      onError={(e) => (e.target.src = '/images/placeholder.jpg')}
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/showcase/showcase-1.png';
+                      }}
                     />
                   </div>
 
-                  {/* ITEM DETAILS */}
                   <div className="cart__item-details">
-                    <h3 className="cart__item-name">{item.name}</h3>
+                    <div className="cart__item-topline">
+                      <h3 className="cart__item-name">{item.name}</h3>
+                      <span className="cart__item-unit">{formatCurrency(item.price)} each</span>
+                    </div>
 
-                    {/* CUSTOMIZATION */}
                     {(item.customization.size ||
                       item.customization.spice ||
-                      (item.customization.addOns &&
-                        item.customization.addOns.length > 0)) && (
+                      (item.customization.addOns && item.customization.addOns.length > 0)) && (
                       <div className="cart__item-customization">
                         {item.customization.size && (
-                          <span className="cart__custom-tag">
-                            {item.customization.size}
-                          </span>
+                          <span className="cart__custom-tag">{item.customization.size}</span>
                         )}
                         {item.customization.spice && (
-                          <span className="cart__custom-tag">
-                            {item.customization.spice}
-                          </span>
+                          <span className="cart__custom-tag">{item.customization.spice}</span>
                         )}
-                        {item.customization.addOns?.map((addon, idx) => (
-                          <span key={idx} className="cart__custom-tag">
-                            +{addon}
-                          </span>
+                        {item.customization.addOns?.map((addon) => (
+                          <span key={addon} className="cart__custom-tag">+{addon}</span>
                         ))}
                       </div>
                     )}
 
-                    {/* PRICE AND QUANTITY */}
                     <div className="cart__item-footer">
-                      <span className="cart__item-price">
-                        ₹{item.itemTotal}
-                      </span>
+                      <span className="cart__item-price">{formatCurrency(item.itemTotal)}</span>
 
                       <div className="cart__quantity-control">
                         <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           aria-label="Decrease quantity"
                           className="cart__qty-btn"
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="cart__qty-value">
-                          {item.quantity}
-                        </span>
+                        <span className="cart__qty-value">{item.quantity}</span>
                         <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           aria-label="Increase quantity"
                           className="cart__qty-btn"
                         >
@@ -255,7 +280,6 @@ const CartPage = () => {
                     </div>
                   </div>
 
-                  {/* REMOVE BUTTON */}
                   <button
                     onClick={() => removeItem(item.id)}
                     aria-label="Remove item"
@@ -268,36 +292,41 @@ const CartPage = () => {
             </AnimatePresence>
           </motion.section>
 
-          {/* SIDEBAR - SUMMARY */}
           <motion.aside
             className="cart__summary-sidebar"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <ModernCard variant="elevated">
-              {/* ORDER SUMMARY */}
+            <ModernCard variant="elevated" className="cart__summary-card">
               <div className="cart__summary">
-                <h2 className="cart__section-title">Order Summary</h2>
+                <div className="cart__summary-head">
+                  <div>
+                    <h2 className="cart__section-title">Payment summary</h2>
+                    <p>Taxes, offers, and delivery are calculated here.</p>
+                  </div>
+                  <span>
+                    <BadgeCheck size={18} />
+                  </span>
+                </div>
 
-                {/* PROMO CODE */}
                 <div className="cart__promo-section">
+                  <div className="cart__promo-title">
+                    <TicketPercent size={18} />
+                    <strong>Apply offer</strong>
+                  </div>
                   {appliedCoupon ? (
                     <div className="cart__coupon-applied">
                       <div className="cart__coupon-info">
-                        <span className="cart__coupon-code">
-                          {appliedCoupon.code}
-                        </span>
-                        <span className="cart__coupon-badge">
-                          {appliedCoupon.discount}% OFF
-                        </span>
+                        <span className="cart__coupon-code">{appliedCoupon.code}</span>
+                        <span className="cart__coupon-badge">{appliedCoupon.discount}% OFF</span>
                       </div>
                       <button
                         onClick={removeCoupon}
                         className="cart__coupon-remove"
                         aria-label="Remove coupon"
                       >
-                        ×
+                        x
                       </button>
                     </div>
                   ) : (
@@ -309,49 +338,39 @@ const CartPage = () => {
                         onChange={(e) => setCouponCode(e.target.value)}
                         className="cart__promo-input"
                       />
-                      <button
-                        onClick={applyCoupon}
-                        className="cart__apply-coupon"
-                      >
+                      <button onClick={applyCoupon} className="cart__apply-coupon">
                         Apply
                       </button>
                     </div>
                   )}
                 </div>
 
-                {/* SUMMARY ROWS */}
                 <div className="cart__summary-rows">
                   <div className="cart__summary-row">
                     <span>Subtotal</span>
-                    <span>₹{subtotal}</span>
+                    <span>{formatCurrency(subtotal)}</span>
                   </div>
-
                   <div className="cart__summary-row">
-                    <span>Delivery Fee</span>
-                    <span>₹{deliveryFee}</span>
+                    <span>Delivery fee</span>
+                    <span>{formatCurrency(deliveryFee)}</span>
                   </div>
-
                   <div className="cart__summary-row">
-                    <span>GST & Taxes (5%)</span>
-                    <span>₹{gst}</span>
+                    <span>GST and taxes</span>
+                    <span>{formatCurrency(gst)}</span>
                   </div>
-
                   {discount > 0 && (
                     <div className="cart__summary-row cart__summary-row--discount">
                       <span>Discount</span>
-                      <span>-₹{discount}</span>
+                      <span>-{formatCurrency(discount)}</span>
                     </div>
                   )}
-
                   <div className="cart__summary-divider" />
-
                   <div className="cart__summary-row cart__summary-total">
-                    <span>Total Amount</span>
-                    <span>₹{total}</span>
+                    <span>Total amount</span>
+                    <span>{formatCurrency(total)}</span>
                   </div>
                 </div>
 
-                {/* CTA BUTTONS */}
                 <div className="cart__actions">
                   <ModernButton
                     variant="secondary"
@@ -370,12 +389,13 @@ const CartPage = () => {
                   >
                     <ShoppingCart size={20} />
                     Proceed to Checkout
+                    <ArrowRight size={18} />
                   </ModernButton>
                 </div>
 
-                {/* SAFE CHECKOUT NOTE */}
                 <div className="cart__secure-note">
-                  🔒 Secure checkout - Your data is encrypted
+                  <ShieldCheck size={16} />
+                  <span>Secure checkout. Your payment data is encrypted.</span>
                 </div>
               </div>
             </ModernCard>
