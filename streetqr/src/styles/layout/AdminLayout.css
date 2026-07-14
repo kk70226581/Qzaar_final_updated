@@ -90,6 +90,9 @@
 
 .admin-topbar__icon-btn:hover {
   background-color: var(--bg-secondary, #f8fafc);
+  border-color: #93c5fd;
+  color: #2563eb;
+  transform: translateY(-1px);
 }
 
 .dark .admin-topbar__icon-btn:hover {
@@ -187,6 +190,7 @@
 
 .admin-sidebar__link:hover {
   color: var(--text-primary);
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .admin-sidebar__link:hover svg {
@@ -270,6 +274,31 @@
   overflow-y: auto;
   height: calc(100vh - 64px);
 }
+
+/* Shared workspace polish for every modern admin page. */
+.admin-layout-shell {
+  background: #f4f7fb;
+}
+
+.admin-topbar {
+  height: 68px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.admin-topbar__title { font-size: 1rem; }
+.admin-layout-desktop-sidebar { width: 236px; top: 68px; height: calc(100vh - 68px); }
+.admin-sidebar { padding: 20px 12px; }
+.admin-sidebar__logo { margin-bottom: 24px; }
+.admin-sidebar__link { min-height: 42px; padding: 10px 12px; border: 1px solid transparent; }
+.admin-sidebar__link:hover { border-color: #dbeafe; }
+.admin-sidebar__active-bg { background: #2563eb; box-shadow: 0 7px 16px rgba(37, 99, 235, 0.2); }
+.admin-layout-main-content { padding: 24px; height: calc(100vh - 68px); }
+.admin-layout-container { max-width: 1320px; }
+
+.dark .admin-layout-shell { background: #020617; }
+.dark .admin-topbar { background: rgba(15, 23, 42, 0.94); }
+.dark .admin-sidebar__link:hover { background: #172033; border-color: #26354e; }
 
 .admin-layout-container {
   max-width: 1400px;

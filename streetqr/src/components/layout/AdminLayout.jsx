@@ -8,12 +8,14 @@ import {
   Package,
   Settings,
   ArrowLeft,
+  ClipboardList,
   Menu,
+  QrCode,
   X,
   Store,
-  LogOut,
   Moon,
-  Sun
+  Sun,
+  UtensilsCrossed
 } from 'lucide-react';
 import '../../styles/layout/AdminLayout.css';
 
@@ -24,10 +26,11 @@ const AdminLayout = ({ children, title = 'Restaurant Console' }) => {
   const [theme, setTheme] = useState(() => localStorage.getItem('qzaar-theme') || 'light');
 
   const email = localStorage.getItem('email');
-  const shopName = "Food Haven Restaurant"; // Can fallback or get dynamically
-
   const menuItems = [
     { label: 'Dashboard', path: '/modern/admin', icon: LayoutDashboard },
+    { label: 'Menu', path: '/menu', icon: UtensilsCrossed },
+    { label: 'Orders', path: '/orders', icon: ClipboardList },
+    { label: 'QR code', path: '/qrcode', icon: QrCode },
     { label: 'Kitchen KDS', path: '/modern/admin/kitchen', icon: ChefHat },
     { label: 'Analytics', path: '/modern/admin/analytics', icon: BarChart3 },
     { label: 'Inventory', path: '/modern/admin/inventory', icon: Package },
