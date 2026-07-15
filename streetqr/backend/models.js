@@ -291,6 +291,8 @@ const shopkeeperSchema = new mongoose.Schema({
   shopName: { type: String, default: '' },
   ownerName: { type: String, default: '' },
   tagline: { type: String, default: '' },
+  heroHeadline: { type: String, default: '' },
+  qualityPromise: { type: String, default: '' },
   cuisineType: { type: String, default: '' },
   contactPhone: { type: String, default: '' },
   openHours: { type: String, default: '' },

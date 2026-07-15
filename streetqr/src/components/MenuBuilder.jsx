@@ -46,6 +46,8 @@ const createDefaultProfile = () => ({
   shopName: '',
   ownerName: '',
   tagline: '',
+  heroHeadline: '',
+  qualityPromise: '',
   cuisineType: '',
   contactPhone: '',
   openHours: '',
@@ -58,6 +60,8 @@ const demoProfile = {
   shopName: 'Kashi Chaat Corner',
   ownerName: 'Aman Verma',
   tagline: 'Fast-moving North Indian street food with QR ordering',
+  heroHeadline: 'Varanasi street food, served with pride.',
+  qualityPromise: 'Fresh ingredients, made to order every time.',
   cuisineType: 'Street Food',
   contactPhone: '+91 98765 43210',
   openHours: '11:00 AM - 11:00 PM',
@@ -237,6 +241,8 @@ function MenuBuilder() {
           shopName: response.data.shopName || '',
           ownerName: response.data.ownerName || '',
           tagline: response.data.tagline || '',
+          heroHeadline: response.data.heroHeadline || '',
+          qualityPromise: response.data.qualityPromise || '',
           cuisineType: response.data.cuisineType || '',
           contactPhone: response.data.contactPhone || '',
           openHours: response.data.openHours || '',
@@ -641,6 +647,7 @@ function MenuBuilder() {
                   <label><span>Shop name</span><input value={shopProfile.shopName} onChange={(event) => handleProfileChange('shopName', event.target.value)} placeholder="Street stall or cafe name" /></label>
                   <label><span>Cuisine</span><input value={shopProfile.cuisineType} onChange={(event) => handleProfileChange('cuisineType', event.target.value)} placeholder="Street food, cafe..." /></label>
                   <label className="builder-form-grid__wide"><span>One-line description</span><input value={shopProfile.tagline} onChange={(event) => handleProfileChange('tagline', event.target.value)} placeholder="Fresh food, made your way" /></label>
+                  <label className="builder-form-grid__wide"><span>Hero headline</span><input value={shopProfile.heroHeadline} onChange={(event) => handleProfileChange('heroHeadline', event.target.value)} placeholder="What makes your restaurant memorable?" /></label>
                   <label><span>Brand color</span><div className="builder-color-input"><input type="color" value={shopProfile.brandColor} onChange={(event) => handleProfileChange('brandColor', event.target.value)} /><input value={shopProfile.brandColor} onChange={(event) => handleProfileChange('brandColor', event.target.value)} placeholder="#f97316" /></div></label>
                   <details className="builder-advanced-fields builder-form-grid__wide">
                     <summary>More details</summary>
@@ -650,6 +657,7 @@ function MenuBuilder() {
                       <label><span>Phone</span><input value={shopProfile.contactPhone} onChange={(event) => handleProfileChange('contactPhone', event.target.value)} placeholder="+91 ..." /></label>
                       <label><span>Image URL</span><input value={shopProfile.logo} onChange={(event) => handleProfileChange('logo', event.target.value)} placeholder="Paste image URL" /></label>
                       <label className="builder-form-grid__wide"><span>Address</span><input value={shopProfile.address} onChange={(event) => handleProfileChange('address', event.target.value)} placeholder="Location customers recognize" /></label>
+                      <label className="builder-form-grid__wide"><span>Quality promise</span><input value={shopProfile.qualityPromise} onChange={(event) => handleProfileChange('qualityPromise', event.target.value)} placeholder="Fresh ingredients, made to order" /></label>
                     </div>
                   </details>
                 </div>

@@ -356,6 +356,8 @@ app.post('/api/menu/:userId', async (req, res) => {
     user.shopName = req.body.shopName || '';
     user.ownerName = req.body.ownerName || '';
     user.tagline = req.body.tagline || '';
+    user.heroHeadline = req.body.heroHeadline || '';
+    user.qualityPromise = req.body.qualityPromise || '';
     user.cuisineType = req.body.cuisineType || '';
     user.contactPhone = req.body.contactPhone || '';
     user.openHours = req.body.openHours || '';
@@ -380,7 +382,7 @@ app.get('/api/menu/:id', async (req, res) => {
     }
 
     const user = await Shopkeeper.findById(req.params.id)
-      .select('menu logo shopName ownerName tagline cuisineType contactPhone openHours address brandColor')
+      .select('menu logo shopName ownerName tagline heroHeadline qualityPromise cuisineType contactPhone openHours address brandColor')
       .lean();
 
     if (!user) {

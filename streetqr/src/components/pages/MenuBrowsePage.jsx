@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
   CakeSlice,
   ChefHat,
   Clock3,
@@ -174,6 +176,7 @@ const MenuBrowsePage = () => {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
+  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
 
   useEffect(() => {
     fetchMenu();
@@ -283,6 +286,44 @@ const MenuBrowsePage = () => {
     ];
   }, [foods, restaurantId]);
 
+  const heroSlides = useMemo(() => {
+    const foodPhoto = foods.find((item) => item.image)?.image || '/images/landing/slide-1.png';
+    return [
+      {
+        eyebrow: 'Welcome to',
+        title: shop?.heroHeadline || shop?.shopName || 'Fresh food, made with care.',
+        description: shop?.tagline || 'Discover a menu prepared for your table.',
+        image: shop?.logo || foodPhoto,
+        label: shop?.cuisineType || 'Restaurant menu',
+      },
+      {
+        eyebrow: 'Our promise',
+        title: shop?.qualityPromise || 'Quality you can taste in every bite.',
+        description: 'Freshly prepared dishes, clear ordering, and a better table experience.',
+        image: foodPhoto,
+        label: 'Made to order',
+      },
+      {
+        eyebrow: 'Easy table service',
+        title: 'Scan. Choose. Relax.',
+        description: 'Your order goes directly to the kitchen while you enjoy your time together.',
+        image: '/images/brand/qzaar-restaurant-hero.png',
+        label: 'Fast QR ordering',
+      },
+    ];
+  }, [foods, shop]);
+
+  useEffect(() => {
+    setActiveHeroSlide(0);
+  }, [restaurantId]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveHeroSlide((current) => (current + 1) % heroSlides.length), 5600);
+    return () => window.clearInterval(timer);
+  }, [heroSlides.length]);
+
+  const currentHeroSlide = heroSlides[activeHeroSlide];
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const gst = Math.round(cartTotal * 0.05);
@@ -382,11 +423,11 @@ const MenuBrowsePage = () => {
           <div className="menu-browse__header-copy">
             <span className="menu-browse__eyebrow">
               <Sparkles size={16} />
-              Fresh from the kitchen
+              {currentHeroSlide.eyebrow}
             </span>
-            <h1 className="menu-browse__title">{shop?.shopName || 'Browse Our Menu'}</h1>
+            <h1 className="menu-browse__title">{currentHeroSlide.title}</h1>
             <p className="menu-browse__subtitle">
-              {shop?.tagline || 'Search, sort, filter, and build the perfect table order in seconds.'}
+              {currentHeroSlide.description}
             </p>
             <div className="menu-browse__hero-stats">
               {heroStats.map((stat) => {
@@ -419,10 +460,25 @@ const MenuBrowsePage = () => {
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ type: 'spring', stiffness: 220, damping: 24 }}
           >
-            <img src={shop?.logo || '/images/ads/menu-cartoon-banner.png'} alt={shop?.shopName || 'QR menu preview'} />
-            <div>
-              <span>Now serving</span>
-              <strong>{shop?.cuisineType || 'Fresh picks with fast checkout'}</strong>
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentHeroSlide.image}
+                src={currentHeroSlide.image}
+                alt={currentHeroSlide.title}
+                initial={{ opacity: 0, scale: 1.06 }}
+                animate={{ opacity: 1, scale: 1.02 }}
+                exit={{ opacity: 0, scale: 1 }}
+                transition={{ duration: 0.55 }}
+              />
+            </AnimatePresence>
+            <div className="menu-browse__hero-card-caption">
+              <span>{currentHeroSlide.eyebrow}</span>
+              <strong>{currentHeroSlide.label}</strong>
+            </div>
+            <div className="menu-browse__hero-controls">
+              <button type="button" aria-label="Previous feature" onClick={() => setActiveHeroSlide((current) => (current + heroSlides.length - 1) % heroSlides.length)}><ChevronLeft size={17} /></button>
+              <div>{heroSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Show feature ${index + 1}`} className={index === activeHeroSlide ? 'is-active' : ''} onClick={() => setActiveHeroSlide(index)} />)}</div>
+              <button type="button" aria-label="Next feature" onClick={() => setActiveHeroSlide((current) => (current + 1) % heroSlides.length)}><ChevronRight size={17} /></button>
             </div>
           </motion.div>
         </header>

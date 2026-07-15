@@ -141,6 +141,50 @@
   backdrop-filter: blur(14px);
 }
 
+.menu-browse__hero-card .menu-browse__hero-controls {
+  position: absolute;
+  inset: auto 1rem 1rem auto;
+  left: auto;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .4rem;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(2, 6, 23, .72);
+}
+
+.menu-browse__hero-controls > div {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: 0;
+  background: transparent;
+}
+
+.menu-browse__hero-controls button {
+  width: 1.85rem;
+  height: 1.85rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  color: white;
+  background: rgba(255,255,255,.12);
+  cursor: pointer;
+}
+
+.menu-browse__hero-controls > div button {
+  width: .45rem;
+  height: .45rem;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.38);
+}
+
+.menu-browse__hero-controls > div button.is-active { background: #facc15; }
+.menu-browse__hero-controls button:hover { background: rgba(255,255,255,.24); }
+
 .menu-browse__hero-actions {
   display: flex;
   flex-wrap: wrap;
