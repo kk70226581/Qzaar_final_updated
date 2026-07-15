@@ -109,3 +109,16 @@
     flex-direction: column;
   }
 }
+
+/* Denser, multi-column footer that collapses cleanly on phones. */
+.site-footer__inner { grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); }
+.site-footer__content { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.site-footer__links { display: grid; align-content: start; gap: .25rem; }
+.site-footer__links > span { margin-bottom: .35rem; color: #f8fafc; font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.site-footer__links p { display: inline-flex; align-items: center; gap: .4rem; margin: .5rem 0 0; color: #64748b; font-size: .78rem; }
+.site-footer__payments { display: inline-flex; align-items: center; gap: .4rem; color: #94a3b8; }
+
+@media (max-width: 700px) {
+  .site-footer__inner { grid-template-columns: 1fr; }
+  .site-footer__content { grid-template-columns: 1fr; gap: 1rem; }
+}

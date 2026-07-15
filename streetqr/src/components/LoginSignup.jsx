@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -35,6 +35,65 @@ function LoginSignup() {
   const [messageType, setMessageType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const googleButtonRef = useRef(null);
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+  const completeGoogleLogin = async (credential) => {
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post(`${API_BASE}/api/auth/google`, { credential });
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Google sign-in failed.');
+      }
+
+      localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('shopId', response.data.userId);
+      localStorage.setItem('email', response.data.email || '');
+      showMessage('Google sign-in successful. Redirecting...', 'success');
+      window.setTimeout(() => navigate('/dashboard'), 650);
+    } catch (error) {
+      showMessage(error.response?.data?.message || error.message || 'Google sign-in failed. Please try again.', 'danger');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!googleClientId || !googleButtonRef.current) return undefined;
+
+    const renderGoogleButton = () => {
+      if (!window.google?.accounts?.id || !googleButtonRef.current) return;
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: ({ credential }) => completeGoogleLogin(credential),
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: isSignup ? 'signup_with' : 'signin_with',
+        shape: 'rectangular',
+        width: 360
+      });
+    };
+
+    const existingScript = document.getElementById('google-identity-services');
+    if (existingScript) {
+      renderGoogleButton();
+      existingScript.addEventListener('load', renderGoogleButton);
+      return () => existingScript.removeEventListener('load', renderGoogleButton);
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-identity-services';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = renderGoogleButton;
+    document.head.appendChild(script);
+    return () => { script.onload = null; };
+  }, [googleClientId, isSignup]);
 
   const passwordStrength = useMemo(() => {
     let score = 0;
@@ -180,6 +239,14 @@ function LoginSignup() {
             )}
 
             <div className="auth-form">
+              {googleClientId && (
+                <div className="auth-google">
+                  <div ref={googleButtonRef} aria-label="Continue with Google" />
+                </div>
+              )}
+
+              {googleClientId && <div className="auth-divider"><span>or continue with email</span></div>}
+
               <label>
                 <span>Email address</span>
                 <div className="auth-input">

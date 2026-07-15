@@ -50,6 +50,7 @@ const platformStats = [
 ];
 
 const slides = [
+  { image: '/images/brand/qzaar-restaurant-hero.png', eyebrow: 'Built for hospitality', title: 'A thoughtful digital table experience, from scan to payment.' },
   { image: '/images/landing/slide-1.png', eyebrow: 'Food discovery', title: 'A menu that makes every dish look irresistible.' },
   { image: '/images/landing/slide-5.png', eyebrow: 'QR ordering', title: 'Scan, browse, order without downloading an app.' },
   { image: '/images/landing/slide-7.png', eyebrow: 'Live experience', title: 'Track every order from kitchen to table.' },

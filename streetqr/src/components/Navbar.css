@@ -280,3 +280,23 @@
     transform: translateY(-1px);
   }
 }
+
+.site-nav__brand > span:last-child { display: grid; line-height: 1.05; }
+.site-nav__scrim { display: none; }
+
+@media (max-width: 960px) {
+  .site-nav__links-wrap.is-open { animation: nav-reveal 180ms ease-out both; }
+  .site-nav__scrim {
+    display: block;
+    position: fixed;
+    inset: 64px 0 0;
+    z-index: 1;
+    border: 0;
+    background: rgba(2, 6, 23, 0.42);
+  }
+}
+
+@keyframes nav-reveal {
+  from { opacity: 0; transform: translateY(-8px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

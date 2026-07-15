@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
@@ -48,6 +48,7 @@ function AppRoutes() {
         <Routes location={location}>
           {/* Legacy Routes */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/landing" element={<HomePage />} />
           <Route path="/login" element={<LoginSignup />} />
           <Route path="/dashboard" element={<DashboardHub />} />
           <Route path="/menu" element={<MenuBuilder />} />
@@ -62,6 +63,8 @@ function AppRoutes() {
           {/* Modern Redesign - Customer Pages */}
           <Route path="/modern/landing" element={<LandingPage />} />
           <Route path="/modern/menu" element={<MenuBrowsePage />} />
+          <Route path="/modern/menu/:id" element={<ModernMenuView />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="/modern/food/:id" element={<FoodDetailPage />} />
           <Route path="/modern/cart" element={<CartPage />} />
           <Route path="/modern/checkout" element={<CheckoutPage />} />

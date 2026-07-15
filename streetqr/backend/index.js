@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const { OAuth2Client } = require('google-auth-library');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const sendEmail = require('./sendmail');
@@ -23,51 +24,47 @@ const paymentsRoutes = require('./routes-payments');
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: ['http://localhost:3000', 'https://www.qzaar.shop'],
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
-});
-
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
-
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  FRONTEND_URL,
   'https://www.qzaar.shop',
   'https://updated-ver.onrender.com',
-  'https://streetqr-backend.onrender.com'
+  'https://streetqr-backend.onrender.com',
+  ...String(process.env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean)
 ];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (!allowedOrigins.includes(origin)) {
-      return callback(new Error(`Origin not allowed by CORS: ${origin}`), false);
-    }
-
-    return callback(null, true);
-  },
+const isAllowedOrigin = (origin) => !origin || allowedOrigins.includes(origin);
+const corsOptions = {
+  origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true,
   optionsSuccessStatus: 204
-}));
+};
+const io = new Server(httpServer, {
+  cors: {
+    origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+  }
+});
 
-app.options(/.*/, cors());
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(helmet());
 app.use(express.json({ limit: '5mb' }));
 
 // ✅ Razorpay Initialization
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'test_key',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'test_secret'
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || ''
 });
+const hasRazorpayCredentials = Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
 
 // ✅ MongoDB Connection
 if (!process.env.MONGO_URI) {
@@ -225,6 +222,42 @@ app.post('/api/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error?.message || error);
     return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Google Identity Services sends a signed ID token. The token is verified on
+// the server before a workspace is created or opened; the browser never gets
+// to choose an email address on its own.
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    if (!googleClient) {
+      return res.status(503).json({ success: false, message: 'Google sign-in is not configured yet.' });
+    }
+
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Google credential is required.' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const profile = ticket.getPayload();
+    if (!profile?.email || !profile.email_verified) {
+      return res.status(401).json({ success: false, message: 'Please use a verified Google email address.' });
+    }
+
+    let user = await Shopkeeper.findOne({ email: profile.email.toLowerCase() });
+    if (!user) {
+      user = await Shopkeeper.create({
+        email: profile.email.toLowerCase(),
+        ownerName: profile.name || '',
+        passwordHash: await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12)
+      });
+    }
+
+    return res.json({ success: true, userId: user._id, email: user.email, menu: user.menu || {} });
+  } catch (error) {
+    console.error('Google sign-in error:', error?.message || error);
+    return res.status(401).json({ success: false, message: 'Google sign-in could not be verified.' });
   }
 });
 
@@ -451,9 +484,12 @@ app.post('/api/validate-coupon', async (req, res) => {
 // ✅ Razorpay Payment Routes
 app.post('/api/create-razorpay-order', async (req, res) => {
   try {
+    if (!hasRazorpayCredentials) {
+      return res.status(503).json({ success: false, message: 'Online payments are not configured for this workspace yet.' });
+    }
     const { shopId, customerName, tableNumber, items, total, customerNote, couponCode, discountAmount, subTotal } = req.body;
 
-    if (!shopId || !customerName || !tableNumber || !items.length || !total) {
+    if (!shopId || !customerName || !tableNumber || !Array.isArray(items) || !items.length || !Number.isFinite(Number(total)) || Number(total) <= 0) {
       return res.status(400).json({ success: false, message: 'Missing required data' });
     }
 

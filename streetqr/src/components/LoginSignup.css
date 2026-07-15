@@ -266,6 +266,40 @@
   }
 }
 
+.auth-google {
+  min-height: 44px;
+  display: flex;
+  justify-content: stretch;
+}
+
+.auth-google > div {
+  width: 100%;
+}
+
+.auth-google iframe {
+  width: 100% !important;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #e2e8f0;
+}
+
 /* Login v2 - consistent Qzaar workspace */
 .auth-shell {
   min-height: calc(100vh - 64px);

@@ -49,7 +49,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
           <span className="site-nav__brand-mark">
             <QrCode size={18} />
           </span>
-          <span>Qzaar</span>
+          <span>Qzaar<small>Restaurant OS</small></span>
         </Link>
 
         <button
@@ -111,6 +111,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
           )}
         </div>
       </div>
+      {isMenuOpen && <button className="site-nav__scrim" type="button" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)} />}
     </nav>
   );
 }
