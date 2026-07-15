@@ -222,6 +222,60 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* Progress ring is explicitly styled so SVG defaults never render as a black disk. */
+.order-tracker-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  margin: .35rem auto 1rem;
+}
+
+.order-tracker-ring__svg {
+  position: absolute;
+  inset: 0;
+  width: 140px;
+  height: 140px;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.order-tracker-ring__track,
+.order-tracker-ring__progress {
+  fill: none;
+  stroke-width: 11;
+}
+
+.order-tracker-ring__track { stroke: rgba(255, 255, 255, .16); }
+.order-tracker-ring__progress {
+  stroke: #fbbf24;
+  stroke-linecap: round;
+  filter: drop-shadow(0 3px 5px rgba(251,191,36,.3));
+}
+
+.order-tracker-ring .order-tracker-status-icon {
+  position: absolute;
+  z-index: 1;
+  width: 54px;
+  height: 54px;
+  margin: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.16);
+}
+
+.order-tracker-ring__center {
+  position: absolute;
+  z-index: 2;
+  bottom: -1.5rem;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.order-tracker-ring__center strong { font-size: 1.05rem; }
+.order-tracker-ring__center span { font-size: .75rem; }
+
 .order-tracker-hero__status-card strong {
   display: block;
   font-size: 1.2rem;
