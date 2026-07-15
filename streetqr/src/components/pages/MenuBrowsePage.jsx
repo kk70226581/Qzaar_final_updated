@@ -734,19 +734,25 @@ const MenuBrowsePage = () => {
                 onClick={() => setIsCartOpen(false)}
               />
               <motion.aside
-                className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto bg-white p-5 shadow-2xl"
+                className="menu-cart-panel fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto bg-white shadow-2xl"
                 initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 280 }}
                 aria-label="Your order"
               >
-                <div className="mb-5 flex items-center justify-between border-b border-slate-200 pb-4">
+                <div className="menu-cart__header flex items-center justify-between border-b border-slate-200">
                   <div><p className="text-xs font-bold uppercase tracking-wider text-orange-600">Table order</p><h2 className="m-0 text-2xl font-bold text-slate-900">Your cart</h2></div>
                   <button type="button" onClick={() => setIsCartOpen(false)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Close cart"><X size={22} /></button>
                 </div>
 
-                <div className="space-y-3">
+                <ol className="menu-cart__steps" aria-label="Checkout progress">
+                  <li className="is-active"><span>1</span> Cart</li>
+                  <li className={cart.length ? 'is-active' : ''}><span>2</span> Details</li>
+                  <li className={customerName && tableNumber ? 'is-active' : ''}><span>3</span> Pay</li>
+                </ol>
+
+                <div className="menu-cart__items space-y-3">
                   {cart.length ? cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3">
+                    <div key={item.id} className="menu-cart__item flex items-center gap-3 rounded-xl border border-slate-200 p-3">
                       <img src={item.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
                       <div className="min-w-0 flex-1"><strong className="block truncate text-slate-900">{item.name}</strong><span className="text-sm text-slate-500">Rs. {item.price}</span></div>
                       <div className="flex items-center gap-2"><button type="button" onClick={() => updateCart(item, -1)} className="rounded-md border px-2 py-1">−</button><span className="w-4 text-center font-bold">{item.quantity}</span><button type="button" onClick={() => updateCart(item, 1)} className="rounded-md border px-2 py-1">+</button></div>
@@ -755,7 +761,7 @@ const MenuBrowsePage = () => {
                 </div>
 
                 {cart.length > 0 && (
-                  <div className="mt-5 space-y-4 border-t border-slate-200 pt-5">
+                  <div className="menu-cart__checkout mt-auto space-y-4 border-t border-slate-200">
                     <div className="grid grid-cols-2 gap-3">
                       <label className="col-span-2 text-sm font-semibold text-slate-700">Name<input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
                       <label className="text-sm font-semibold text-slate-700">Table<input value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>

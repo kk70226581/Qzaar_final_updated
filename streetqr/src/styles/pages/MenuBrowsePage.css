@@ -789,3 +789,92 @@
   .menu-browse__hero-controls > div { bottom: -205px; }
   .menu-browse__promo-strip { grid-template-columns: 1fr; margin-top: 0; padding-top: 1rem; }
 }
+
+/* Prevent carousel image loading or changing slides from shifting the document. */
+.menu-browse__header,
+.menu-browse__hero-card,
+.menu-browse__hero-card img {
+  contain: layout paint;
+}
+
+.menu-browse__hero-card img {
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  will-change: opacity, transform;
+}
+
+/* Cart and checkout: clear progression with an always-visible final action. */
+.menu-cart-panel {
+  padding: 0;
+  overscroll-behavior: contain;
+  background: #f8fafc;
+}
+
+.menu-cart__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 1.25rem;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(12px);
+}
+
+.menu-cart__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .35rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  list-style: none;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.menu-cart__steps li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  min-width: 0;
+  color: #94a3b8;
+  font-size: .73rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.menu-cart__steps span {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.menu-cart__steps .is-active { color: #0f172a; }
+.menu-cart__steps .is-active span { background: #f97316; color: #fff; box-shadow: 0 4px 10px rgba(249,115,22,.3); }
+
+.menu-cart__items { padding: 1rem 1.25rem; }
+.menu-cart__item { background: #fff; box-shadow: 0 2px 9px rgba(15,23,42,.04); }
+.menu-cart__item img { flex: 0 0 auto; }
+
+.menu-cart__checkout {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 1rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 -14px 30px rgba(15,23,42,.08);
+}
+
+.menu-cart__checkout input,
+.menu-cart__checkout select { min-height: 42px; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.menu-cart__checkout input:focus,
+.menu-cart__checkout select:focus { outline: 0; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,.14); }
+
+@media (max-width: 700px) {
+  .menu-browse__header,
+  .menu-browse__hero-card { min-height: 530px; }
+  .menu-cart__header, .menu-cart__items, .menu-cart__checkout { padding-left: 1rem; padding-right: 1rem; }
+}
