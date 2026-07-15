@@ -403,8 +403,15 @@ app.post('/api/coupons/:shopId', async (req, res) => {
     const { code, discountType, discountValue, minOrderValue, validFrom, validTill, maxDiscount, description } = req.body;
     const { shopId } = req.params;
 
+    if (!code?.trim() || !['percentage', 'fixed'].includes(discountType) || Number(discountValue) <= 0 || !validFrom || !validTill) {
+      return res.status(400).json({ success: false, message: 'Enter a code, valid discount, and offer dates.' });
+    }
+    if (new Date(validTill) < new Date(validFrom)) {
+      return res.status(400).json({ success: false, message: 'The offer end date must be after its start date.' });
+    }
+
     const coupon = await Coupon.create({
-      shopId,
+      restaurantId: shopId,
       code: code.toUpperCase(),
       discountType,
       discountValue,
@@ -417,6 +424,9 @@ app.post('/api/coupons/:shopId', async (req, res) => {
 
     return res.json({ success: true, coupon });
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(409).json({ success: false, message: 'This coupon code already exists for this restaurant.' });
+    }
     console.error('Create coupon error:', error?.message || error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
@@ -424,7 +434,7 @@ app.post('/api/coupons/:shopId', async (req, res) => {
 
 app.get('/api/coupons/:shopId', async (req, res) => {
   try {
-    const coupons = await Coupon.find({ shopId: req.params.shopId }).lean();
+    const coupons = await Coupon.find({ restaurantId: req.params.shopId }).lean();
     return res.json({ success: true, coupons });
   } catch (error) {
     console.error('Get coupons error:', error?.message || error);
@@ -437,7 +447,7 @@ app.post('/api/validate-coupon', async (req, res) => {
     const { shopId, code, cartTotal } = req.body;
 
     const coupon = await Coupon.findOne({
-      shopId,
+      restaurantId: shopId,
       code: code.toUpperCase(),
       isActive: true,
       validFrom: { $lte: new Date() },
@@ -495,6 +505,15 @@ app.post('/api/create-razorpay-order', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required data' });
     }
 
+    const activeTableOrder = await Order.findOne({
+      shopId,
+      tableNumber,
+      status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] }
+    }).select('_id').lean();
+    if (activeTableOrder) {
+      return res.status(409).json({ success: false, message: 'This table already has an active order. Please ask the staff before placing another order.' });
+    }
+
     const prepMinutes = Math.max(...items.map(item => Number(item.prepTime) || 15), 15);
     const estimatedReadyAt = new Date(Date.now() + prepMinutes * 60 * 1000);
 
@@ -546,6 +565,9 @@ app.post('/api/create-razorpay-order', async (req, res) => {
       currency: 'INR'
     });
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(409).json({ success: false, message: 'This table already has an active order. Please ask the staff before placing another order.' });
+    }
     console.error('Create Razorpay order error:', error?.message || error);
     return res.status(500).json({ success: false, message: 'Failed to create payment order' });
   }
@@ -583,7 +605,7 @@ app.post('/api/verify-payment', async (req, res) => {
     // Update coupon usage
     if (order.couponCode) {
       await Coupon.updateOne(
-        { code: order.couponCode },
+        { restaurantId: order.shopId, code: order.couponCode },
         { $inc: { totalUsed: 1 } }
       );
     }
@@ -630,6 +652,15 @@ app.post('/api/order', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required order data' });
     }
 
+    const activeTableOrder = await Order.findOne({
+      shopId,
+      tableNumber,
+      status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] }
+    }).select('_id status').lean();
+    if (activeTableOrder) {
+      return res.status(409).json({ success: false, message: 'This table already has an active order. Please ask the staff before placing another order.' });
+    }
+
     const prepMinutes = Number(estimatedPrepMinutes) || Math.max(...items.map(item => Number(item.prepTime) || 15));
     const estimatedReadyAt = new Date(Date.now() + prepMinutes * 60 * 1000);
 
@@ -667,6 +698,9 @@ app.post('/api/order', async (req, res) => {
       estimatedPrepMinutes: prepMinutes
     });
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(409).json({ success: false, message: 'This table already has an active order. Please ask the staff before placing another order.' });
+    }
     console.error('Order error:', error?.message || error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }

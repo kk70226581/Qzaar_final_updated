@@ -264,7 +264,7 @@ const Analytics = mongoose.model('Analytics', analyticsSchema);
 // ✅ Coupon (Coupons & Discounts)
 const couponSchema = new mongoose.Schema({
   restaurantId: { type: String, required: true },
-  code: { type: String, required: true, unique: true },
+  code: { type: String, required: true, trim: true, uppercase: true },
   description: { type: String, default: '' },
   discountType: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
   discountValue: { type: Number, required: true },
@@ -279,7 +279,7 @@ const couponSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
-couponSchema.index({ restaurantId: 1, code: 1 });
+couponSchema.index({ restaurantId: 1, code: 1 }, { unique: true, name: 'one_coupon_code_per_restaurant' });
 const Coupon = mongoose.model('Coupon', couponSchema);
 
 // ✅ Shopkeeper (Restaurant Admin)
@@ -341,6 +341,16 @@ const orderSchema = new mongoose.Schema({
 orderSchema.index({ shopId: 1, createdAt: -1 });
 orderSchema.index({ razorpayOrderId: 1 });
 orderSchema.index({ customerEmail: 1 });
+// A table can only have one active dine-in order at a time. Once completed or
+// cancelled, the partial index no longer applies and the table is free again.
+orderSchema.index(
+  { shopId: 1, tableNumber: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] } },
+    name: 'one_active_order_per_table'
+  }
+);
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = {

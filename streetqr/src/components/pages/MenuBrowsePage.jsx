@@ -361,7 +361,7 @@ const MenuBrowsePage = () => {
       setCart([]);
       navigate(`/track-order/${response.data.orderId}`);
     } catch (error) {
-      toast.error(error.message || 'Unable to place your order.');
+      toast.error(error.response?.data?.message || error.message || 'Unable to place your order.');
     } finally {
       setIsPlacingOrder(false);
     }
