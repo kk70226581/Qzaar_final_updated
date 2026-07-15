@@ -54,7 +54,8 @@ function AppRoutes() {
           <Route path="/menu" element={<MenuBuilder />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/qrcode" element={<QRCodePage />} />
-          <Route path="/menu/:id" element={<ModernMenuView />} />
+          <Route path="/menu/:restaurantId" element={<MenuBrowsePage />} />
+          <Route path="/classic-menu/:id" element={<ModernMenuView />} />
           <Route path="/order-summary" element={<OrderSummary />} />
           <Route path="/track-order/:orderId" element={<OrderSummary />} />
           <Route path="/orders" element={<OrdersPage />} />
@@ -63,7 +64,7 @@ function AppRoutes() {
           {/* Modern Redesign - Customer Pages */}
           <Route path="/modern/landing" element={<LandingPage />} />
           <Route path="/modern/menu" element={<MenuBrowsePage />} />
-          <Route path="/modern/menu/:id" element={<ModernMenuView />} />
+          <Route path="/modern/menu/:restaurantId" element={<MenuBrowsePage />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="/modern/food/:id" element={<FoodDetailPage />} />
           <Route path="/modern/cart" element={<CartPage />} />

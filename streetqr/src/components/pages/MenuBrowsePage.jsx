@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -17,8 +17,10 @@ import {
   Sparkles,
   Star,
   UtensilsCrossed,
+  X,
   Zap,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
   ModernFoodCard,
   ModernInput,
@@ -28,6 +30,8 @@ import {
 } from '../ui';
 import CategoryTabs from '../features/CategoryTabs';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
+import PaymentGateway from '../PaymentGateway';
+import { createOrder, getMenu } from '../../api';
 import '../../styles/pages/MenuBrowsePage.css';
 
 const categories = [
@@ -160,6 +164,16 @@ const MenuBrowsePage = () => {
     minRating: 0,
     maxPrepTime: 60,
   });
+  const [shop, setShop] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [tableNumber, setTableNumber] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [showPaymentGateway, setShowPaymentGateway] = useState(false);
 
   useEffect(() => {
     fetchMenu();
@@ -171,8 +185,35 @@ const MenuBrowsePage = () => {
     setError(null);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      setFoods(mockFoods);
+      if (!restaurantId) {
+        await new Promise(resolve => setTimeout(resolve, 350));
+        setFoods(mockFoods);
+        return;
+      }
+
+      const response = await getMenu(restaurantId);
+      if (!response.data.success) throw new Error(response.data.message || 'The restaurant menu is unavailable.');
+
+      const restaurant = response.data;
+      const liveFoods = Object.entries(restaurant.menu || {}).flatMap(([category, items]) =>
+        (items || []).map((item, index) => ({
+          ...item,
+          id: item.id || `${category}-${index}-${item.name || 'item'}`,
+          name: item.name || 'Menu item',
+          description: item.description || item.remarks || 'Freshly prepared to order.',
+          price: Number(item.price) || 0,
+          category,
+          categoryId: category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          rating: Number(item.rating) || 4.5,
+          reviews: Number(item.reviews) || 0,
+          prepTime: Number(item.prepTime) || 15,
+          isVeg: item.isVeg !== false && item.vegetarian !== false,
+          isBestseller: Boolean(item.isBestseller || item.bestseller),
+          image: item.image || restaurant.logo || '/images/landing/slide-1.png',
+        }))
+      );
+      setShop(restaurant);
+      setFoods(liveFoods);
     } catch (err) {
       setError({
         type: 'network',
@@ -189,7 +230,7 @@ const MenuBrowsePage = () => {
     let filtered = foods;
 
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(food => food.category === selectedCategory);
+      filtered = filtered.filter(food => (food.categoryId || food.category) === selectedCategory);
     }
 
     if (selectedCategory === 'popular') {
@@ -224,6 +265,66 @@ const MenuBrowsePage = () => {
 
     setFilteredFoods(filtered);
   }, [foods, searchTerm, selectedCategory, filters, vegOnly, sortBy]);
+
+  useEffect(() => {
+    const scannedTable = new URLSearchParams(window.location.search).get('table');
+    if (scannedTable) setTableNumber(scannedTable);
+  }, []);
+
+  const dynamicCategories = useMemo(() => {
+    if (!restaurantId) return categories;
+    return [
+      { id: 'all', name: 'All items', icon: UtensilsCrossed },
+      ...Array.from(new Set(foods.map((food) => food.category))).map((category) => ({
+        id: category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: category,
+        icon: UtensilsCrossed,
+      })),
+    ];
+  }, [foods, restaurantId]);
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const gst = Math.round(cartTotal * 0.05);
+  const finalTotal = cartTotal + gst;
+
+  const updateCart = (food, amount) => {
+    setCart((current) => {
+      const existing = current.find((item) => item.id === food.id);
+      if (!existing && amount > 0) return [...current, { ...food, quantity: amount }];
+      if (!existing) return current;
+      const quantity = existing.quantity + amount;
+      if (quantity <= 0) return current.filter((item) => item.id !== food.id);
+      return current.map((item) => item.id === food.id ? { ...item, quantity } : item);
+    });
+  };
+
+  const placeOrder = async () => {
+    if (!restaurantId) return toast('Choose a live restaurant menu to place an order.');
+    if (!customerName.trim() || !tableNumber.trim()) return toast.error('Please enter your name and table number.');
+    if (!cart.length) return toast.error('Your cart is empty.');
+    if (paymentMethod === 'razorpay' && !customerEmail.trim()) return toast.error('Email is required for online payment.');
+
+    const payload = {
+      shopId: restaurantId, customerName, customerEmail, customerPhone, tableNumber,
+      items: cart, total: finalTotal, subTotal: cartTotal, taxes: gst, paymentMethod,
+      estimatedPrepMinutes: Math.max(...cart.map((item) => item.prepTime || 15)),
+    };
+    if (paymentMethod === 'razorpay') return setShowPaymentGateway(true);
+
+    setIsPlacingOrder(true);
+    try {
+      const response = await createOrder(payload);
+      if (!response.data.success) throw new Error(response.data.message);
+      toast.success('Order placed successfully!');
+      setCart([]);
+      navigate(`/track-order/${response.data.orderId}`);
+    } catch (error) {
+      toast.error(error.message || 'Unable to place your order.');
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -283,9 +384,9 @@ const MenuBrowsePage = () => {
               <Sparkles size={16} />
               Fresh from the kitchen
             </span>
-            <h1 className="menu-browse__title">Browse Our Menu</h1>
+            <h1 className="menu-browse__title">{shop?.shopName || 'Browse Our Menu'}</h1>
             <p className="menu-browse__subtitle">
-              Search, sort, filter, and build the perfect table order in seconds.
+              {shop?.tagline || 'Search, sort, filter, and build the perfect table order in seconds.'}
             </p>
             <div className="menu-browse__hero-stats">
               {heroStats.map((stat) => {
@@ -301,9 +402,9 @@ const MenuBrowsePage = () => {
             </div>
 
             <div className="menu-browse__hero-actions">
-              <button type="button" onClick={() => navigate('/modern/cart')}>
+              <button type="button" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart size={18} />
-                View cart
+                View cart{cartCount > 0 ? ` (${cartCount})` : ''}
               </button>
               <button type="button" onClick={() => setShowFilters(true)}>
                 <SlidersHorizontal size={18} />
@@ -318,10 +419,10 @@ const MenuBrowsePage = () => {
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ type: 'spring', stiffness: 220, damping: 24 }}
           >
-            <img src="/images/ads/menu-cartoon-banner.png" alt="Cartoon QR menu preview" />
+            <img src={shop?.logo || '/images/ads/menu-cartoon-banner.png'} alt={shop?.shopName || 'QR menu preview'} />
             <div>
               <span>Now serving</span>
-              <strong>Cartoon-fresh picks with fast checkout</strong>
+              <strong>{shop?.cuisineType || 'Fresh picks with fast checkout'}</strong>
             </div>
           </motion.div>
         </header>
@@ -356,7 +457,7 @@ const MenuBrowsePage = () => {
         {!loading && (
           <nav className="menu-browse__nav">
             <CategoryTabs
-              categories={categories}
+              categories={dynamicCategories}
               activeId={selectedCategory}
               onCategoryClick={setSelectedCategory}
             />
@@ -542,9 +643,9 @@ const MenuBrowsePage = () => {
                 <motion.div key={food.id} variants={itemVariants}>
                   <ModernFoodCard
                     {...food}
-                    onAddClick={() => {
-                      navigate(`/modern/food/${food.id}`);
-                    }}
+                  quantity={cart.find((item) => item.id === food.id)?.quantity || 0}
+                  onAddClick={() => updateCart(food, 1)}
+                  onRemoveClick={() => updateCart(food, -1)}
                   />
                 </motion.div>
               ))}
@@ -565,6 +666,61 @@ const MenuBrowsePage = () => {
             />
           )}
         </section>
+
+        <AnimatePresence>
+          {isCartOpen && (
+            <>
+              <motion.button
+                type="button"
+                aria-label="Close cart"
+                className="fixed inset-0 z-40 bg-slate-950/50"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setIsCartOpen(false)}
+              />
+              <motion.aside
+                className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto bg-white p-5 shadow-2xl"
+                initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+                aria-label="Your order"
+              >
+                <div className="mb-5 flex items-center justify-between border-b border-slate-200 pb-4">
+                  <div><p className="text-xs font-bold uppercase tracking-wider text-orange-600">Table order</p><h2 className="m-0 text-2xl font-bold text-slate-900">Your cart</h2></div>
+                  <button type="button" onClick={() => setIsCartOpen(false)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Close cart"><X size={22} /></button>
+                </div>
+
+                <div className="space-y-3">
+                  {cart.length ? cart.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3">
+                      <img src={item.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                      <div className="min-w-0 flex-1"><strong className="block truncate text-slate-900">{item.name}</strong><span className="text-sm text-slate-500">Rs. {item.price}</span></div>
+                      <div className="flex items-center gap-2"><button type="button" onClick={() => updateCart(item, -1)} className="rounded-md border px-2 py-1">−</button><span className="w-4 text-center font-bold">{item.quantity}</span><button type="button" onClick={() => updateCart(item, 1)} className="rounded-md border px-2 py-1">+</button></div>
+                    </div>
+                  )) : <p className="rounded-xl bg-slate-50 p-5 text-center text-slate-500">Your cart is empty. Add dishes from the menu.</p>}
+                </div>
+
+                {cart.length > 0 && (
+                  <div className="mt-5 space-y-4 border-t border-slate-200 pt-5">
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="col-span-2 text-sm font-semibold text-slate-700">Name<input value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
+                      <label className="text-sm font-semibold text-slate-700">Table<input value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
+                      <label className="text-sm font-semibold text-slate-700">Phone<input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+                    </div>
+                    <label className="text-sm font-semibold text-slate-700">Payment method<select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="cash">Cash at counter</option><option value="razorpay">Online — UPI, card or netbanking</option></select></label>
+                    {paymentMethod === 'razorpay' && <label className="block text-sm font-semibold text-slate-700">Email<input type="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>}
+                    <div className="space-y-1 rounded-xl bg-slate-50 p-3 text-sm"><div className="flex justify-between"><span>Subtotal</span><strong>Rs. {cartTotal}</strong></div><div className="flex justify-between"><span>GST (5%)</span><strong>Rs. {gst}</strong></div><div className="flex justify-between border-t border-slate-200 pt-2 text-base"><span className="font-bold">Total</span><strong>Rs. {finalTotal}</strong></div></div>
+                    <button type="button" disabled={isPlacingOrder} onClick={placeOrder} className="w-full rounded-xl bg-orange-600 px-4 py-3 font-bold text-white shadow-lg transition hover:bg-orange-700 disabled:opacity-60">{isPlacingOrder ? 'Placing order…' : paymentMethod === 'razorpay' ? `Pay Rs. ${finalTotal}` : `Place order · Rs. ${finalTotal}`}</button>
+                  </div>
+                )}
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {showPaymentGateway && (
+          <PaymentGateway amount={finalTotal} customerName={customerName} customerEmail={customerEmail} customerPhone={customerPhone} tableNumber={tableNumber} shopId={restaurantId} items={cart}
+            onClose={() => setShowPaymentGateway(false)}
+            onSuccess={(order) => { setCart([]); setShowPaymentGateway(false); navigate(`/track-order/${order._id}`); }} />
+        )}
       </main>
     </ResponsiveLayout>
   );
