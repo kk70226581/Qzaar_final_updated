@@ -700,6 +700,7 @@
 .menu-browse__header-copy {
   z-index: 2;
   max-width: min(670px, 58vw);
+  max-height: 100%;
 }
 
 .menu-browse__title { max-width: 16ch; font-size: clamp(2.8rem, 5vw, 5.25rem); line-height: .94; }
