@@ -31,6 +31,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   FRONTEND_URL,
   'https://www.qzaar.shop',
+  'https://updated-ver.vercel.app',
   'https://updated-ver.onrender.com',
   'https://streetqr-backend.onrender.com',
   ...String(process.env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean)
