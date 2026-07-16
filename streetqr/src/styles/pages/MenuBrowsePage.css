@@ -900,3 +900,15 @@
   .menu-browse__hero-card { min-height: 530px; }
   .menu-cart__header, .menu-cart__items, .menu-cart__checkout { padding-left: 1rem; padding-right: 1rem; }
 }
+
+/* Preserve spacious, tap-friendly cards on phones while using wider handsets efficiently. */
+@media (min-width: 460px) and (max-width: 640px) {
+  .menu-browse__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .menu-browse__grid .modern-food-card__content {
+    padding: 0.75rem;
+  }
+}

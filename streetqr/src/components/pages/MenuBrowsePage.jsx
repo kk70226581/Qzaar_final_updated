@@ -49,7 +49,7 @@ const categories = [
 const heroStats = [
   { icon: Star, value: '4.8', label: 'Guest rating' },
   { icon: Clock3, value: '18m', label: 'Avg prep' },
-  { icon: Sparkles, value: '32+', label: 'Fresh picks' },
+  { icon: Sparkles, value: '24', label: 'Menu picks' },
 ];
 
 const menuPromos = [
@@ -145,6 +145,24 @@ const mockFoods = [
     isBestseller: true,
     isVeg: true,
   },
+  { id: 7, name: 'Crispy Corn Chaat', description: 'Crisp corn tossed with lime, chilli, and herbs', price: 149, rating: 4.6, reviews: 182, prepTime: 8, calories: 210, category: 'appetizers', image: '/images/showcase/showcase-7.png', isVeg: true },
+  { id: 8, name: 'Veg Seekh Kebab', description: 'Smoky grilled vegetable kebabs with mint chutney', price: 229, rating: 4.7, reviews: 219, prepTime: 14, calories: 240, category: 'appetizers', image: '/images/showcase/showcase-8.png', isVeg: true, isChefRecommended: true },
+  { id: 9, name: 'Paneer Malai Tikka', description: 'Creamy cottage cheese, chargrilled to perfection', price: 319, rating: 4.8, reviews: 302, prepTime: 18, calories: 340, category: 'appetizers', image: '/images/showcase/showcase-1.png', isVeg: true, isBestseller: true },
+  { id: 10, name: 'Masala Fries', description: 'Crispy fries dusted with house masala', price: 119, rating: 4.4, reviews: 126, prepTime: 7, calories: 260, category: 'appetizers', image: '/images/showcase/showcase-3.png', isVeg: true },
+  { id: 11, name: 'Dal Makhani', description: 'Slow-cooked black lentils finished with butter', price: 259, rating: 4.8, reviews: 344, prepTime: 16, calories: 310, category: 'main', image: '/images/showcase/showcase-5.png', isVeg: true, isBestseller: true },
+  { id: 12, name: 'Kadai Paneer', description: 'Paneer, peppers and tomato masala in a kadai', price: 289, rating: 4.6, reviews: 238, prepTime: 17, calories: 330, category: 'main', image: '/images/showcase/showcase-1.png', isVeg: true },
+  { id: 13, name: 'Chicken Tikka Masala', description: 'Charred chicken in a rich, spiced tomato gravy', price: 379, rating: 4.8, reviews: 318, prepTime: 21, calories: 420, category: 'main', image: '/images/showcase/showcase-2.png', isVeg: false, isChefRecommended: true },
+  { id: 14, name: 'Veg Pulao', description: 'Fragrant basmati rice with seasonal vegetables', price: 219, rating: 4.5, reviews: 154, prepTime: 14, calories: 290, category: 'main', image: '/images/showcase/showcase-4.png', isVeg: true },
+  { id: 15, name: 'Butter Naan', description: 'Tandoor-baked bread brushed with melted butter', price: 59, rating: 4.9, reviews: 465, prepTime: 6, calories: 170, category: 'main', image: '/images/showcase/showcase-3.png', isVeg: true, isBestseller: true },
+  { id: 16, name: 'Jeera Rice', description: 'Steamed basmati rice with toasted cumin', price: 129, rating: 4.5, reviews: 133, prepTime: 10, calories: 220, category: 'main', image: '/images/showcase/showcase-4.png', isVeg: true },
+  { id: 17, name: 'Sizzling Brownie', description: 'Warm chocolate brownie with vanilla ice cream', price: 189, rating: 4.8, reviews: 287, prepTime: 9, calories: 410, category: 'desserts', image: '/images/showcase/showcase-5.png', isVeg: true, isChefRecommended: true },
+  { id: 18, name: 'Rasmalai', description: 'Soft cottage cheese dumplings in saffron milk', price: 119, rating: 4.7, reviews: 204, prepTime: 5, calories: 230, category: 'desserts', image: '/images/showcase/showcase-6.png', isVeg: true },
+  { id: 19, name: 'Kulfi Falooda', description: 'Classic kulfi with vermicelli and rose syrup', price: 139, rating: 4.6, reviews: 198, prepTime: 6, calories: 280, category: 'desserts', image: '/images/showcase/showcase-7.png', isVeg: true, isNew: true },
+  { id: 20, name: 'Cold Coffee', description: 'Chilled coffee blended with ice cream', price: 129, rating: 4.7, reviews: 221, prepTime: 4, calories: 250, category: 'beverages', image: '/images/showcase/showcase-8.png', isVeg: true },
+  { id: 21, name: 'Masala Chai', description: 'Aromatic Indian tea simmered with warming spices', price: 49, rating: 4.9, reviews: 492, prepTime: 3, calories: 90, category: 'beverages', image: '/images/showcase/showcase-6.png', isVeg: true, isBestseller: true },
+  { id: 22, name: 'Fresh Lime Soda', description: 'Sweet-salty lime soda with a refreshing fizz', price: 79, rating: 4.6, reviews: 167, prepTime: 3, calories: 110, category: 'beverages', image: '/images/showcase/showcase-7.png', isVeg: true },
+  { id: 23, name: 'Chef’s Thali', description: 'A complete seasonal platter selected by our chef', price: 449, rating: 4.9, reviews: 356, prepTime: 22, calories: 650, category: 'specials', image: '/images/showcase/showcase-8.png', isVeg: true, isChefRecommended: true, isBestseller: true },
+  { id: 24, name: 'Tandoori Feast', description: 'A sharing platter of grilled favourites and sides', price: 699, rating: 4.8, reviews: 241, prepTime: 25, calories: 780, category: 'specials', image: '/images/showcase/showcase-2.png', isVeg: false, isChefRecommended: true },
 ];
 
 const MenuBrowsePage = () => {
