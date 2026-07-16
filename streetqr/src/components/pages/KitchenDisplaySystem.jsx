@@ -9,7 +9,6 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import {
-  ModernCard,
   ModernBadge,
   ModernButton,
 } from '../ui';

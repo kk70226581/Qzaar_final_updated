@@ -17,16 +17,6 @@ const Loading = ({ text = 'Loading...', fullscreen = false }) => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const skeletonVariants = {
-    animate: {
-      x: [-1200, 1200],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-      },
-    },
-  };
-
   if (fullscreen) {
     return (
       <div className="fixed inset-0 bg-white dark:bg-slate-950 flex items-center justify-center z-50">

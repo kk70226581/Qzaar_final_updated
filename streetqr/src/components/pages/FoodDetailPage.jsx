@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ChevronLeft,
   Heart,
@@ -13,9 +13,7 @@ import {
 } from 'lucide-react';
 import {
   ModernButton,
-  ModernCard,
   ModernBadge,
-  ModernInput,
   ModernSkeleton,
   ModernError,
 } from '../ui';

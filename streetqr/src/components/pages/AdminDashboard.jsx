@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  BarChart3,
   ShoppingCart,
   Users,
   TrendingUp,
   Clock,
   CheckCircle,
   AlertCircle,
-  Menu,
-  Settings,
-  LogOut,
 } from 'lucide-react';
 import {
   ModernCard,
@@ -35,7 +31,7 @@ import '../../styles/pages/AdminDashboard.css';
  */
 
 const AdminDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const [selectedPeriod] = useState('today');
   const [orders, setOrders] = useState([]);
   const [metrics, setMetrics] = useState(null);
 

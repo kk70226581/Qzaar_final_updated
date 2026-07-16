@@ -9,8 +9,6 @@ import {
   MessageCircle,
   CheckCircle,
   Home,
-  ChefHat,
-  Package,
 } from 'lucide-react';
 import {
   ModernButton,

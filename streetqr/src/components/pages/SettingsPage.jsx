@@ -1,25 +1,18 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Settings,
   Store,
   Clock,
   DollarSign,
   Bell,
-  Users,
   MapPin,
-  Phone,
-  Mail,
   Save,
-  ChevronRight,
-  Toggle2,
   AlertCircle,
 } from 'lucide-react';
 import {
   ModernCard,
   ModernButton,
   ModernInput,
-  ModernBadge,
 } from '../ui';
 import AdminLayout from '../layout/AdminLayout';
 import '../../styles/pages/SettingsPage.css';

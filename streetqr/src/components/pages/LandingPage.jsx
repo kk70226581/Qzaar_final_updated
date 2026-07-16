@@ -6,8 +6,6 @@ import {
   Clock,
   Star,
   Users,
-  TrendingUp,
-  Award,
   ChevronRight,
   MapPin,
   Search,

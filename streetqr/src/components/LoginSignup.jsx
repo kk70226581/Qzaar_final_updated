@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -38,7 +38,16 @@ function LoginSignup() {
   const googleButtonRef = useRef(null);
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-  const completeGoogleLogin = async (credential) => {
+  const showMessage = useCallback((text, type) => {
+    setMessage(text);
+    setMessageType(type);
+    window.setTimeout(() => {
+      setMessage((current) => (current === text ? '' : current));
+      setMessageType((current) => (current === type ? '' : current));
+    }, 3200);
+  }, []);
+
+  const completeGoogleLogin = useCallback(async (credential) => {
     setIsSubmitting(true);
     try {
       const response = await axios.post(`${API_BASE}/api/auth/google`, { credential });
@@ -56,7 +65,7 @@ function LoginSignup() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [API_BASE, navigate, showMessage]);
 
   useEffect(() => {
     if (!googleClientId || !googleButtonRef.current) return undefined;
@@ -93,7 +102,7 @@ function LoginSignup() {
     script.onload = renderGoogleButton;
     document.head.appendChild(script);
     return () => { script.onload = null; };
-  }, [googleClientId, isSignup]);
+  }, [completeGoogleLogin, googleClientId, isSignup]);
 
   const passwordStrength = useMemo(() => {
     let score = 0;
@@ -108,15 +117,6 @@ function LoginSignup() {
   }, [password]);
 
   const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
-
-  const showMessage = (text, type) => {
-    setMessage(text);
-    setMessageType(type);
-    window.setTimeout(() => {
-      setMessage((current) => (current === text ? '' : current));
-      setMessageType((current) => (current === type ? '' : current));
-    }, 3200);
-  };
 
   const handleAuth = async () => {
     if (!email || !password) {

@@ -4,7 +4,6 @@ import {
   Heart,
   Plus,
   Leaf,
-  Flame,
   Clock3,
   Star,
   ChefHat,

@@ -8,7 +8,6 @@ import {
   Edit2,
   Trash2,
   Search,
-  Filter,
   MoreVertical,
   TrendingDown,
   Check,

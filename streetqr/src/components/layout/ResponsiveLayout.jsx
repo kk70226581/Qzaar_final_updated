@@ -29,14 +29,12 @@ const ResponsiveLayout = ({
   mainClassName = '',
 }) => {
   const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       setIsMobile(width < 640);
-      setIsTablet(width >= 640 && width < 1024);
     };
 
     handleResize();

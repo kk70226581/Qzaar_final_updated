@@ -1,19 +1,14 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
-  BadgePercent,
-  Bell,
-  ChefHat,
   Clock3,
-  CreditCard,
   Heart,
   Leaf,
   MapPin,
   Moon,
   Phone,
-  Plus,
   Search,
   Sun,
   ShoppingBag,
@@ -28,7 +23,6 @@ import {
   Card,
   CardImage,
   CardContent,
-  Badge,
   Input,
   Loading,
   Modal,
@@ -65,7 +59,6 @@ function ModernMenuView() {
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
-  const [dietFilter, setDietFilter] = useState('all');
   const [recentSearches, setRecentSearches] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('qzaar-recent-searches') || '[]');
@@ -86,7 +79,7 @@ function ModernMenuView() {
   const [tableNumber, setTableNumber] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
-  const [customerNote, setCustomerNote] = useState('');
+  const [customerNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
   // Load Menu
@@ -336,6 +329,12 @@ function ModernMenuView() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="hidden sm:inline-flex items-center rounded-lg px-2 py-1 text-xs font-bold text-brand-600 hover:bg-brand-50 dark:hover:bg-slate-800"
+            >
+              Qzaar
+            </Link>
             {shop.logo && (
               <motion.img
                 whileHover={{ scale: 1.05 }}
