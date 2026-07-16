@@ -37,6 +37,7 @@ import {
 import CategoryTabs from '../features/CategoryTabs';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import PaymentGateway from '../PaymentGateway';
+import CouponApplier from '../CouponApplier';
 import { createOrder, getMenu } from '../../api';
 import '../../styles/pages/MenuBrowsePage.css';
 
@@ -191,6 +192,8 @@ const MenuBrowsePage = () => {
   const [shop, setShop] = useState(null);
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartStep, setCartStep] = useState('cart');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -348,8 +351,10 @@ const MenuBrowsePage = () => {
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const gst = Math.round(cartTotal * 0.05);
-  const finalTotal = cartTotal + gst;
+  const discountAmount = Math.min(Number(appliedCoupon?.discountAmount) || 0, cartTotal);
+  const discountedSubtotal = cartTotal - discountAmount;
+  const gst = Math.round(discountedSubtotal * 0.05);
+  const finalTotal = discountedSubtotal + gst;
 
   const updateCart = (food, amount) => {
     setCart((current) => {
@@ -370,7 +375,8 @@ const MenuBrowsePage = () => {
 
     const payload = {
       shopId: restaurantId, customerName, customerEmail, customerPhone, tableNumber,
-      items: cart, total: finalTotal, subTotal: cartTotal, taxes: gst, paymentMethod,
+      items: cart, total: finalTotal, subTotal: cartTotal, discountAmount,
+      couponCode: appliedCoupon?.code || '', taxes: gst, paymentMethod,
       estimatedPrepMinutes: Math.max(...cart.map((item) => item.prepTime || 15)),
     };
     if (paymentMethod === 'razorpay') return setShowPaymentGateway(true);
@@ -465,7 +471,7 @@ const MenuBrowsePage = () => {
             </div>
 
             <div className="menu-browse__hero-actions">
-              <button type="button" onClick={() => setIsCartOpen(true)}>
+              <button type="button" onClick={() => { setCartStep('cart'); setIsCartOpen(true); }}>
                 <ShoppingCart size={18} />
                 View cart{cartCount > 0 ? ` (${cartCount})` : ''}
               </button>
@@ -762,28 +768,32 @@ const MenuBrowsePage = () => {
                 aria-label="Your order"
               >
                 <div className="menu-cart__header flex items-center justify-between border-b border-slate-200">
-                  <div><p className="text-xs font-bold uppercase tracking-wider text-orange-600">Table order</p><h2 className="m-0 text-2xl font-bold text-slate-900">Your cart</h2><span className="menu-cart__item-count">{cart.length} {cart.length === 1 ? 'dish' : 'dishes'} selected</span></div>
+                  <div><p className="text-xs font-bold uppercase tracking-wider text-orange-600">Table order</p><h2 className="m-0 text-2xl font-bold text-slate-900">{cartStep === 'cart' ? 'Your cart' : 'Checkout'}</h2><span className="menu-cart__item-count">{cart.length} {cart.length === 1 ? 'dish' : 'dishes'} selected</span></div>
                   <button type="button" onClick={() => setIsCartOpen(false)} className="menu-cart__close rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Close cart"><X size={22} /></button>
                 </div>
 
                 <ol className="menu-cart__steps" aria-label="Checkout progress">
-                  <li className="is-active"><span>1</span> Cart</li>
-                  <li className={cart.length ? 'is-active' : ''}><span>2</span> Details</li>
-                  <li className={customerName && tableNumber ? 'is-active' : ''}><span>3</span> Pay</li>
+                  <li className="is-active"><span>1</span> Food</li>
+                  <li className={cartStep === 'checkout' ? 'is-active' : ''}><span>2</span> Checkout</li>
+                  <li className={cartStep === 'checkout' && customerName && tableNumber ? 'is-active' : ''}><span>3</span> Pay</li>
                 </ol>
 
-                <div className="menu-cart__items space-y-3">
-                  {cart.length ? cart.map((item) => (
-                    <div key={item.id} className="menu-cart__item flex items-center gap-3 rounded-xl border border-slate-200 p-3">
-                      <img src={item.image} alt={item.name} className="h-14 w-14 rounded-xl object-cover" />
-                      <div className="min-w-0 flex-1"><strong className="block truncate text-slate-900">{item.name}</strong><span className="text-sm text-slate-500">Rs. {item.price} each</span></div>
-                      <div className="menu-cart__quantity" aria-label={`${item.name} quantity`}><button type="button" onClick={() => updateCart(item, -1)} aria-label={`Remove one ${item.name}`}><Minus size={15} /></button><span>{item.quantity}</span><button type="button" onClick={() => updateCart(item, 1)} aria-label={`Add one ${item.name}`}><Plus size={15} /></button></div>
+                {cartStep === 'cart' ? (
+                  <>
+                    <div className="menu-cart__items space-y-3">
+                      {cart.length ? cart.map((item) => (
+                        <div key={item.id} className="menu-cart__item flex items-center gap-3 rounded-xl border border-slate-200 p-3">
+                          <img src={item.image} alt={item.name} className="h-14 w-14 rounded-xl object-cover" />
+                          <div className="min-w-0 flex-1"><strong className="block truncate text-slate-900">{item.name}</strong><span className="text-sm text-slate-500">Rs. {item.price} each</span></div>
+                          <div className="menu-cart__quantity" aria-label={`${item.name} quantity`}><button type="button" onClick={() => updateCart(item, -1)} aria-label={`Remove one ${item.name}`}><Minus size={15} /></button><span>{item.quantity}</span><button type="button" onClick={() => updateCart(item, 1)} aria-label={`Add one ${item.name}`}><Plus size={15} /></button></div>
+                        </div>
+                      )) : <p className="rounded-xl bg-slate-50 p-5 text-center text-slate-500">Your cart is empty. Add dishes from the menu.</p>}
                     </div>
-                  )) : <p className="rounded-xl bg-slate-50 p-5 text-center text-slate-500">Your cart is empty. Add dishes from the menu.</p>}
-                </div>
-
-                {cart.length > 0 && (
+                    {cart.length > 0 && <div className="menu-cart__cart-footer mt-auto border-t border-slate-200"><div><span>Food total</span><strong>Rs. {cartTotal}</strong></div><button type="button" onClick={() => setCartStep('checkout')} className="menu-cart__submit w-full rounded-xl px-4 py-3 font-bold text-white shadow-lg transition">Continue to checkout <ChevronRight size={18} /></button></div>}
+                  </>
+                ) : cart.length > 0 && (
                   <div className="menu-cart__checkout mt-auto space-y-4 border-t border-slate-200">
+                    <button type="button" className="menu-cart__back" onClick={() => setCartStep('cart')}><ChevronLeft size={17} /> Edit food order</button>
                     <div className="menu-cart__checkout-heading"><ReceiptText size={18} /><div><strong>Guest details</strong><span>Needed to send your order to the kitchen</span></div></div>
                     <div className="menu-cart__fields grid grid-cols-2 gap-3">
                       <label className="col-span-2 text-sm font-semibold text-slate-700">Name<input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Your name" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
@@ -792,7 +802,8 @@ const MenuBrowsePage = () => {
                     </div>
                     <label className="menu-cart__payment text-sm font-semibold text-slate-700">Payment method<select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="cash">Cash at counter</option><option value="razorpay">Online - UPI, card or netbanking</option></select></label>
                     {paymentMethod === 'razorpay' && <label className="block text-sm font-semibold text-slate-700">Email<input type="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="For your payment receipt" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>}
-                    <div className="menu-cart__summary space-y-1 rounded-xl p-3 text-sm"><div className="flex justify-between"><span>Subtotal</span><strong>Rs. {cartTotal}</strong></div><div className="flex justify-between"><span>GST (5%)</span><strong>Rs. {gst}</strong></div><div className="flex justify-between border-t border-slate-200 pt-2 text-base"><span className="font-bold">Total</span><strong>Rs. {finalTotal}</strong></div></div>
+                    <CouponApplier shopId={restaurantId} cartTotal={cartTotal} onCouponApplied={setAppliedCoupon} />
+                    <div className="menu-cart__summary space-y-1 rounded-xl p-3 text-sm"><div className="flex justify-between"><span>Subtotal</span><strong>Rs. {cartTotal}</strong></div>{discountAmount > 0 && <div className="flex justify-between text-emerald-700"><span>Discount ({appliedCoupon?.code})</span><strong>-Rs. {discountAmount}</strong></div>}<div className="flex justify-between"><span>GST (5%)</span><strong>Rs. {gst}</strong></div><div className="flex justify-between border-t border-slate-200 pt-2 text-base"><span className="font-bold">Total</span><strong>Rs. {finalTotal}</strong></div></div>
                     <button type="button" disabled={isPlacingOrder} onClick={placeOrder} className="menu-cart__submit w-full rounded-xl px-4 py-3 font-bold text-white shadow-lg transition disabled:opacity-60">{isPlacingOrder ? 'Placing order...' : paymentMethod === 'razorpay' ? `Pay Rs. ${finalTotal}` : `Place order - Rs. ${finalTotal}`}</button>
                     <p className="menu-cart__assurance"><ShieldCheck size={15} /> Your table is held while this order is being placed.</p>
                   </div>
@@ -803,7 +814,7 @@ const MenuBrowsePage = () => {
         </AnimatePresence>
 
         {showPaymentGateway && (
-          <PaymentGateway amount={finalTotal} customerName={customerName} customerEmail={customerEmail} customerPhone={customerPhone} tableNumber={tableNumber} shopId={restaurantId} items={cart}
+          <PaymentGateway amount={finalTotal} customerName={customerName} customerEmail={customerEmail} customerPhone={customerPhone} tableNumber={tableNumber} shopId={restaurantId} items={cart} couponCode={appliedCoupon?.code} discountAmount={discountAmount} subTotal={cartTotal}
             onClose={() => setShowPaymentGateway(false)}
             onSuccess={(order) => { setCart([]); setShowPaymentGateway(false); navigate(`/track-order/${order._id}`); }} />
         )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Heart,
@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import ModernBadge from './ModernBadge';
 import '../../styles/components/ModernFoodCard.css';
+
+const FALLBACK_FOOD_IMAGE = '/images/brand/qzaar-restaurant-hero.png';
 
 const ModernFoodCard = React.forwardRef(
   (
@@ -46,7 +48,13 @@ const ModernFoodCard = React.forwardRef(
     ref
   ) => {
     const [imageLoading, setImageLoading] = useState(true);
+    const [imageSource, setImageSource] = useState(image || FALLBACK_FOOD_IMAGE);
     const [showQuantity, setShowQuantity] = useState(quantity > 0);
+
+    useEffect(() => {
+      setImageLoading(true);
+      setImageSource(image || FALLBACK_FOOD_IMAGE);
+    }, [image]);
 
     const discountPercentage = originalPrice
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -95,11 +103,17 @@ const ModernFoodCard = React.forwardRef(
           )}
 
           <img
-            src={image}
+            src={imageSource}
             alt={name}
             className="modern-food-card__image"
             onLoad={() => setImageLoading(false)}
-            onError={() => setImageLoading(false)}
+            onError={() => {
+              if (imageSource !== FALLBACK_FOOD_IMAGE) {
+                setImageSource(FALLBACK_FOOD_IMAGE);
+                return;
+              }
+              setImageLoading(false);
+            }}
           />
 
           <div className="modern-food-card__badges">

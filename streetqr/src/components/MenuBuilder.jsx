@@ -358,6 +358,78 @@ const demoItems = [
     featured: false,
     isVeg: true,
     available: true
+  },
+  {
+    name: 'Hara Bhara Kebab',
+    price: '170',
+    remarks: 'Crisp spinach and pea kebabs with mint chutney.',
+    category: 'Snacks',
+    image: '/images/showcase/showcase-7.png',
+    prepTime: 12,
+    spiceLevel: 'Medium',
+    featured: true,
+    isVeg: true,
+    available: true
+  },
+  {
+    name: 'Pav Bhaji',
+    price: '160',
+    remarks: 'Buttery spiced vegetable mash served with toasted pav.',
+    category: 'Snacks',
+    image: '/images/showcase/showcase-8.png',
+    prepTime: 14,
+    spiceLevel: 'Medium',
+    featured: true,
+    isVeg: true,
+    available: true
+  },
+  {
+    name: 'Mushroom Masala',
+    price: '290',
+    remarks: 'Button mushrooms in a rich onion-tomato gravy.',
+    category: 'Dinner',
+    image: '/images/showcase/showcase-1.png',
+    prepTime: 18,
+    spiceLevel: 'Medium',
+    featured: false,
+    isVeg: true,
+    available: true
+  },
+  {
+    name: 'Veg Hakka Noodles',
+    price: '220',
+    remarks: 'Wok-tossed noodles with crunchy vegetables and herbs.',
+    category: 'Lunch',
+    image: '/images/showcase/showcase-2.png',
+    prepTime: 15,
+    spiceLevel: 'Medium',
+    featured: false,
+    isVeg: true,
+    available: true
+  },
+  {
+    name: 'Strawberry Shake',
+    price: '110',
+    remarks: 'Creamy strawberry milkshake topped with a scoop of ice cream.',
+    category: 'Beverages',
+    image: '/images/showcase/showcase-6.png',
+    prepTime: 4,
+    spiceLevel: 'Mild',
+    featured: false,
+    isVeg: true,
+    available: true
+  },
+  {
+    name: 'Kesar Pista Kulfi',
+    price: '130',
+    remarks: 'Slow-set saffron kulfi finished with pistachios.',
+    category: 'Desserts',
+    image: '/images/showcase/showcase-5.png',
+    prepTime: 5,
+    spiceLevel: 'Mild',
+    featured: true,
+    isVeg: true,
+    available: true
   }
 ];
 

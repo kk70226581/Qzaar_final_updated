@@ -26,6 +26,9 @@ function PaymentGateway({
   tableNumber,
   shopId,
   items,
+  couponCode = '',
+  discountAmount = 0,
+  subTotal,
   onSuccess,
   onClose
 }) {
@@ -63,6 +66,9 @@ function PaymentGateway({
           tableNumber: tableNumber || 'Online',
           items,
           total: amount,
+          subTotal: subTotal || amount,
+          couponCode,
+          discountAmount,
           paymentMethod: 'razorpay'
         });
 
@@ -148,7 +154,7 @@ function PaymentGateway({
     return () => {
       isMounted = false;
     };
-  }, [amount, customerEmail, customerName, customerPhone, items, onClose, onSuccess, shopId, tableNumber]);
+  }, [amount, couponCode, customerEmail, customerName, customerPhone, discountAmount, items, onClose, onSuccess, shopId, subTotal, tableNumber]);
 
   return (
     <div className="payment-launcher" role="status" aria-live="polite">
