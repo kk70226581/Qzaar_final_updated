@@ -803,7 +803,7 @@
 .menu-browse__content { padding-left: clamp(1rem, 4vw, 4rem); padding-right: clamp(1rem, 4vw, 4rem); }
 
 @media (max-width: 700px) {
-  .menu-browse__header { min-height: 530px; padding: 3.5rem 1.25rem 7.25rem; align-items: flex-start; }
+  .menu-browse__header { height: 560px; min-height: 0; padding: 3.5rem 1.25rem 7.25rem; align-items: flex-start; }
   .menu-browse__header::before { background: linear-gradient(180deg, rgba(5, 12, 27, .96) 0%, rgba(10, 22, 46, .86) 57%, rgba(5, 12, 27, .62) 100%); }
   .menu-browse__header-copy { max-width: 100%; }
   .menu-browse__title { font-size: clamp(2.7rem, 14vw, 4rem); }
