@@ -180,6 +180,7 @@
   padding: 0;
   border-radius: 50%;
   background: rgba(255,255,255,.38);
+  box-shadow: 0 0 0 7px transparent;
 }
 
 .menu-browse__hero-controls > div button.is-active { background: #facc15; }
