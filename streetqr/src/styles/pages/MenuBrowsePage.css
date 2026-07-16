@@ -225,6 +225,11 @@
   background: #dc2626;
 }
 
+.menu-browse__hero-actions button:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+
 .menu-browse__promo-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
