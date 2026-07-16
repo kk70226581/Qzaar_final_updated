@@ -677,11 +677,12 @@
 .menu-browse__header {
   width: 100%;
   max-width: none;
-  min-height: clamp(480px, 42vw, 620px);
+  height: clamp(560px, 40vw, 680px);
+  min-height: 0;
   display: flex;
   align-items: center;
   margin: 0;
-  padding: clamp(3rem, 7vw, 7rem) clamp(1.25rem, 7vw, 9rem);
+  padding: clamp(2rem, 4vw, 4.5rem) clamp(1.25rem, 7vw, 9rem);
   overflow: hidden;
   isolation: isolate;
 }
