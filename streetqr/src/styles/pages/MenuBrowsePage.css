@@ -670,6 +670,12 @@
   .menu-browse__filter-toggle:hover {
     transform: none;
   }
+
+  .menu-browse__hero-card img,
+  .menu-browse__hero-controls button {
+    transition: none;
+    animation: none;
+  }
 }
 
 @media print {
