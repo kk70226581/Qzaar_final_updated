@@ -4,10 +4,14 @@ import {
   Activity,
   BarChart3,
   CheckCircle2,
+  ChefHat,
   Clock3,
+  PackageCheck,
   RefreshCw,
   Search,
-  Sparkles
+  Sparkles,
+  XCircle,
+  Zap
 } from 'lucide-react';
 import { getSocket } from '../api';
 import Navbar from './Navbar';
@@ -157,13 +161,13 @@ function OrdersPage() {
       return (
         <>
           <button type="button" className="orders-inline-btn orders-inline-btn--dark" onClick={() => updateStatus(order._id, 'preparing')}>
-            Start preparing
+            <ChefHat size={15} /> Start preparing
           </button>
           <button type="button" className="orders-inline-btn orders-inline-btn--success" onClick={() => updateStatus(order._id, 'completed')}>
-            Complete
+            <PackageCheck size={15} /> Complete
           </button>
           <button type="button" className="orders-inline-btn orders-inline-btn--danger" onClick={() => handleCancelOrder(order._id)}>
-            Cancel
+            <XCircle size={15} /> Cancel
           </button>
         </>
       );
@@ -173,10 +177,10 @@ function OrdersPage() {
       return (
         <>
           <button type="button" className="orders-inline-btn orders-inline-btn--success" onClick={() => updateStatus(order._id, 'completed')}>
-            Mark completed
+            <PackageCheck size={15} /> Mark completed
           </button>
           <button type="button" className="orders-inline-btn orders-inline-btn--danger" onClick={() => handleCancelOrder(order._id)}>
-            Cancel order
+            <XCircle size={15} /> Cancel order
           </button>
         </>
       );
@@ -186,10 +190,10 @@ function OrdersPage() {
   };
 
   const summaryCards = [
-    { label: 'Total orders', value: dashboard?.totalOrders ?? orders.length, icon: Activity },
-    { label: 'Pending now', value: dashboard?.pendingOrders ?? orders.filter((order) => order.status === 'pending').length, icon: Clock3 },
-    { label: 'Completed revenue', value: formatCurrency(dashboard?.completedRevenue ?? 0), icon: CheckCircle2 },
-    { label: 'Average order', value: formatCurrency(dashboard?.averageOrderValue ?? 0), icon: BarChart3 }
+    { label: 'Total orders', value: dashboard?.totalOrders ?? orders.length, icon: Activity, tone: 'blue' },
+    { label: 'Pending now', value: dashboard?.pendingOrders ?? orders.filter((order) => order.status === 'pending').length, icon: Clock3, tone: 'amber' },
+    { label: 'Completed revenue', value: formatCurrency(dashboard?.completedRevenue ?? 0), icon: CheckCircle2, tone: 'green' },
+    { label: 'Average order', value: formatCurrency(dashboard?.averageOrderValue ?? 0), icon: BarChart3, tone: 'violet' }
   ];
 
   return (
@@ -231,7 +235,7 @@ function OrdersPage() {
             {summaryCards.map((card) => {
               const Icon = card.icon;
               return (
-                <article className="orders-stat-card" key={card.label}>
+                <article className={`orders-stat-card orders-stat-card--${card.tone}`} key={card.label}>
                   <div className="orders-stat-card__icon">
                     <Icon size={20} />
                   </div>
@@ -310,10 +314,19 @@ function OrdersPage() {
                 </div>
               </div>
 
+              <div className="orders-queue-insight">
+                <span><Zap size={15} /> {filteredOrders.length} orders in this view</span>
+                <span>{orders.filter((order) => order.status === 'preparing').length} currently in kitchen</span>
+              </div>
+
               {isLoading ? (
                 <p className="orders-empty-copy">Loading orders...</p>
               ) : filteredOrders.length === 0 ? (
-                <p className="orders-empty-copy">No matching orders.</p>
+                <div className="orders-empty-state">
+                  <div><PackageCheck size={24} /></div>
+                  <strong>No matching orders</strong>
+                  <p>New table orders will appear here instantly.</p>
+                </div>
               ) : (
                 <div className="orders-list">
                   {filteredOrders.map((order) => (
