@@ -52,7 +52,7 @@ const CouponApplier = ({ shopId, cartTotal, onCouponApplied }) => {
     setCouponCode('');
     setAppliedCoupon(null);
     onCouponApplied && onCouponApplied(null);
-    toast.info('Coupon removed');
+    toast('Coupon removed');
   };
 
   return (

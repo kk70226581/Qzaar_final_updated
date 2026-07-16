@@ -138,7 +138,7 @@ function OrderSummary() {
         refundAmount: data.refundAmount || prev.refundAmount
       } : prev));
       setLastUpdated(new Date());
-      toast.info('Order has been cancelled');
+      toast('Order has been cancelled');
     }
   }, [orderId]);
 
