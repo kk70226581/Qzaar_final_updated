@@ -702,7 +702,7 @@
   max-width: min(670px, 58vw);
 }
 
-.menu-browse__title { max-width: 12ch; font-size: clamp(3rem, 6.4vw, 6.65rem); }
+.menu-browse__title { max-width: 16ch; font-size: clamp(2.8rem, 5vw, 5.25rem); line-height: .94; }
 .menu-browse__subtitle { max-width: 58ch; font-size: clamp(1rem, 1.5vw, 1.25rem); }
 
 .menu-browse__hero-card {
