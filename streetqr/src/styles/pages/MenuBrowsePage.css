@@ -761,6 +761,11 @@
   backdrop-filter: blur(8px);
 }
 
+.menu-browse__hero-controls > button:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+
 .menu-browse__hero-controls > div {
   position: absolute;
   left: 50%;
