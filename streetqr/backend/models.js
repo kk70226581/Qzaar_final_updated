@@ -301,6 +301,14 @@ const shopkeeperSchema = new mongoose.Schema({
   razorpayContactId: { type: String, default: '' },
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },
+  // Password-reset state is deliberately stored as hashes. A leaked database
+  // must not be enough to redeem a live reset code or grant.
+  passwordResetOtpHash: { type: String, default: '' },
+  passwordResetOtpExpiresAt: { type: Date, default: null },
+  passwordResetOtpAttempts: { type: Number, default: 0 },
+  passwordResetGrantHash: { type: String, default: '' },
+  passwordResetGrantExpiresAt: { type: Date, default: null },
+  passwordChangedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
