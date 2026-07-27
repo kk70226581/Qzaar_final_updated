@@ -7,11 +7,13 @@ import {
   EyeOff,
   Lock,
   Mail,
+  KeyRound,
   QrCode,
   ShieldCheck,
   Sparkles
 } from 'lucide-react';
 import Navbar from './Navbar';
+import { startSession } from '../utils/authSession';
 import './LoginSignup.css';
 
 const productPoints = [
@@ -31,6 +33,11 @@ function LoginSignup() {
   const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPanel, setShowForgotPanel] = useState(false);
+  const [resetStep, setResetStep] = useState('email');
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,9 +62,7 @@ function LoginSignup() {
         throw new Error(response.data.message || 'Google sign-in failed.');
       }
 
-      localStorage.setItem('loggedIn', 'true');
-      localStorage.setItem('shopId', response.data.userId);
-      localStorage.setItem('email', response.data.email || '');
+      startSession({ userId: response.data.userId, email: response.data.email });
       showMessage('Google sign-in successful. Redirecting...', 'success');
       window.setTimeout(() => navigate('/dashboard'), 650);
     } catch (error) {
@@ -129,8 +134,8 @@ function LoginSignup() {
       return;
     }
 
-    if (password.length < 6) {
-      showMessage('Password must be at least 6 characters long.', 'danger');
+    if (password.length < 10 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+      showMessage('Use 10+ characters with uppercase, lowercase, and a number.', 'danger');
       return;
     }
 
@@ -149,9 +154,7 @@ function LoginSignup() {
         return;
       }
 
-      localStorage.setItem('loggedIn', 'true');
-      localStorage.setItem('shopId', response.data.userId);
-      localStorage.setItem('email', email);
+      startSession({ userId: response.data.userId, email });
       showMessage(isSignup ? 'Account created. Redirecting to your dashboard...' : 'Login successful. Redirecting...', 'success');
       window.setTimeout(() => navigate('/dashboard'), 900);
     } catch (error) {
@@ -173,14 +176,65 @@ function LoginSignup() {
     try {
       const response = await axios.post(`${API_BASE}/api/forgot-password`, { email: targetEmail });
       if (response.data.success) {
-        showMessage('Password reset link sent to your email.', 'success');
-        setShowForgotPanel(false);
+        setForgotEmail(targetEmail);
+        setResetStep('otp');
+        showMessage(response.data.message, 'success');
       } else {
         showMessage(response.data.message || 'Error sending reset email.', 'danger');
       }
     } catch (error) {
       console.error('Forgot password error:', error);
       showMessage('Server error. Try again later.', 'danger');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const targetEmail = forgotEmail || email;
+    if (!/^\d{6}$/.test(resetOtp)) {
+      showMessage('Enter the 6-digit code from your email.', 'danger');
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const response = await axios.post(`${API_BASE}/api/forgot-password/verify-otp`, { email: targetEmail, otp: resetOtp });
+      if (!response.data.success) throw new Error(response.data.message || 'The code could not be verified.');
+      setResetToken(response.data.resetToken);
+      setResetStep('password');
+      showMessage('Code confirmed. Choose a new password.', 'success');
+    } catch (error) {
+      showMessage(error.response?.data?.message || error.message || 'The code could not be verified.', 'danger');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    const targetEmail = forgotEmail || email;
+    if (resetPassword.length < 10 || !/[a-z]/.test(resetPassword) || !/[A-Z]/.test(resetPassword) || !/\d/.test(resetPassword)) {
+      showMessage('Use 10+ characters with uppercase, lowercase, and a number.', 'danger');
+      return;
+    }
+    if (resetPassword !== resetConfirmPassword) {
+      showMessage('Your passwords do not match.', 'danger');
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const response = await axios.post(`${API_BASE}/api/reset-password`, { email: targetEmail, resetToken, password: resetPassword });
+      if (!response.data.success) throw new Error(response.data.message || 'Password reset failed.');
+      setShowForgotPanel(false);
+      setResetStep('email');
+      setResetOtp('');
+      setResetToken('');
+      setResetPassword('');
+      setResetConfirmPassword('');
+      showMessage('Password updated. You can now log in.', 'success');
+    } catch (error) {
+      showMessage(error.response?.data?.message || error.message || 'Password reset failed.', 'danger');
     } finally {
       setIsSendingReset(false);
     }
@@ -228,8 +282,8 @@ function LoginSignup() {
           <section className="auth-panel">
             <div className="auth-panel__header">
               <p className="auth-panel__eyebrow">{isSignup ? 'Create account' : 'Welcome back'}</p>
-              <h2>{isSignup ? 'Create account' : 'Log in'}</h2>
-              <p>{isSignup ? 'Start your QR menu.' : 'Open your dashboard.'}</p>
+              <h2>{isSignup ? 'Create your account' : 'Log in to your account'}</h2>
+              <p>{isSignup ? 'Start building your restaurant workspace.' : 'Enter your details to access your Qzaar workspace.'}</p>
             </div>
 
             {message && (
@@ -239,13 +293,11 @@ function LoginSignup() {
             )}
 
             <div className="auth-form">
-              {googleClientId && (
-                <div className="auth-google">
-                  <div ref={googleButtonRef} aria-label="Continue with Google" />
-                </div>
-              )}
+              <div className="auth-google">
+                {googleClientId ? <div ref={googleButtonRef} aria-label="Continue with Google" /> : <button type="button" className="auth-google__unavailable" disabled><span aria-hidden="true">G</span> Continue with Google <small>Configure Google Client ID to enable</small></button>}
+              </div>
 
-              {googleClientId && <div className="auth-divider"><span>or continue with email</span></div>}
+              <div className="auth-divider"><span>or continue with email</span></div>
 
               <label>
                 <span>Email address</span>
@@ -305,22 +357,52 @@ function LoginSignup() {
               )}
 
               {showForgotPanel && (
-                <div className="auth-forgot-panel">
-                  <label>
-                    <span>Reset email</span>
-                    <div className="auth-input">
-                      <Mail size={17} />
-                      <input
-                        type="email"
-                        value={forgotEmail}
-                        onChange={(event) => setForgotEmail(event.target.value)}
-                        placeholder="Enter your registered email"
-                      />
+                <div className="auth-forgot-panel" aria-live="polite">
+                  <div className="auth-reset-heading">
+                    <KeyRound size={18} />
+                    <div>
+                      <strong>{resetStep === 'email' ? 'Verify your email' : resetStep === 'otp' ? 'Enter your code' : 'Create a new password'}</strong>
+                      <span>{resetStep === 'email' ? 'We will send a 6-digit code that expires in 10 minutes.' : resetStep === 'otp' ? 'Check your inbox and enter the code below.' : 'Use a password you do not use elsewhere.'}</span>
                     </div>
-                  </label>
-                  <button type="button" className="auth-secondary-btn" onClick={handleForgotPassword} disabled={isSendingReset}>
-                    {isSendingReset ? 'Sending reset link...' : 'Send reset link'}
+                  </div>
+
+                  {resetStep === 'email' && (
+                    <label>
+                      <span>Account email</span>
+                      <div className="auth-input">
+                        <Mail size={17} />
+                        <input type="email" value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" />
+                      </div>
+                    </label>
+                  )}
+
+                  {resetStep === 'otp' && (
+                    <label>
+                      <span>6-digit verification code</span>
+                      <div className="auth-input">
+                        <KeyRound size={17} />
+                        <input className="auth-otp-input" inputMode="numeric" maxLength="6" value={resetOtp} onChange={(event) => setResetOtp(event.target.value.replace(/\D/g, ''))} placeholder="000000" autoComplete="one-time-code" />
+                      </div>
+                    </label>
+                  )}
+
+                  {resetStep === 'password' && (
+                    <>
+                      <label>
+                        <span>New password</span>
+                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="10+ characters" autoComplete="new-password" /></div>
+                      </label>
+                      <label>
+                        <span>Confirm new password</span>
+                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repeat password" autoComplete="new-password" /></div>
+                      </label>
+                    </>
+                  )}
+
+                  <button type="button" className="auth-secondary-btn" onClick={resetStep === 'email' ? handleForgotPassword : resetStep === 'otp' ? handleVerifyOtp : handlePasswordReset} disabled={isSendingReset}>
+                    {isSendingReset ? 'Please wait...' : resetStep === 'email' ? 'Send verification code' : resetStep === 'otp' ? 'Verify code' : 'Update password'}
                   </button>
+                  {resetStep === 'otp' && <button type="button" className="auth-reset-back" onClick={() => setResetStep('email')}>Use a different email</button>}
                 </div>
               )}
 
@@ -328,6 +410,8 @@ function LoginSignup() {
                 {isSubmitting ? 'Please wait...' : isSignup ? 'Create account' : 'Login'}
                 {!isSubmitting && <ArrowRight size={17} />}
               </button>
+
+              <p className="auth-legal">By continuing, you agree to Qzaar's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.</p>
             </div>
 
             <button
@@ -337,6 +421,7 @@ function LoginSignup() {
                 setIsSignup((current) => !current);
                 setConfirmPassword('');
                 setShowForgotPanel(false);
+                setResetStep('email');
               }}
             >
               {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
