@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Boxes, House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Route, Sparkles, X } from 'lucide-react';
+import { BarChart3, ChevronDown, ChefHat, House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Route, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
 
@@ -9,6 +9,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProductOpen, setIsProductOpen] = useState(false);
 
   useEffect(() => {
     const loggedIn = hasActiveSession();
@@ -17,6 +18,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
 
   useEffect(() => {
     setIsMenuOpen(false);
+    setIsProductOpen(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -27,6 +29,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
 
   const handleScrollTo = (id) => {
     setIsMenuOpen(false);
+    setIsProductOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       window.setTimeout(() => {
@@ -69,10 +72,16 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
               <House size={17} />
               <span>Home</span>
             </Link>
-            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('platform')}>
-              <Boxes size={16} />
-              <span>Platform</span>
-            </button>
+            <div className="site-nav__product">
+              <button type="button" className={`site-nav__link site-nav__link--button ${isProductOpen ? 'is-open' : ''}`} onClick={() => setIsProductOpen((current) => !current)} aria-expanded={isProductOpen}>
+                <span>Products</span><ChevronDown size={15} />
+              </button>
+              {isProductOpen && <div className="site-nav__product-menu">
+                <button type="button" onClick={() => handleScrollTo('platform')}><span className="site-nav__product-icon"><QrCode size={17} /></span><span><strong>QR ordering</strong><small>Menus guests enjoy using</small></span></button>
+                <button type="button" onClick={() => handleScrollTo('workflow')}><span className="site-nav__product-icon"><ChefHat size={17} /></span><span><strong>Live operations</strong><small>Orders that stay in sync</small></span></button>
+                <button type="button" onClick={() => handleScrollTo('platform')}><span className="site-nav__product-icon"><BarChart3 size={17} /></span><span><strong>Business insight</strong><small>See each day more clearly</small></span></button>
+              </div>}
+            </div>
             <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('workflow')}>
               <Route size={16} />
               <span>How it works</span>
