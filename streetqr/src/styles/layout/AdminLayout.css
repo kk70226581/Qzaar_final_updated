@@ -346,3 +346,18 @@
     padding: 24px 16px;
   }
 }
+
+/* Operations workspace: explicit colors keep the chrome crisp even when a
+   previous page has left global theme variables behind. */
+.admin-layout-shell { background: #f4f7fc; color: #1d2c49; }
+.admin-topbar { height: 72px; padding: 0 30px; border-bottom: 1px solid #dfe7f2; background: rgba(255,255,255,.94); box-shadow: 0 1px 0 rgba(24,42,74,.02); }
+.admin-topbar__title { margin: 0; color: #1b2b49; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.admin-topbar__user { color: #66758d; font-size: 12px; font-weight: 700; }
+.admin-topbar__icon-btn { width: 38px; height: 38px; border-color: #d8e2ef; color: #42526d; background: #fff; border-radius: 11px; }
+.admin-layout-desktop-sidebar { width: 248px; top: 72px; height: calc(100vh - 72px); border-right-color: #dfe7f2; background: #fff; }
+.admin-sidebar { padding: 23px 13px 16px; }.admin-sidebar__logo { gap: 10px; margin-bottom: 28px; padding: 0 9px; }.admin-sidebar__logo > svg { padding: 8px; box-sizing: content-box; border-radius: 12px; color: #fff; background: linear-gradient(135deg,#2467d8,#654bd7); box-shadow: 0 8px 16px rgba(51,89,203,.2); }.admin-sidebar__logo h2 { color: #1d2e4c; letter-spacing: -.025em; }.admin-sidebar__logo small { margin-top: 2px; color: #7b88a0; font-size: 9px; }
+.admin-sidebar__link { min-height: 44px; color: #60708a; font-size: 13px; border-radius: 10px; }.admin-sidebar__link svg { color: #71819a; }.admin-sidebar__link:hover { color: #253858; background: #f2f6fd; border-color: transparent; }.admin-sidebar__link:hover svg { color: #326bd0; }.admin-sidebar__active-bg { background: linear-gradient(100deg,#2867d6,#5c55d4); border-radius: 10px; box-shadow: 0 9px 20px rgba(52,94,204,.22); }.admin-sidebar__footer { border-top-color: #e3eaf4; }.admin-sidebar__link--back { color: #6d7c93; }
+.admin-layout-main-content { height: calc(100vh - 72px); padding: 30px; background: radial-gradient(circle at 86% 4%, rgba(109,144,255,.10), transparent 25%), #f4f7fc; }.admin-layout-container { max-width: 1440px; }
+.dark .admin-layout-shell { background: #0a1428; color: #edf3ff; }.dark .admin-topbar { border-bottom-color: #253653; background: rgba(11,23,45,.95); }.dark .admin-topbar__title { color: #f0f5ff; }.dark .admin-topbar__user { color: #aab8d0; }.dark .admin-topbar__icon-btn { border-color: #30435f; color: #dce7fb; background: #14213a; }.dark .admin-layout-desktop-sidebar, .dark .admin-layout-mobile-sidebar { border-right-color: #263957; background: #0e1b33; }.dark .admin-sidebar__logo h2 { color: #f0f5ff; }.dark .admin-sidebar__logo small { color: #91a1bd; }.dark .admin-sidebar__link { color: #aab8d0; }.dark .admin-sidebar__link svg { color: #91a3c2; }.dark .admin-sidebar__link:hover { color: #eff5ff; background: #192a48; border-color: transparent; }.dark .admin-sidebar__footer { border-top-color: #263957; }.dark .admin-layout-main-content { background: radial-gradient(circle at 86% 4%, rgba(87,113,226,.18), transparent 25%), #0a1428; }
+@media (max-width: 1024px) { .admin-layout-main-content { padding: 24px 18px; }.admin-topbar { padding: 0 18px; } }
+@media (max-width: 670px) { .admin-topbar { height: 64px; }.admin-layout-main-content { height: calc(100vh - 64px); padding: 20px 14px; }.admin-topbar__user { display: none; } }
