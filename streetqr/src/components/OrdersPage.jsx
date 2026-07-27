@@ -23,6 +23,16 @@ const statusOptions = ['all', 'pending', 'preparing', 'completed'];
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
 
+const getOrderItemImage = (itemName = '') => {
+  const name = itemName.toLowerCase();
+  if (/coffee|shake/.test(name)) return '/images/menu/cold-coffee.png';
+  if (/chai|lassi|soda/.test(name)) return '/images/menu/masala-chai.png';
+  if (/chicken|tandoori/.test(name)) return '/images/menu/tandoori-chicken.png';
+  if (/biryani|rice/.test(name)) return '/images/menu/biryani.png';
+  if (/gulab|rasmalai|kulfi|brownie/.test(name)) return '/images/menu/gulab-jamun.png';
+  return '/images/menu/paneer-tikka.png';
+};
+
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [dashboard, setDashboard] = useState(null);
@@ -362,9 +372,12 @@ function OrdersPage() {
                       <div className="orders-card__items">
                         {(order.items || []).map((item, index) => (
                           <div key={`${order._id}-${index}`} className="orders-item-row">
-                            <div>
-                              <strong>{item.name}</strong>
-                              <span>Qty {item.quantity || 1}</span>
+                            <div className="orders-item-row__product">
+                              <img src={getOrderItemImage(item.name)} alt="" />
+                              <div>
+                                <strong>{item.name}</strong>
+                                <span>Qty {item.quantity || 1}</span>
+                              </div>
                             </div>
                             <b>{formatCurrency((item.price || 0) * (item.quantity || 1))}</b>
                           </div>

@@ -377,6 +377,11 @@
   }
 }
 
+/* Order readability: never allow ordered items to inherit low-contrast page text. */
+.orders-top-item__meta strong, .orders-card__title-row > strong, .orders-item-row strong { color:#17233e; opacity:1; -webkit-text-fill-color:#17233e; }.orders-top-item__meta strong { font-size:14px; font-weight:850; }.orders-item-row { min-height:76px; padding:.72rem .95rem; background:#fbfdff; }.orders-item-row:nth-child(even) { background:#f6f9fd; }.orders-item-row__product { display:flex; align-items:center; min-width:0; gap:.75rem; }.orders-item-row__product img { width:46px; height:46px; flex:0 0 auto; border:1px solid #dbe5f1; border-radius:11px; object-fit:cover; box-shadow:0 4px 10px rgba(28,49,85,.08); }.orders-item-row__product strong { display:block; overflow:hidden; max-width:34rem; font-size:14px; font-weight:850; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }.orders-item-row__product span { display:inline-flex; width:fit-content; margin-top:5px; padding:3px 7px; border-radius:6px; color:#546984; background:#eaf1fa; font-size:11px; font-weight:750; line-height:1; }.orders-item-row > b { color:#17345d; font-size:14px; font-weight:850; white-space:nowrap; }.orders-card__meta { color:#657893; }.orders-card__total { color:#16233d; }.orders-top-item { min-height:82px; background:#fbfdff; }.orders-top-item > b { color:#18365f; font-size:15px; }.orders-card__items { background:#eef3f9; }
+.dark .orders-top-item__meta strong, .dark .orders-card__title-row > strong, .dark .orders-item-row strong { color:#f0f5ff; -webkit-text-fill-color:#f0f5ff; }.dark .orders-item-row { background:#15243d; }.dark .orders-item-row:nth-child(even) { background:#182946; }.dark .orders-item-row__product img { border-color:#304561; }.dark .orders-item-row__product span { color:#bdcce2; background:#233755; }.dark .orders-item-row > b,.dark .orders-card__total,.dark .orders-top-item > b { color:#e8f1ff; }.dark .orders-card__items { background:#101e35; }
+@media (max-width:720px) { .orders-item-row__product strong { max-width:calc(100vw - 185px); }.orders-item-row__product img { width:42px; height:42px; } }
+
 .orders-live-dot.is-online { animation: orders-live-pulse 1.8s ease-out infinite; }
 
 @keyframes orders-live-pulse {
