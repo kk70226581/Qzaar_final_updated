@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Sparkles, X } from 'lucide-react';
+import { Boxes, House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Route, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
 
@@ -25,17 +25,17 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
     navigate('/login');
   };
 
-  const handleScrollToContact = () => {
+  const handleScrollTo = (id) => {
     setIsMenuOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       window.setTimeout(() => {
-        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
       return;
     }
 
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const shouldShowAuth = !hideAuth && showAuthLinks !== false;
@@ -68,6 +68,14 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
               <House size={17} />
               <span>Home</span>
             </Link>
+            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('platform')}>
+              <Boxes size={16} />
+              <span>Platform</span>
+            </button>
+            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('workflow')}>
+              <Route size={16} />
+              <span>How it works</span>
+            </button>
             <Link className={`site-nav__link ${location.pathname === '/about' ? 'is-active' : ''}`} to="/about" aria-label="About" title="About">
               <Info size={17} />
               <span>About</span>
@@ -88,7 +96,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
                 </Link>
               </>
             )}
-            <button type="button" className="site-nav__link site-nav__link--button" onClick={handleScrollToContact}>
+            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('contact')}>
               <Phone size={16} />
               <span>Contact</span>
             </button>

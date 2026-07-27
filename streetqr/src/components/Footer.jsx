@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, CreditCard, Mail, QrCode, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, CreditCard, Mail, QrCode, ShieldCheck, UtensilsCrossed } from 'lucide-react';
 import './Footer.css';
 
 function Footer() {
@@ -11,16 +11,26 @@ function Footer() {
           <span className="site-footer__mark"><QrCode size={20} /></span>
           <div>
             <strong>Qzaar</strong>
-            <p>QR ordering tools for faster, clearer restaurant service.</p>
+            <p>The restaurant operating system that turns a simple scan into smoother, more considered service.</p>
+            <Link className="site-footer__brand-link" to="/login">Build your workspace <ArrowUpRight size={15} /></Link>
           </div>
         </div>
 
         <div className="site-footer__content">
           <nav className="site-footer__links" aria-label="Footer navigation">
             <span>Platform</span>
-            <Link to="/about">About Qzaar</Link>
-            <Link to="/modern/menu">Menu preview</Link>
-            <Link to="/login">Business login</Link>
+            <Link to="/modern/menu">Guest menu</Link>
+            <Link to="/login">Restaurant workspace</Link>
+            <Link to="/about">Why Qzaar</Link>
+          </nav>
+          <nav className="site-footer__links" aria-label="Operations links">
+            <span>Operations</span>
+            <Link to="/orders">Live orders</Link>
+            <Link to="/qrcode">QR tools</Link>
+            <Link to="/dashboard">Owner dashboard</Link>
+          </nav>
+          <nav className="site-footer__links" aria-label="Company links">
+            <span>Company</span>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
           </nav>
@@ -28,6 +38,7 @@ function Footer() {
             <span>Need help?</span>
             <a href="mailto:support@qzaar.app">Support <Mail size={14} /></a>
             <p><ShieldCheck size={14} /> Secure payments by Razorpay</p>
+            <p><UtensilsCrossed size={14} /> Built for independent restaurants</p>
           </div>
         </div>
 

@@ -138,3 +138,18 @@
   .site-footer__bottom { gap: .8rem; font-size: .76rem; }
 }
 @media (max-width: 390px) { .site-footer__content { grid-template-columns: 1fr; } }
+
+/* Expanded product footer */
+.site-footer { overflow: hidden; background: radial-gradient(circle at 82% -12%, #1d4b7b 0, #0a1728 36rem), #07111f; }
+.site-footer::before { content: ''; display: block; height: 1px; background: linear-gradient(90deg, transparent, rgba(96,165,250,.7), rgba(251,191,36,.65), transparent); }
+.site-footer__inner { grid-template-columns: minmax(15rem, 1.25fr) minmax(35rem, 1.75fr); align-items: start; }
+.site-footer__brand p { max-width: 24rem; }
+.site-footer__brand-link { width: fit-content !important; margin-top: 1.15rem; padding: .68rem .85rem !important; border: 1px solid rgba(251,191,36,.28); background: rgba(245,158,11,.08); color: #fcd34d !important; }
+.site-footer__brand-link:hover { border-color: rgba(251,191,36,.58); background: rgba(245,158,11,.16) !important; }
+.site-footer__content { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+.site-footer__links { gap: .38rem; }
+.site-footer__links > span { color: #f8fafc; }
+.site-footer__links a { color: #aebed1; font-weight: 600; }
+.site-footer__links a:hover { color: #fff; }
+@media (max-width: 920px) { .site-footer__inner { grid-template-columns: 1fr; }.site-footer__content { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .site-footer__content { grid-template-columns: repeat(2, minmax(0, 1fr)); }.site-footer__links--support { grid-column: 1 / -1; }.site-footer__bottom { margin-top: .4rem; } }
