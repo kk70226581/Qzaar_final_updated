@@ -4,6 +4,7 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  ChefHat,
   Volume2,
   Maximize2,
   RefreshCw,
@@ -34,6 +35,7 @@ const KitchenDisplaySystem = () => {
   const [orders, setOrders] = useState([]);
   const [fullscreen, setFullscreen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     // Initialize orders
@@ -81,26 +83,12 @@ const KitchenDisplaySystem = () => {
       },
     ]);
 
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      setOrders(prevOrders =>
-        prevOrders.map(order => ({
-          ...order,
-          status:
-            order.status === 'pending'
-              ? 'preparing'
-              : order.status === 'preparing'
-              ? 'ready'
-              : order.status,
-        }))
-      );
-    }, 120000); // Update every 2 minutes
-
+    const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
   const getElapsedTime = (orderTime) => {
-    const elapsed = Math.floor((Date.now() - orderTime) / 1000);
+    const elapsed = Math.floor((now - orderTime) / 1000);
     const minutes = Math.floor(elapsed / 60);
     const seconds = elapsed % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -110,10 +98,10 @@ const KitchenDisplaySystem = () => {
   const preparingOrders = orders.filter(o => o.status === 'preparing');
   const readyOrders = orders.filter(o => o.status === 'ready');
 
-  const handleMarkReady = (id) => {
+  const handleAdvanceOrder = (id) => {
     setOrders(prevOrders =>
       prevOrders.map(order =>
-        order.id === id ? { ...order, status: 'ready' } : order
+        order.id === id ? { ...order, status: order.status === 'pending' ? 'preparing' : 'ready' } : order
       )
     );
     if (soundEnabled) playSound();
@@ -148,7 +136,7 @@ const KitchenDisplaySystem = () => {
     oscillator.stop(audioContext.currentTime + 0.5);
   };
 
-  const OrderCard = ({ order, onMarkReady, onMarkCompleted }) => (
+  const OrderCard = ({ order, onAdvance, onMarkCompleted }) => (
     <motion.div
       className="kds__order-card"
       layout
@@ -159,12 +147,7 @@ const KitchenDisplaySystem = () => {
     >
       <div className="kds__order-header">
         <h3 className="kds__order-id">{order.id}</h3>
-        <ModernBadge
-          variant={order.priority === 'high' ? 'danger' : 'default'}
-          size="sm"
-        >
-          {order.priority.toUpperCase()}
-        </ModernBadge>
+        <span className={`kds__priority kds__priority--${order.priority}`}>{order.priority} priority</span>
       </div>
 
       <div className="kds__order-timer">
@@ -189,13 +172,13 @@ const KitchenDisplaySystem = () => {
 
       {order.status !== 'ready' ? (
         <ModernButton
-          variant="success"
+          variant={order.status === 'pending' ? 'primary' : 'success'}
           size="md"
           className="kds__action-btn"
-          onClick={() => onMarkReady(order.id)}
+          onClick={() => onAdvance(order.id)}
         >
-          <CheckCircle size={16} />
-          Mark Ready
+          {order.status === 'pending' ? <ChefHat size={16} /> : <CheckCircle size={16} />}
+          {order.status === 'pending' ? 'Start preparing' : 'Mark ready'}
         </ModernButton>
       ) : (
         <ModernButton
@@ -217,8 +200,13 @@ const KitchenDisplaySystem = () => {
     <AdminLayout title="Kitchen Display System">
       <div className={containerClass}>
         {/* TOOLBAR */}
-        <div className="kds__toolbar">
-          <div className="kds__toolbar-actions">
+      <div className="kds__toolbar">
+        <div className="kds__toolbar-copy">
+          <p><span /> Live kitchen queue</p>
+          <h2>Service control</h2>
+          <small>{pendingOrders.length + preparingOrders.length} orders need attention</small>
+        </div>
+        <div className="kds__toolbar-actions">
 
           <button
             className={`kds__toolbar-btn ${soundEnabled ? 'active' : ''}`}
@@ -236,7 +224,7 @@ const KitchenDisplaySystem = () => {
           </button>
           <button
             className="kds__toolbar-btn"
-            onClick={() => window.location.reload()}
+            onClick={() => setNow(Date.now())}
             aria-label="Refresh"
           >
             <RefreshCw size={20} />
@@ -263,7 +251,7 @@ const KitchenDisplaySystem = () => {
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onMarkReady={handleMarkReady}
+                  onAdvance={handleAdvanceOrder}
                   onMarkCompleted={handleMarkCompleted}
                 />
               ))
@@ -288,7 +276,7 @@ const KitchenDisplaySystem = () => {
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onMarkReady={handleMarkReady}
+                  onAdvance={handleAdvanceOrder}
                   onMarkCompleted={handleMarkCompleted}
                 />
               ))
@@ -313,7 +301,7 @@ const KitchenDisplaySystem = () => {
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onMarkReady={handleMarkReady}
+                  onAdvance={handleAdvanceOrder}
                   onMarkCompleted={handleMarkCompleted}
                 />
               ))
