@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
+import { clearSession, hasActiveSession } from '../utils/authSession';
 
 function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const location = useLocation();
@@ -10,7 +11,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('loggedIn') === 'true' || Boolean(localStorage.getItem('shopId'));
+    const loggedIn = hasActiveSession();
     setIsLoggedIn(loggedIn);
   }, [location.pathname]);
 
@@ -19,10 +20,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('shopId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('qr_id');
+    clearSession();
     setIsLoggedIn(false);
     navigate('/login');
   };
@@ -46,8 +44,10 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
     <nav className="site-nav">
       <div className="site-nav__container">
         <Link className="site-nav__brand" to="/">
-          <span className="site-nav__brand-mark">
-            <QrCode size={18} />
+          <span className="site-nav__brand-mark" aria-hidden="true">
+            <span className="site-nav__brand-q">Q</span>
+            <span className="site-nav__brand-pixel site-nav__brand-pixel--one" />
+            <span className="site-nav__brand-pixel site-nav__brand-pixel--two" />
           </span>
           <span>Qzaar<small>Restaurant OS</small></span>
         </Link>
