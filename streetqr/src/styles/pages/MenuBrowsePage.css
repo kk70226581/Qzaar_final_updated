@@ -928,6 +928,21 @@
 .menu-cart__checkout input:focus,
 .menu-cart__checkout select:focus { outline: 0; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,.14); }
 
+.menu-rating-modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 1rem; }
+.menu-rating-modal__backdrop { position: absolute; inset: 0; border: 0; background: rgba(2, 6, 23, .66); }
+.menu-rating-modal__card { position: relative; z-index: 1; width: min(100%, 27rem); padding: 1.5rem; border-radius: 1.25rem; background: #fff; box-shadow: 0 24px 64px rgba(2,6,23,.35); }
+.menu-rating-modal__card p { margin: 0; color: #ea580c; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.menu-rating-modal__card h2 { margin: .35rem 2rem 1.25rem 0; color: #0f172a; font-size: 1.25rem; }
+.menu-rating-modal__close { position: absolute; top: 1rem; right: 1rem; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid #e2e8f0; border-radius: 50%; background: #fff; color: #475569; cursor: pointer; }
+.menu-rating-modal__stars { display: flex; justify-content: center; gap: .35rem; margin-bottom: 1rem; }
+.menu-rating-modal__stars button { border: 0; background: transparent; color: #cbd5e1; cursor: pointer; padding: .2rem; }
+.menu-rating-modal__stars button:hover, .menu-rating-modal__stars button:focus-visible { color: #f59e0b; outline: 0; }
+.menu-rating-modal__stars button:has(svg[fill='currentColor']) { color: #f59e0b; }
+.menu-rating-modal__card textarea { width: 100%; min-height: 5.5rem; padding: .8rem; border: 1px solid #cbd5e1; border-radius: .75rem; resize: vertical; font: inherit; }
+.menu-rating-modal__card textarea:focus { outline: 3px solid rgba(249,115,22,.18); border-color: #f97316; }
+.menu-rating-modal__submit { width: 100%; margin-top: 1rem; padding: .85rem 1rem; border: 0; border-radius: .75rem; background: #f97316; color: #fff; font-weight: 800; cursor: pointer; }
+.menu-rating-modal__submit:disabled { opacity: .55; cursor: not-allowed; }
+
 @media (max-width: 700px) {
   .menu-browse__header,
   .menu-browse__hero-card { min-height: 530px; }

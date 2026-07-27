@@ -38,7 +38,7 @@ import CategoryTabs from '../features/CategoryTabs';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import PaymentGateway from '../PaymentGateway';
 import CouponApplier from '../CouponApplier';
-import { createOrder, getMenu } from '../../api';
+import { apiClient, createOrder, getMenu } from '../../api';
 import '../../styles/pages/MenuBrowsePage.css';
 
 const categories = [
@@ -201,6 +201,10 @@ const MenuBrowsePage = () => {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
+  const [ratingFood, setRatingFood] = useState(null);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
 
   useEffect(() => {
@@ -392,6 +396,35 @@ const MenuBrowsePage = () => {
       toast.error(error.response?.data?.message || error.message || 'Unable to place your order.');
     } finally {
       setIsPlacingOrder(false);
+    }
+  };
+
+  const submitRating = async () => {
+    if (!ratingFood || !selectedRating) return toast.error('Choose a star rating first.');
+    setIsSubmittingRating(true);
+    try {
+      const storedGuestId = localStorage.getItem('qzaar:guest-id') || `guest-${crypto.randomUUID()}`;
+      localStorage.setItem('qzaar:guest-id', storedGuestId);
+      const response = await apiClient.post(`/api/menu/items/${restaurantId || 'preview'}/${ratingFood.id}/reviews`, {
+        userId: storedGuestId,
+        userName: customerName.trim() || 'Guest',
+        rating: selectedRating,
+        comment: ratingComment.trim()
+      });
+      if (!response.data.success) throw new Error(response.data.message || 'Unable to save your rating.');
+      setFoods((current) => current.map((food) => food.id === ratingFood.id ? {
+        ...food,
+        rating: Number((((Number(food.rating) || 0) * (Number(food.reviews) || 0) + selectedRating) / ((Number(food.reviews) || 0) + 1)).toFixed(1)),
+        reviews: (Number(food.reviews) || 0) + 1
+      } : food));
+      toast.success('Thanks for your rating!');
+      setRatingFood(null);
+      setSelectedRating(0);
+      setRatingComment('');
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'Unable to save your rating.');
+    } finally {
+      setIsSubmittingRating(false);
     }
   };
 
@@ -730,6 +763,7 @@ const MenuBrowsePage = () => {
                   quantity={cart.find((item) => item.id === food.id)?.quantity || 0}
                   onAddClick={() => updateCart(food, 1)}
                   onRemoveClick={() => updateCart(food, -1)}
+                  onClick={() => { setRatingFood(food); setSelectedRating(0); setRatingComment(''); }}
                   />
                 </motion.div>
               ))}
@@ -818,6 +852,21 @@ const MenuBrowsePage = () => {
             onClose={() => setShowPaymentGateway(false)}
             onSuccess={(order) => { setCart([]); setShowPaymentGateway(false); navigate(`/track-order/${order._id}`); }} />
         )}
+
+        <AnimatePresence>
+          {ratingFood && (
+            <motion.div className="menu-rating-modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-label={`Rate ${ratingFood.name}`}>
+              <button type="button" className="menu-rating-modal__backdrop" onClick={() => setRatingFood(null)} aria-label="Close rating" />
+              <motion.div className="menu-rating-modal__card" initial={{ y: 24, scale: .96 }} animate={{ y: 0, scale: 1 }} exit={{ y: 24, scale: .96 }}>
+                <button type="button" className="menu-rating-modal__close" onClick={() => setRatingFood(null)} aria-label="Close"><X size={20} /></button>
+                <p>How was it?</p><h2>Rate {ratingFood.name}</h2>
+                <div className="menu-rating-modal__stars" aria-label="Select rating">{[1, 2, 3, 4, 5].map((star) => <button type="button" key={star} onClick={() => setSelectedRating(star)} aria-label={`${star} star${star > 1 ? 's' : ''}`}><Star size={30} fill={star <= selectedRating ? 'currentColor' : 'none'} /></button>)}</div>
+                <textarea value={ratingComment} onChange={(event) => setRatingComment(event.target.value)} placeholder="Tell other guests what you liked (optional)" maxLength={300} />
+                <button type="button" className="menu-rating-modal__submit" onClick={submitRating} disabled={isSubmittingRating || !selectedRating}>{isSubmittingRating ? 'Saving...' : 'Submit rating'}</button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </ResponsiveLayout>
   );
