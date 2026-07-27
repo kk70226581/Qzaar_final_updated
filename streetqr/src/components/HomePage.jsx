@@ -47,9 +47,9 @@ function HomePage() {
           <div className="home-hero__orb home-hero__orb--two" />
           <div className="landing-container home-hero__grid">
             <motion.div className="home-hero__copy" initial="hidden" animate="visible" variants={rise} transition={{ duration: reduceMotion ? 0 : .55 }}>
-              <span className="home-eyebrow"><Sparkles size={15} /> Restaurant operations, made beautifully simple</span>
-              <h1>Bring every part of service into one better flow.</h1>
-              <p>Qzaar gives restaurants a polished QR menu, live order control, payments, and useful daily insight — all from one easy-to-run workspace.</p>
+              <span className="home-eyebrow"><Sparkles size={15} /> The restaurant operating system</span>
+              <h1>A better rhythm for every restaurant shift.</h1>
+              <p>Bring your QR menu, live orders, kitchen flow, payments, and daily insight into one focused workspace your whole team can use with confidence.</p>
               <div className="home-hero__actions">
                 <Link className="home-button home-button--primary" to={dashboardPath}>{isAuthenticated ? 'Open your workspace' : 'Create your workspace'} <ArrowRight size={18} /></Link>
                 <a className="home-button home-button--secondary" href="#platform">Explore the platform <ArrowRight size={17} /></a>
@@ -57,11 +57,16 @@ function HomePage() {
               <div className="home-hero__proof" aria-label="Platform benefits">
                 <span><CheckCircle2 size={16} /> No app for guests</span><span><CheckCircle2 size={16} /> Live order updates</span><span><CheckCircle2 size={16} /> Ready for every shift</span>
               </div>
+              <div className="home-hero__metrics" aria-label="Platform highlights">
+                <div><strong>1 scan</strong><span>from menu to order</span></div>
+                <div><strong>Live</strong><span>kitchen-ready updates</span></div>
+                <div><strong>One view</strong><span>for every service moment</span></div>
+              </div>
             </motion.div>
 
             <motion.div className="home-hero__visual" initial="hidden" animate="visible" variants={rise} transition={{ duration: reduceMotion ? 0 : .62, delay: reduceMotion ? 0 : .12 }}>
               <div className="hero-dashboard">
-                <div className="hero-dashboard__top"><div><span>Qzaar workspace</span><strong>Saturday service</strong></div><b><i /> Live now</b></div>
+                <div className="hero-dashboard__top"><div><span>Qzaar workspace</span><strong>Service command centre</strong></div><b><i /> Live now</b></div>
                 <div className="hero-dashboard__body">
                   <div className="hero-dashboard__summary"><span><Clock3 size={17} /> Average prep time</span><strong>14 min</strong><small>2 min faster than yesterday</small></div>
                   <div className="hero-dashboard__chart" aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /></div>
