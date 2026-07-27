@@ -73,10 +73,13 @@
 
   /* Disabled state */
   &:disabled {
-    background: var(--bg-secondary);
-    color: var(--text-muted);
+    /* Read-only values must remain as legible as editable values. */
+    background: #f2f5f9;
+    color: #31435f;
+    border-color: #d6e0ec;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 1;
+    -webkit-text-fill-color: #31435f;
   }
 
   /* Error state */
@@ -104,6 +107,13 @@
         0 0 0 2px rgba(34, 197, 94, 0.1);
     }
   }
+}
+
+.dark .modern-input__field:disabled {
+  background: #172640;
+  color: #e3edfc;
+  border-color: #2d4261;
+  -webkit-text-fill-color: #e3edfc;
 }
 
 /* Textarea specific */
