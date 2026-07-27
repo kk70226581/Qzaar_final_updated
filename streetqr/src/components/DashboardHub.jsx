@@ -15,6 +15,7 @@ import {
   UtensilsCrossed
 } from 'lucide-react';
 import './DashboardHub.css';
+import { clearSession, hasActiveSession, isSessionExpired } from '../utils/authSession';
 
 const ownerLinks = [
   { label: 'Menu', path: '/menu', icon: UtensilsCrossed, tone: 'orange' },
@@ -69,11 +70,14 @@ function WorkspaceGroup({ title, icon: Icon, links, startIndex }) {
 
 function DashboardHub() {
   const navigate = useNavigate();
-  const shopId = localStorage.getItem('shopId');
+  const shopId = hasActiveSession() ? localStorage.getItem('shopId') : null;
   const qrId = localStorage.getItem('qr_id');
 
   React.useEffect(() => {
-    if (!shopId) navigate('/login', { replace: true });
+    if (!shopId) {
+      if (isSessionExpired()) clearSession();
+      navigate('/login', { replace: true });
+    }
   }, [navigate, shopId]);
 
   const primaryPath = qrId ? '/orders' : '/menu';
