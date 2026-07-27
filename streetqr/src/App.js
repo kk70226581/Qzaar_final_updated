@@ -12,9 +12,9 @@ import QRCodePage from './components/QRCodePage';
 import ModernMenuView from './components/ModernMenuView';
 import OrderSummary from './components/OrderSummary';
 import OrdersPage from './components/OrdersPage';
-import ResetPassword from './components/ResetPassword';
 import ScrollToTop from './components/ScrollToTop';
 import NotFoundPage from './components/NotFoundPage';
+import LegalPage from './components/LegalPage';
 
 // Modern Redesign Pages
 import {
@@ -53,13 +53,15 @@ function AppRoutes() {
           <Route path="/dashboard" element={<DashboardHub />} />
           <Route path="/menu" element={<MenuBuilder />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/terms" element={<LegalPage type="terms" />} />
+          <Route path="/privacy" element={<LegalPage type="privacy" />} />
           <Route path="/qrcode" element={<QRCodePage />} />
           <Route path="/menu/:restaurantId" element={<MenuBrowsePage />} />
           <Route path="/classic-menu/:id" element={<ModernMenuView />} />
           <Route path="/order-summary" element={<OrderSummary />} />
           <Route path="/track-order/:orderId" element={<OrderSummary />} />
           <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset-password/:token" element={<Navigate to="/login" replace />} />
 
           {/* Modern Redesign - Customer Pages */}
           <Route path="/modern/landing" element={<LandingPage />} />
