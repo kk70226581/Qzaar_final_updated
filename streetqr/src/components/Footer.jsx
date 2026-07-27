@@ -21,6 +21,8 @@ function Footer() {
             <Link to="/about">About Qzaar</Link>
             <Link to="/modern/menu">Menu preview</Link>
             <Link to="/login">Business login</Link>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
           </nav>
           <div className="site-footer__links site-footer__links--support">
             <span>Need help?</span>
