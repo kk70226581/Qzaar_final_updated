@@ -20,6 +20,7 @@ import {
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './Home.css';
+import { hasActiveSession } from '../utils/authSession';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 22 },
@@ -91,7 +92,7 @@ const workflow = [
 function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
   const isAuthenticated = useMemo(
-    () => localStorage.getItem('loggedIn') === 'true' || Boolean(localStorage.getItem('shopId')),
+    () => hasActiveSession(),
     []
   );
 
