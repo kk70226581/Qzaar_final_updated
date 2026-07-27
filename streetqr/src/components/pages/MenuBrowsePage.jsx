@@ -177,10 +177,16 @@ const getFoodImage = (item) => {
   const isPlaceholder = !existingImage || /\/images\/(showcase|landing|brand)\//.test(existingImage);
   if (!isPlaceholder) return existingImage;
 
+  const name = (item.name || '').toLowerCase();
   const category = (item.categoryId || item.category || '').toLowerCase();
+  if (/naan/.test(name)) return '/images/menu/garlic-naan.png';
+  if (/chicken|tandoori|feast/.test(name)) return '/images/menu/tandoori-chicken.png';
+  if (/thali|dal makhani/.test(name)) return '/images/menu/chefs-thali.png';
+  if (/gulab|rasmalai|kulfi/.test(name)) return '/images/menu/gulab-jamun.png';
+  if (/cold coffee/.test(name)) return '/images/menu/cold-coffee.png';
   if (category.includes('dessert')) return '/images/menu/sizzling-brownie.png';
   if (category.includes('beverage') || category.includes('drink')) return '/images/menu/masala-chai.png';
-  if (!item.isVeg || /biryani|rice|chicken|tandoori|feast/i.test(item.name || '')) return '/images/menu/biryani.png';
+  if (!item.isVeg || /biryani|rice/i.test(name)) return '/images/menu/biryani.png';
   return '/images/menu/paneer-tikka.png';
 };
 
