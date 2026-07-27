@@ -340,7 +340,7 @@ function OrdersPage() {
               ) : (
                 <div className="orders-list">
                   {filteredOrders.map((order) => (
-                    <article key={order._id} className="orders-card">
+                    <article key={order._id} className={`orders-card orders-card--${order.status}`}>
                       <div className="orders-card__top">
                         <div>
                           <div className="orders-card__title-row">
@@ -348,6 +348,7 @@ function OrdersPage() {
                             <span className={`orders-badge orders-badge--${order.status}`}>
                               {order.status}
                             </span>
+                            <span className="orders-card__item-count">{(order.items || []).length} item{(order.items || []).length === 1 ? '' : 's'}</span>
                           </div>
                           <div className="orders-card__meta">
                             Customer {order.customerName} | Table {order.tableNumber}
