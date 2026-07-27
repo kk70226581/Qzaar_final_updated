@@ -787,6 +787,16 @@ const MenuBrowsePage = () => {
                   />
                 </motion.div>
               ))}
+              <motion.article className="menu-browse__closing-card" variants={itemVariants}>
+                <div>
+                  <span><Sparkles size={16} /> Made for easy ordering</span>
+                  <h2>Good food, one easy order.</h2>
+                  <p>Take your time, explore the menu, and send your favourites straight to the kitchen when you are ready.</p>
+                </div>
+                <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                  Back to menu <ChevronRight size={17} />
+                </button>
+              </motion.article>
             </motion.div>
           ) : (
             <ModernEmpty

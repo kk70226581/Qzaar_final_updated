@@ -521,6 +521,8 @@
   gap: var(--space-6);
 }
 
+.menu-browse__closing-card { grid-column: 1 / -1; position: relative; display:flex; align-items:center; justify-content:space-between; gap:2rem; min-height:180px; margin-top:.45rem; padding:clamp(1.5rem,4vw,3rem); overflow:hidden; border:1px solid rgba(255,255,255,.55); border-radius:20px; color:#fff; background:linear-gradient(110deg,#194f9d 0%,#6254d0 50%,#c2517e 100%); box-shadow:0 18px 42px rgba(69,78,174,.2); }.menu-browse__closing-card::before,.menu-browse__closing-card::after { position:absolute; border-radius:50%; content:''; pointer-events:none; }.menu-browse__closing-card::before { top:-7rem; right:8%; width:18rem; height:18rem; border:1px solid rgba(255,255,255,.25); box-shadow:0 0 0 3rem rgba(255,255,255,.06),0 0 0 6rem rgba(255,255,255,.04); }.menu-browse__closing-card::after { bottom:-7rem; left:38%; width:15rem; height:15rem; background:rgba(246,183,91,.21); filter:blur(2px); }.menu-browse__closing-card > * { position:relative; z-index:1; }.menu-browse__closing-card span { display:inline-flex; align-items:center; gap:.4rem; color:#dbe9ff; font-size:.72rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }.menu-browse__closing-card h2 { max-width:22ch; margin:.65rem 0 .45rem; color:#fff; font-size:clamp(1.7rem,3vw,2.5rem); letter-spacing:-.045em; }.menu-browse__closing-card p { max-width:38rem; margin:0; color:#e6edff; font-size:.92rem; line-height:1.65; }.menu-browse__closing-card button { display:inline-flex; flex:0 0 auto; align-items:center; gap:.4rem; min-height:44px; padding:0 1rem; border:1px solid rgba(255,255,255,.55); border-radius:11px; color:#344f8b; background:#fff; box-shadow:0 9px 18px rgba(26,31,89,.15); font-weight:850; cursor:pointer; }.menu-browse__closing-card button:hover { transform:translateY(-2px); color:#5349c6; }
+
 @keyframes menu-icon-bob {
   0%,
   100% {
@@ -575,6 +577,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 640px) { .menu-browse__closing-card { align-items:flex-start; flex-direction:column; gap:1.2rem; min-height:0; }.menu-browse__closing-card button { width:100%; justify-content:center; } }
 
 @media (max-width: 640px) {
   .menu-browse__header {
