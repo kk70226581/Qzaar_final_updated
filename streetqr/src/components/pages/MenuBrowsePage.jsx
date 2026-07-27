@@ -170,6 +170,20 @@ const mockFoods = [
   { id: 24, name: 'Tandoori Feast', description: 'A sharing platter of grilled favourites and sides', price: 699, rating: 4.8, reviews: 241, prepTime: 25, calories: 780, category: 'specials', image: '/images/showcase/showcase-2.png', isVeg: false, isChefRecommended: true },
 ];
 
+// Keep every starter menu card appetising even before a restaurant uploads its
+// own photography. These are project-owned food photos, not generic product UI.
+const getFoodImage = (item) => {
+  const existingImage = item.image || '';
+  const isPlaceholder = !existingImage || /\/images\/(showcase|landing|brand)\//.test(existingImage);
+  if (!isPlaceholder) return existingImage;
+
+  const category = (item.categoryId || item.category || '').toLowerCase();
+  if (category.includes('dessert')) return '/images/menu/sizzling-brownie.png';
+  if (category.includes('beverage') || category.includes('drink')) return '/images/menu/masala-chai.png';
+  if (!item.isVeg || /biryani|rice|chicken|tandoori|feast/i.test(item.name || '')) return '/images/menu/biryani.png';
+  return '/images/menu/paneer-tikka.png';
+};
+
 const MenuBrowsePage = () => {
   const { restaurantId } = useParams();
   const navigate = useNavigate();
@@ -219,7 +233,7 @@ const MenuBrowsePage = () => {
     try {
       if (!restaurantId) {
         await new Promise(resolve => setTimeout(resolve, 350));
-        setFoods(mockFoods);
+        setFoods(mockFoods.map((item) => ({ ...item, image: getFoodImage(item) })));
         return;
       }
 
@@ -245,7 +259,7 @@ const MenuBrowsePage = () => {
         }))
       );
       setShop(restaurant);
-      setFoods(liveFoods);
+      setFoods(liveFoods.map((item) => ({ ...item, image: getFoodImage(item) })));
     } catch (err) {
       setError({
         type: 'network',
