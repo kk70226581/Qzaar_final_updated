@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
@@ -24,6 +25,8 @@ const paymentsRoutes = require('./routes-payments');
 
 const app = express();
 const httpServer = createServer(app);
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 const allowedOrigins = [
@@ -54,11 +57,44 @@ const io = new Server(httpServer, {
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
+const RESET_OTP_TTL_MS = 10 * 60 * 1000;
+const RESET_GRANT_TTL_MS = 10 * 60 * 1000;
+const MAX_RESET_OTP_ATTEMPTS = 5;
+
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const hashSecret = (value) => crypto.createHash('sha256').update(value).digest('hex');
+const passwordProblem = (password) => {
+  if (typeof password !== 'string' || password.length < 10) return 'Use at least 10 characters.';
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+    return 'Use upper and lowercase letters plus a number.';
+  }
+  return '';
+};
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many sign-in attempts. Please try again in 15 minutes.' }
+});
+const resetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many reset requests. Please try again later.' }
+});
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(express.json({ limit: '5mb' }));
+app.use('/api/login', authLimiter);
+app.use('/api/signup', authLimiter);
+app.use('/api/auth/google', authLimiter);
+app.use('/api/forgot-password', resetLimiter);
 
 // ✅ Razorpay Initialization
 const razorpay = new Razorpay({
@@ -180,10 +216,15 @@ io.on('connection', (socket) => {
 // ✅ Authentication Routes
 app.post('/api/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const { password } = req.body;
 
-    if (!email || !password) {
-      return res.json({ success: false, message: 'Email and password required' });
+    if (!isValidEmail(email) || !password) {
+      return res.status(400).json({ success: false, message: 'Enter a valid email address and password.' });
+    }
+    const invalidPasswordMessage = passwordProblem(password);
+    if (invalidPasswordMessage) {
+      return res.status(400).json({ success: false, message: invalidPasswordMessage });
     }
 
     const existing = await Shopkeeper.findOne({ email }).select('_id').lean();
@@ -203,20 +244,21 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const { password } = req.body;
 
-    if (!email || !password) {
-      return res.json({ success: false, message: 'Email and password required' });
+    if (!isValidEmail(email) || !password) {
+      return res.status(400).json({ success: false, message: 'Invalid email or password.' });
     }
 
     const user = await Shopkeeper.findOne({ email }).select('_id passwordHash menu').lean();
     if (!user) {
-      return res.json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.json({ success: false, message: 'Wrong password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
     return res.json({ success: true, userId: user._id, menu: user.menu });
@@ -264,78 +306,114 @@ app.post('/api/auth/google', async (req, res) => {
 
 app.post('/api/forgot-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const genericMessage = 'If an account exists for that email, a verification code has been sent.';
 
-    if (!email) {
-      return res.json({ success: false, message: 'Email is required' });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ success: false, message: 'Enter a valid email address.' });
     }
 
-    const user = await Shopkeeper.findOne({ email }).select('_id').lean();
-    if (!user) {
-      return res.json({ success: false, message: 'No user found with this email' });
-    }
+    // Keep the response identical for existing and unknown addresses to avoid
+    // exposing which restaurant accounts are registered.
+    const user = await Shopkeeper.findOne({ email }).select('_id email').lean();
+    if (!user) return res.json({ success: true, message: genericMessage });
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = Date.now() + 60 * 60 * 1000;
-
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const expiresAt = new Date(Date.now() + RESET_OTP_TTL_MS);
     await Shopkeeper.updateOne(
       { _id: user._id },
-      { resetToken, resetTokenExpiry }
+      {
+        passwordResetOtpHash: hashSecret(otp),
+        passwordResetOtpExpiresAt: expiresAt,
+        passwordResetOtpAttempts: 0,
+        passwordResetGrantHash: '',
+        passwordResetGrantExpiresAt: null
+      }
     );
 
-    const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
     const html = `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-        <h3>Password Reset Request</h3>
-        <p>You requested a password reset for your Qzaar account.</p>
-        <p>
-          <a
-            href="${resetLink}"
-            style="background-color: #0f172a; color: white; padding: 10px 16px; text-decoration: none; border-radius: 999px; display: inline-block;"
-          >
-            Reset Your Password
-          </a>
-        </p>
-        <p style="font-size: 14px; color: #555;">If the button above does not work, paste this link into your browser:</p>
-        <p style="word-break: break-all; font-size: 13px; color: #111827;">${resetLink}</p>
-        <p>This link is valid for 1 hour.</p>
-        <p style="font-size: 12px; color: #6b7280;">Qzaar Support Team</p>
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 560px; color: #0f172a;">
+        <h2 style="margin-bottom: 8px;">Reset your Qzaar password</h2>
+        <p>Use this one-time verification code to continue. It expires in 10 minutes.</p>
+        <div style="margin: 24px 0; padding: 18px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; font-size: 28px; font-weight: 700; letter-spacing: 8px; text-align: center;">${otp}</div>
+        <p style="font-size: 14px; color: #475569;">For your security, do not share this code. Qzaar will never ask for it by phone or chat.</p>
+        <p style="font-size: 12px; color: #64748b;">If you did not request a password reset, you can safely ignore this email.</p>
       </div>
     `;
 
-    const emailResult = await sendEmail(email, 'Qzaar Password Reset', html);
+    const emailResult = await sendEmail(user.email, 'Your Qzaar password reset code', html);
     if (!emailResult.success) {
-      return res.status(500).json({ success: false, message: `Email failed: ${emailResult.error}` });
+      console.error('Password reset email failed:', emailResult.error);
     }
 
-    return res.json({ success: true, message: 'Reset link sent to your email' });
+    return res.json({ success: true, message: genericMessage });
   } catch (error) {
     console.error('Forgot password error:', error?.message || error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-app.post('/api/reset-password/:token', async (req, res) => {
+app.post('/api/forgot-password/verify-otp', async (req, res) => {
   try {
-    const { token } = req.params;
+    const email = normalizeEmail(req.body.email);
+    const otp = String(req.body.otp || '').replace(/\s/g, '');
+    if (!isValidEmail(email) || !/^\d{6}$/.test(otp)) {
+      return res.status(400).json({ success: false, message: 'Enter the 6-digit verification code.' });
+    }
+
+    const user = await Shopkeeper.findOne({ email }).select('_id passwordResetOtpHash passwordResetOtpExpiresAt passwordResetOtpAttempts');
+    const isExpired = !user?.passwordResetOtpExpiresAt || user.passwordResetOtpExpiresAt.getTime() <= Date.now();
+    const isLocked = (user?.passwordResetOtpAttempts || 0) >= MAX_RESET_OTP_ATTEMPTS;
+    if (!user || isExpired || isLocked || !user.passwordResetOtpHash || hashSecret(otp) !== user.passwordResetOtpHash) {
+      if (user && !isExpired && !isLocked) {
+        await Shopkeeper.updateOne({ _id: user._id }, { $inc: { passwordResetOtpAttempts: 1 } });
+      }
+      return res.status(400).json({ success: false, message: 'That code is invalid or has expired. Request a new code and try again.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    await Shopkeeper.updateOne(
+      { _id: user._id },
+      {
+        passwordResetOtpHash: '',
+        passwordResetOtpExpiresAt: null,
+        passwordResetOtpAttempts: 0,
+        passwordResetGrantHash: hashSecret(resetToken),
+        passwordResetGrantExpiresAt: new Date(Date.now() + RESET_GRANT_TTL_MS)
+      }
+    );
+    return res.json({ success: true, resetToken, message: 'Code confirmed. Create a new password.' });
+  } catch (error) {
+    console.error('Password reset OTP verification error:', error?.message || error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const resetToken = String(req.body.resetToken || '');
     const { password } = req.body;
 
-    if (!token || !password) {
-      return res.status(400).json({ success: false, message: 'Token and password required' });
+    const invalidPasswordMessage = passwordProblem(password);
+    if (!isValidEmail(email) || !resetToken || invalidPasswordMessage) {
+      return res.status(400).json({ success: false, message: invalidPasswordMessage || 'Your reset session is invalid. Start again.' });
     }
 
     const user = await Shopkeeper.findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }
+      email,
+      passwordResetGrantHash: hashSecret(resetToken),
+      passwordResetGrantExpiresAt: { $gt: new Date() }
     });
 
     if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+      return res.status(400).json({ success: false, message: 'Your reset session has expired. Start again.' });
     }
 
-    user.passwordHash = await bcrypt.hash(password, 10);
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
+    user.passwordHash = await bcrypt.hash(password, 12);
+    user.passwordResetGrantHash = '';
+    user.passwordResetGrantExpiresAt = null;
+    user.passwordChangedAt = new Date();
     await user.save();
 
     return res.json({ success: true, message: 'Password reset successful' });
