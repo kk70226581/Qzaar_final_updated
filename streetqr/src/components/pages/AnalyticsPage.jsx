@@ -102,6 +102,20 @@ const AnalyticsPage = () => {
     year: 'This Year',
   };
 
+  const exportReport = () => {
+    const rows = [
+      ['Day', 'Revenue (INR)', 'Orders'],
+      ...chartData.map(({ day, revenue, orders }) => [day, revenue, orders]),
+    ];
+    const report = new Blob([rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(report);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `qzaar-${dateRange}-report.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -157,7 +171,7 @@ const AnalyticsPage = () => {
               variant="secondary"
               size="md"
               icon={Download}
-              onClick={() => alert('Exporting report...')}
+              onClick={exportReport}
             >
               Export
             </ModernButton>

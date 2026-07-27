@@ -220,8 +220,12 @@ const InventoryPage = () => {
         initial="hidden"
         animate="visible"
       >
-        <div className="inventory__controls-row mb-6 flex justify-between items-center gap-4 flex-wrap">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Track and manage your restaurant stock levels, alerts, and costs</p>
+        <div className="inventory__controls-row">
+          <div className="inventory__hero-copy">
+            <p className="inventory__eyebrow"><span /> Stock control centre</p>
+            <h2>Keep every ingredient service-ready.</h2>
+            <p>Track stock levels, item costs and expiry alerts from one place.</p>
+          </div>
           <ModernButton
             variant="primary"
             size="md"

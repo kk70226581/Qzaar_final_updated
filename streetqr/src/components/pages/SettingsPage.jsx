@@ -127,6 +127,14 @@ const SettingsPage = () => {
         animate="visible"
       >
         <div className="settings__container-inner">
+        <motion.div className="settings__hero" variants={itemVariants}>
+          <div>
+            <p className="settings__eyebrow"><span /> Workspace preferences</p>
+            <h2>Make Qzaar work your way.</h2>
+            <p>Manage your restaurant details, service hours, payment methods and alerts.</p>
+          </div>
+          <div className="settings__secure-note"><span>✓</span><div><strong>Changes are protected</strong><small>Saved preferences apply to your workspace</small></div></div>
+        </motion.div>
         {/* TABS */}
         <nav className="settings__tabs">
           {tabs.map((tab) => (
