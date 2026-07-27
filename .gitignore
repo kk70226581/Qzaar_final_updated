@@ -3,3 +3,5 @@ node_modules/
 streetqr/.env
 streetqr/backend/.env
 streetqr/dev-server*.log
+streetqr/backend/server-*.log
+streetqr/frontend-*.log
