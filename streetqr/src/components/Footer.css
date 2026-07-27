@@ -122,3 +122,19 @@
   .site-footer__inner { grid-template-columns: 1fr; }
   .site-footer__content { grid-template-columns: 1fr; gap: 1rem; }
 }
+
+/* Spacious, product-style footer */
+.site-footer { background: radial-gradient(circle at 12% 0%, #17335a 0, #08111f 38rem); }
+.site-footer__inner { width: min(1280px, calc(100% - 3rem)); padding: 3.5rem 0 1.4rem; gap: 3rem; }
+.site-footer__mark { border-radius: .8rem; background: linear-gradient(135deg, #fbbf24, #f97316); color: #fff; box-shadow: 0 8px 18px rgba(249,115,22,.25); }
+.site-footer__brand strong { font-size: 1.25rem; letter-spacing: -.02em; }
+.site-footer__links a { width: fit-content; padding: .45rem .55rem; }
+.site-footer__bottom { margin-top: 1rem; padding-top: 1.35rem; }
+@media (max-width: 700px) {
+  .site-footer__inner { width: calc(100% - 2rem); padding: 2.5rem 0 1.2rem; gap: 2rem; }
+  .site-footer__brand p { font-size: .86rem; }
+  .site-footer__content { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .site-footer__links a { padding: .55rem 0; }
+  .site-footer__bottom { gap: .8rem; font-size: .76rem; }
+}
+@media (max-width: 390px) { .site-footer__content { grid-template-columns: 1fr; } }
