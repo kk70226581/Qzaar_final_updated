@@ -51,6 +51,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
           </span>
           <span>Qzaar<small>Restaurant OS</small></span>
         </Link>
+        <span className="site-nav__statement">A calmer way to run service.</span>
 
         <button
           type="button"
@@ -107,7 +108,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
               {!isLoggedIn ? (
                 <Link className="site-nav__cta" to="/login">
                   <LogIn size={16} />
-                  <span>Login</span>
+                  <span>Get started</span>
                 </Link>
               ) : (
                 <button type="button" className="site-nav__cta site-nav__cta--ghost" onClick={handleLogout}>
