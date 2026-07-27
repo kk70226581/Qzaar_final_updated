@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
+  CheckCircle2,
   Lock,
   Mail,
   KeyRound,
@@ -17,9 +18,9 @@ import { startSession } from '../utils/authSession';
 import './LoginSignup.css';
 
 const productPoints = [
-  'QR storefront',
-  'Menu builder',
-  'Live orders'
+  'Beautiful QR menu',
+  'Live order control',
+  'Daily business insight'
 ];
 
 function LoginSignup() {
@@ -250,8 +251,8 @@ function LoginSignup() {
               <Sparkles size={16} />
               Secure business access
             </span>
-            <h1>Access your Qzaar workspace.</h1>
-            <p>Manage menu, QR, offers, and orders.</p>
+            <h1>Every better service starts with one calm workspace.</h1>
+            <p>Build the experience your guests see, then keep every menu, order, and service update moving in one place.</p>
 
             <div className="auth-highlight-card">
               <div className="auth-highlight-card__header">
@@ -265,16 +266,21 @@ function LoginSignup() {
               </ul>
             </div>
 
+            <div className="auth-showcase__metrics" aria-label="Qzaar platform benefits">
+              <div><strong>1</strong><span>place for the whole shift</span></div>
+              <div><strong>0</strong><span>apps needed for guests</span></div>
+            </div>
+
             <div className="auth-trust-row">
               <div>
                 <ShieldCheck size={18} />
                 <strong>Menu control</strong>
-                <span>Update and publish quickly.</span>
+                <span>Keep every item, price, and update in sync.</span>
               </div>
               <div>
                 <Lock size={18} />
                 <strong>Secure access</strong>
-                <span>Login, signup, reset.</span>
+                <span>Google sign-in and secure OTP recovery.</span>
               </div>
             </div>
           </section>
@@ -282,8 +288,8 @@ function LoginSignup() {
           <section className="auth-panel">
             <div className="auth-panel__header">
               <p className="auth-panel__eyebrow">{isSignup ? 'Create account' : 'Welcome back'}</p>
-              <h2>{isSignup ? 'Create your account' : 'Log in to your account'}</h2>
-              <p>{isSignup ? 'Start building your restaurant workspace.' : 'Enter your details to access your Qzaar workspace.'}</p>
+              <h2>{isSignup ? 'Build a better service flow.' : 'Welcome back to your workspace.'}</h2>
+              <p>{isSignup ? 'Create your secure Qzaar account and bring your menu, orders, and daily operations together.' : 'Sign in to keep your restaurant moving, from the first scan to the final order.'}</p>
             </div>
 
             {message && (
@@ -308,6 +314,7 @@ function LoginSignup() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="name@example.com"
+                    autoComplete="email"
                   />
                 </div>
               </label>
@@ -320,9 +327,10 @@ function LoginSignup() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Enter your password"
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
                   />
-                  <button type="button" className="auth-input__toggle" onClick={() => setShowPassword((current) => !current)}>
+                  <button type="button" className="auth-input__toggle" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                     {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
@@ -339,6 +347,7 @@ function LoginSignup() {
                         value={confirmPassword}
                         onChange={(event) => setConfirmPassword(event.target.value)}
                         placeholder="Repeat password"
+                        autoComplete="new-password"
                       />
                     </div>
                   </label>
@@ -346,6 +355,7 @@ function LoginSignup() {
                   <div className="auth-password-strength">
                     <span>Password strength</span>
                     <strong>{password ? passwordStrength : 'Start typing'}</strong>
+                    <small>Use 10+ characters, uppercase, lowercase, and a number.</small>
                   </div>
                 </>
               )}
@@ -412,6 +422,7 @@ function LoginSignup() {
               </button>
 
               <p className="auth-legal">By continuing, you agree to Qzaar's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.</p>
+              <p className="auth-form__assurance"><CheckCircle2 size={15} /> Your account is protected with secure sign-in and reset verification.</p>
             </div>
 
             <button
