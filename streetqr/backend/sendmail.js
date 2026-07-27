@@ -1,15 +1,14 @@
-// backend/sendmail.js
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 async function sendEmail(to, subject, html) {
-  console.log("📤 Attempting to send email to:", to); // <-- add this
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('Email delivery is not configured; message was not sent.');
+    return { success: false, error: 'Email delivery is not configured.' };
+  }
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
+    service: 'gmail',
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
   });
 
   try {
@@ -17,15 +16,13 @@ async function sendEmail(to, subject, html) {
       from: `"Qzaar" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      html,
+      html
     });
-
-    console.log("📧 Email sent successfully:", info.response);
+    console.log('Email accepted by the mail provider:', info.messageId);
     return { success: true };
-  } catch (err) {
-    console.error("❌ Email sending failed");
-    console.error("🔎 Full error:", err); // <== key line
-    return { success: false, error: err.message };
+  } catch (error) {
+    console.error('Email sending failed:', error?.message || error);
+    return { success: false, error: 'Email provider rejected the message.' };
   }
 }
 
