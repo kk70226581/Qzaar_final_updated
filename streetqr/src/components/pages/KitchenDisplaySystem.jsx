@@ -9,19 +9,11 @@ import {
   Maximize2,
   RefreshCw,
 } from 'lucide-react';
-import {
-  ModernBadge,
-  ModernButton,
-} from '../ui';
+import { ModernButton } from '../ui';
 import AdminLayout from '../layout/AdminLayout';
 import '../../styles/pages/KitchenDisplaySystem.css';
 
-
 /**
- * KitchenDisplaySystem - Kitchen order management display
- * 
- * Features:
- * - Order cards with items
  * - Preparation timers
  * - Priority levels
  * - Status columns (Pending, Preparing, Ready)
@@ -36,7 +28,6 @@ const KitchenDisplaySystem = () => {
   const [fullscreen, setFullscreen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [now, setNow] = useState(Date.now());
-
   useEffect(() => {
     // Initialize orders
     setOrders([

@@ -2,9 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowUpDown,
   ChevronLeft,
-  ChevronRight,
   CakeSlice,
   ChefHat,
   Clock3,
@@ -14,8 +12,6 @@ import {
   Leaf,
   Minus,
   Plus,
-  ReceiptText,
-  ScanLine,
   Search,
   ShoppingCart,
   SlidersHorizontal,
@@ -28,19 +24,15 @@ import {
   Hash,
   Banknote,
   Mail,
-  Zap,
   Phone,
   CreditCard,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
-  ModernFoodCard,
-  ModernInput,
   ModernSkeleton,
   ModernEmpty,
   ModernError,
 } from '../ui';
-import CategoryTabs from '../features/CategoryTabs';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import PaymentGateway from '../PaymentGateway';
 import CouponApplier from '../CouponApplier';

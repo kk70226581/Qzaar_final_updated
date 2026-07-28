@@ -209,7 +209,6 @@ function MenuBuilder() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [couponForm, setCouponForm] = useState(createCouponDraft());
-  const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
   const [isSavingCoupon, setIsSavingCoupon] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
 
@@ -265,7 +264,6 @@ function MenuBuilder() {
     }
 
     const loadCoupons = async () => {
-      setIsLoadingCoupons(true);
       try {
         const response = await axios.get(`${API_BASE}/api/coupons/${shopId}`);
         if (response.data.success) {
@@ -273,8 +271,6 @@ function MenuBuilder() {
         }
       } catch (error) {
         showMessage('danger', 'Unable to load campaign offers right now.');
-      } finally {
-        setIsLoadingCoupons(false);
       }
     };
 

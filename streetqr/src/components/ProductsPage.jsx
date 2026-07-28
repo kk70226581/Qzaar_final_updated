@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Activity, ArrowRight, BarChart3, Bell, CheckCircle2, ChefHat, Clock, CreditCard, Globe, Image, Languages, List, QrCode, RefreshCw, Settings, ShieldCheck, Smartphone, Star, TrendingUp, Users, Utensils, X, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, ArrowRight, BarChart3, Bell, CheckCircle2, ChefHat, Clock, Globe, Image, Languages, List, QrCode, RefreshCw, ShieldCheck, Smartphone, Star, TrendingUp, Users, X, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -8,7 +8,6 @@ import './ProductsPage.css';
 
 const ProductsPage = () => {
   const [activeTab, setActiveTab] = useState('qrMenu');
-  const prefersReducedMotion = useReducedMotion();
 
   // Animation variants
   const fadeIn = {

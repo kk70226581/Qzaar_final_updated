@@ -195,10 +195,10 @@ const ContactPage = () => {
                 <div className="social-card">
                   <h3>Connect with us</h3>
                   <div className="social-links">
-                    <a href="#" className="social-icon twitter"><Twitter size={20} /></a>
-                    <a href="#" className="social-icon linkedin"><Linkedin size={20} /></a>
-                    <a href="#" className="social-icon github"><Github size={20} /></a>
-                    <a href="#" className="social-icon instagram"><Instagram size={20} /></a>
+                    <a href="https://twitter.com/qzaar" target="_blank" rel="noopener noreferrer" className="social-icon twitter"><Twitter size={20} /></a>
+                    <a href="https://linkedin.com/company/qzaar" target="_blank" rel="noopener noreferrer" className="social-icon linkedin"><Linkedin size={20} /></a>
+                    <a href="https://github.com/qzaar" target="_blank" rel="noopener noreferrer" className="social-icon github"><Github size={20} /></a>
+                    <a href="https://instagram.com/qzaar" target="_blank" rel="noopener noreferrer" className="social-icon instagram"><Instagram size={20} /></a>
                   </div>
                 </div>
               </motion.div>
