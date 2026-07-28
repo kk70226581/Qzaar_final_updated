@@ -45,6 +45,7 @@ function LoginSignup() {
   const [isSendingReset, setIsSendingReset] = useState(false);
   const googleButtonRef = useRef(null);
   const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const isResetMode = showForgotPanel && !isSignup;
 
   const showMessage = useCallback((text, type) => {
     setMessage(text);
@@ -123,6 +124,25 @@ function LoginSignup() {
   }, [password]);
 
   const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
+
+  const startPasswordReset = () => {
+    setForgotEmail(email.trim());
+    setShowForgotPanel(true);
+    setResetStep('email');
+    setResetOtp('');
+    setResetToken('');
+    setResetPassword('');
+    setResetConfirmPassword('');
+  };
+
+  const exitPasswordReset = () => {
+    setShowForgotPanel(false);
+    setResetStep('email');
+    setResetOtp('');
+    setResetToken('');
+    setResetPassword('');
+    setResetConfirmPassword('');
+  };
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -287,9 +307,9 @@ function LoginSignup() {
 
           <section className="auth-panel">
             <div className="auth-panel__header">
-              <p className="auth-panel__eyebrow">{isSignup ? 'Create account' : 'Welcome back'}</p>
-              <h2>{isSignup ? 'Build a better service flow.' : 'Welcome back to your workspace.'}</h2>
-              <p>{isSignup ? 'Create your secure Qzaar account and bring your menu, orders, and daily operations together.' : 'Sign in to keep your restaurant moving, from the first scan to the final order.'}</p>
+              <p className="auth-panel__eyebrow">{isResetMode ? 'Password recovery' : isSignup ? 'Create account' : 'Welcome back'}</p>
+              <h2>{isResetMode ? 'Reset your password.' : isSignup ? 'Build a better service flow.' : 'Welcome back to your workspace.'}</h2>
+              <p>{isResetMode ? 'No old password is needed. Verify your email, enter the code we send, then choose a new password.' : isSignup ? 'Create your secure Qzaar account and bring your menu, orders, and daily operations together.' : 'Sign in to keep your restaurant moving, from the first scan to the final order.'}</p>
             </div>
 
             {message && (
@@ -299,8 +319,65 @@ function LoginSignup() {
             )}
 
             <div className="auth-form">
+              {isResetMode ? (
+                <div className="auth-reset-flow" aria-live="polite">
+                  <div className="auth-reset-steps" aria-label={`Password reset step ${resetStep === 'email' ? 1 : resetStep === 'otp' ? 2 : 3} of 3`}>
+                    <span className={resetStep === 'email' ? 'is-active' : 'is-complete'}>1</span><i />
+                    <span className={resetStep === 'otp' ? 'is-active' : resetStep === 'password' ? 'is-complete' : ''}>2</span><i />
+                    <span className={resetStep === 'password' ? 'is-active' : ''}>3</span>
+                  </div>
+
+                  <div className="auth-reset-heading">
+                    <KeyRound size={19} />
+                    <div>
+                      <strong>{resetStep === 'email' ? 'Verify your email' : resetStep === 'otp' ? 'Enter your verification code' : 'Create a new password'}</strong>
+                      <span>{resetStep === 'email' ? 'We will send a 6-digit code that expires in 10 minutes.' : resetStep === 'otp' ? 'Enter the 6-digit code from your email.' : 'Use 10+ characters with uppercase, lowercase, and a number.'}</span>
+                    </div>
+                  </div>
+
+                  {resetStep === 'email' && (
+                    <label>
+                      <span>Account email</span>
+                      <div className="auth-input">
+                        <Mail size={17} />
+                        <input type="email" value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" autoFocus />
+                      </div>
+                    </label>
+                  )}
+
+                  {resetStep === 'otp' && (
+                    <label>
+                      <span>6-digit verification code</span>
+                      <div className="auth-input">
+                        <KeyRound size={17} />
+                        <input className="auth-otp-input" inputMode="numeric" maxLength="6" value={resetOtp} onChange={(event) => setResetOtp(event.target.value.replace(/\D/g, ''))} placeholder="000000" autoComplete="one-time-code" autoFocus />
+                      </div>
+                    </label>
+                  )}
+
+                  {resetStep === 'password' && (
+                    <>
+                      <label>
+                        <span>New password</span>
+                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="10+ characters" autoComplete="new-password" autoFocus /></div>
+                      </label>
+                      <label>
+                        <span>Confirm new password</span>
+                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repeat new password" autoComplete="new-password" /></div>
+                      </label>
+                    </>
+                  )}
+
+                  <button type="button" className="auth-secondary-btn" onClick={resetStep === 'email' ? handleForgotPassword : resetStep === 'otp' ? handleVerifyOtp : handlePasswordReset} disabled={isSendingReset}>
+                    {isSendingReset ? 'Please wait...' : resetStep === 'email' ? 'Send verification code' : resetStep === 'otp' ? 'Verify code' : 'Update password'}
+                  </button>
+                  {resetStep === 'otp' && <button type="button" className="auth-reset-back" onClick={() => setResetStep('email')}>Use a different email</button>}
+                  <button type="button" className="auth-reset-cancel" onClick={exitPasswordReset}>Back to sign in</button>
+                </div>
+              ) : (
+                <>
               <div className="auth-google">
-                {googleClientId ? <div ref={googleButtonRef} aria-label="Continue with Google" /> : <button type="button" className="auth-google__unavailable" disabled><span aria-hidden="true">G</span> Continue with Google <small>Configure Google Client ID to enable</small></button>}
+                {googleClientId ? <div ref={googleButtonRef} aria-label="Continue with Google" /> : <button type="button" className="auth-google__unavailable" disabled><span aria-hidden="true">G</span><b>Google sign-in unavailable</b><small>It will be enabled after the Google OAuth Client ID is configured.</small></button>}
               </div>
 
               <div className="auth-divider"><span>or continue with email</span></div>
@@ -361,71 +438,23 @@ function LoginSignup() {
               )}
 
               {!isSignup && (
-                <button type="button" className="auth-link" onClick={() => setShowForgotPanel((current) => !current)}>
-                  {showForgotPanel ? 'Hide reset form' : 'Forgot password?'}
+                <button type="button" className="auth-link" onClick={startPasswordReset}>
+                  Forgot password?
                 </button>
-              )}
-
-              {showForgotPanel && (
-                <div className="auth-forgot-panel" aria-live="polite">
-                  <div className="auth-reset-heading">
-                    <KeyRound size={18} />
-                    <div>
-                      <strong>{resetStep === 'email' ? 'Verify your email' : resetStep === 'otp' ? 'Enter your code' : 'Create a new password'}</strong>
-                      <span>{resetStep === 'email' ? 'We will send a 6-digit code that expires in 10 minutes.' : resetStep === 'otp' ? 'Check your inbox and enter the code below.' : 'Use a password you do not use elsewhere.'}</span>
-                    </div>
-                  </div>
-
-                  {resetStep === 'email' && (
-                    <label>
-                      <span>Account email</span>
-                      <div className="auth-input">
-                        <Mail size={17} />
-                        <input type="email" value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" />
-                      </div>
-                    </label>
-                  )}
-
-                  {resetStep === 'otp' && (
-                    <label>
-                      <span>6-digit verification code</span>
-                      <div className="auth-input">
-                        <KeyRound size={17} />
-                        <input className="auth-otp-input" inputMode="numeric" maxLength="6" value={resetOtp} onChange={(event) => setResetOtp(event.target.value.replace(/\D/g, ''))} placeholder="000000" autoComplete="one-time-code" />
-                      </div>
-                    </label>
-                  )}
-
-                  {resetStep === 'password' && (
-                    <>
-                      <label>
-                        <span>New password</span>
-                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="10+ characters" autoComplete="new-password" /></div>
-                      </label>
-                      <label>
-                        <span>Confirm new password</span>
-                        <div className="auth-input"><Lock size={17} /><input type={showPassword ? 'text' : 'password'} value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repeat password" autoComplete="new-password" /></div>
-                      </label>
-                    </>
-                  )}
-
-                  <button type="button" className="auth-secondary-btn" onClick={resetStep === 'email' ? handleForgotPassword : resetStep === 'otp' ? handleVerifyOtp : handlePasswordReset} disabled={isSendingReset}>
-                    {isSendingReset ? 'Please wait...' : resetStep === 'email' ? 'Send verification code' : resetStep === 'otp' ? 'Verify code' : 'Update password'}
-                  </button>
-                  {resetStep === 'otp' && <button type="button" className="auth-reset-back" onClick={() => setResetStep('email')}>Use a different email</button>}
-                </div>
               )}
 
               <button type="button" className="auth-primary-btn" onClick={handleAuth} disabled={isSubmitting}>
                 {isSubmitting ? 'Please wait...' : isSignup ? 'Create account' : 'Login'}
                 {!isSubmitting && <ArrowRight size={17} />}
               </button>
+                </>
+              )}
 
-              <p className="auth-legal">By continuing, you agree to Qzaar's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.</p>
-              <p className="auth-form__assurance"><CheckCircle2 size={15} /> Your account is protected with secure sign-in and reset verification.</p>
+              {!isResetMode && <p className="auth-legal">By continuing, you agree to Qzaar's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.</p>}
+              <p className="auth-form__assurance"><CheckCircle2 size={15} /> {isResetMode ? 'Your old password is not required.' : 'Your account is protected with secure sign-in and reset verification.'}</p>
             </div>
 
-            <button
+            {!isResetMode && <button
               type="button"
               className="auth-switch"
               onClick={() => {
@@ -436,7 +465,7 @@ function LoginSignup() {
               }}
             >
               {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
-            </button>
+            </button>}
 
             <p className="auth-footer">(c) {new Date().getFullYear()} Qzaar Technologies Pvt. Ltd.</p>
           </section>

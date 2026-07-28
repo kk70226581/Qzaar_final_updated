@@ -21,27 +21,45 @@
 .menu-browse__hero {
   position: relative;
   width: 100%;
-  height: 280px;
-  background: #000;
+  height: clamp(340px, 34vw, 540px);
+  background: #020817;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.menu-browse__hero-media {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
 
-@media (min-width: 768px) {
-  .menu-browse__hero {
-    height: 500px;
-  }
-}
-
 .menu-browse__hero-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* Keep the complete advertising artwork visible. The softened copy behind it
+   fills very wide screens without zooming or cutting off guests/QR details. */
+.menu-browse__hero-img--ambient {
   object-fit: cover;
+  object-position: center;
+  filter: blur(18px) brightness(.46) saturate(.82);
+  transform: scale(1.08);
+}
+
+.menu-browse__hero-img--full {
+  object-fit: contain;
+  /* Keep the restaurant scene sharp at the right edge; the left edge is
+     intentionally reserved for the menu's promotional message. */
+  object-position: right center;
 }
 
 .menu-browse__hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(90deg, rgba(3,10,23,.94) 0%, rgba(3,10,23,.76) 34%, rgba(3,10,23,.20) 70%, rgba(3,10,23,.06) 100%), linear-gradient(0deg, rgba(3,10,23,.78) 0%, transparent 58%);
 }
 
 .menu-browse__hero-top-right {
@@ -95,6 +113,7 @@
   left: 1.5rem;
   right: 1.5rem;
   z-index: 10;
+  max-width: 760px;
 }
 
 @media (min-width: 768px) {
@@ -106,7 +125,7 @@
 
 .menu-browse__hero-eyebrow {
   display: inline-block;
-  background: #f97316;
+  background: rgba(249,115,22,.96);
   color: #fff;
   padding: 4px 12px;
   border-radius: 999px;
@@ -125,7 +144,8 @@
 }
 
 .menu-browse__hero-subtitle {
-  color: #d1d5db;
+  max-width: 54ch;
+  color: #dce8f6;
   font-size: clamp(0.9rem, 1.5vw, 1.1rem);
   margin: 0 0 1rem 0;
 }
@@ -142,11 +162,13 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.12);
   padding: 6px 12px;
   border-radius: 6px;
   backdrop-filter: blur(4px);
 }
+
+.menu-browse__hero-qzaar { display: inline-flex; align-items: center; gap: .55rem; margin-top: 1rem; color: #dce9fb; font-size: .76rem; font-weight: 750; }.menu-browse__hero-qzaar span { display: inline-flex; align-items: center; gap: .35rem; color: #fff; }.menu-browse__hero-qzaar i { width: 1px; height: 1rem; background: rgba(255,255,255,.35); }.menu-browse__hero-qzaar small { color: #b9d1f0; font-size: .74rem; font-weight: 650; }
 
 .menu-browse__hero-dots {
   position: absolute;
@@ -157,6 +179,8 @@
   gap: 8px;
   z-index: 10;
 }
+
+@media (max-width: 560px) { .menu-browse__hero { height: 420px; }.menu-browse__hero-content { bottom: 2.7rem; left: 1.25rem; right: 1.25rem; }.menu-browse__hero-title { font-size: 2.15rem; }.menu-browse__hero-stats-row { gap: .45rem; flex-wrap: wrap; }.menu-browse__hero-stats-row span { padding: 5px 8px; font-size: .74rem; }.menu-browse__hero-qzaar { margin-top: .8rem; } }
 
 .menu-browse__hero-dot {
   width: 8px;

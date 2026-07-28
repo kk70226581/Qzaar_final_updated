@@ -1,4 +1,11 @@
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Always load the server configuration from this folder. This keeps email and
+// database settings available whether the server is started from `backend/`
+// or with `node backend/index.js` from the project root.
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -32,6 +39,7 @@ const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').repla
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:3002',
   FRONTEND_URL,
   'https://www.qzaar.store',
   'https://updated-ver.vercel.app',
@@ -313,6 +321,11 @@ app.post('/api/forgot-password', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Enter a valid email address.' });
     }
 
+    if (!sendEmail.isConfigured()) {
+      console.error('Password reset email is not configured. Set EMAIL_USER and EMAIL_PASS.');
+      return res.status(503).json({ success: false, message: 'Password reset email is temporarily unavailable. Please try again later.' });
+    }
+
     // Keep the response identical for existing and unknown addresses to avoid
     // exposing which restaurant accounts are registered.
     const user = await Shopkeeper.findOne({ email }).select('_id email').lean();
@@ -344,6 +357,16 @@ app.post('/api/forgot-password', async (req, res) => {
     const emailResult = await sendEmail(user.email, 'Your Qzaar password reset code', html);
     if (!emailResult.success) {
       console.error('Password reset email failed:', emailResult.error);
+
+      await Shopkeeper.updateOne(
+        { _id: user._id, passwordResetOtpHash: hashSecret(otp) },
+        {
+          passwordResetOtpHash: '',
+          passwordResetOtpExpiresAt: null,
+          passwordResetOtpAttempts: 0
+        }
+      );
+      return res.status(503).json({ success: false, message: 'We could not deliver the verification code. Please try again later.' });
     }
 
     return res.json({ success: true, message: genericMessage });

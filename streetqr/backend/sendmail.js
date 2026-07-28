@@ -1,7 +1,11 @@
 const nodemailer = require('nodemailer');
 
+function isConfigured() {
+  return Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+}
+
 async function sendEmail(to, subject, html) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!isConfigured()) {
     console.warn('Email delivery is not configured; message was not sent.');
     return { success: false, error: 'Email delivery is not configured.' };
   }
@@ -27,3 +31,4 @@ async function sendEmail(to, subject, html) {
 }
 
 module.exports = sendEmail;
+module.exports.isConfigured = isConfigured;

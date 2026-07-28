@@ -59,6 +59,9 @@
   line-height: 1.6;
 }
 
+.about-eyebrow { display: inline-flex; width: fit-content; margin-bottom: 1rem; color: #93c5fd; font-size: .72rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.about-hero-points { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.6rem; }.about-hero-points span { padding: .48rem .7rem; border: 1px solid rgba(147,197,253,.22); border-radius: 999px; color: #dbeafe; background: rgba(59,130,246,.1); font-size: .76rem; font-weight: 700; }.about-hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.7rem; }.about-hero-actions .btn-primary, .about-hero-actions .btn-secondary { text-decoration: none; }
+
 .about-hero-art {
   flex: 1;
   position: relative;
@@ -222,6 +225,13 @@
   gap: 32px;
 }
 
+.about-builder-grid {
+  grid-template-columns: minmax(0, 360px);
+  justify-content: center;
+}
+
+.about-builder-layout { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); align-items: center; gap: clamp(2rem, 6vw, 6rem); max-width: 920px; margin: 0 auto; }.about-builder-story { padding: 1rem 0; }.about-builder-story h3 { max-width: 18ch; margin: 0 0 1rem; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.12; letter-spacing: -.03em; }.about-builder-story > p { max-width: 54ch; margin: 0; color: var(--ink-500); line-height: 1.7; }.about-builder-story ul { display: grid; gap: .7rem; padding: 0; margin: 1.5rem 0 0; list-style: none; }.about-builder-story li { position: relative; padding-left: 1.35rem; color: #d6e2f2; font-size: .92rem; }.about-builder-story li::before { content: '✓'; position: absolute; left: 0; color: var(--accent-500); font-weight: 900; }
+
 .team-card {
   background: rgba(31, 41, 55, 0.4);
   border: 1px solid var(--ink-800);
@@ -366,6 +376,7 @@
   .values-grid, .team-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .about-builder-layout { grid-template-columns: 1fr; max-width: 560px; text-align: center; }.about-builder-story .about-eyebrow { margin-left: auto; margin-right: auto; }.about-builder-story h3, .about-builder-story > p { margin-left: auto; margin-right: auto; }.about-builder-story li { text-align: left; }
 }
 
 @media (max-width: 768px) {
@@ -381,4 +392,5 @@
   .cta-buttons {
     flex-direction: column;
   }
+  .about-hero-actions { justify-content: center; }
 }

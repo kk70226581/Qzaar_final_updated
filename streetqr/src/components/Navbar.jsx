@@ -1,27 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BarChart3, ChefHat, ChevronDown, LayoutDashboard,
-  LogIn, LogOut, Mail, Menu, QrCode, Route, Sparkles, X
-} from 'lucide-react';
+import { LayoutDashboard, LogIn, LogOut, Mail, Menu, Route, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
-
-const products = [
-  { icon: QrCode, label: 'QR Digital Menu', sub: 'Menus guests enjoy using', href: '/products' },
-  { icon: ChefHat, label: 'Kitchen Display', sub: 'Live orders in sync', href: '/products' },
-  { icon: BarChart3, label: 'Analytics', sub: 'Insights for every shift', href: '/products' },
-];
 
 function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setIsLoggedIn(hasActiveSession());
@@ -29,23 +18,12 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
 
   useEffect(() => {
     setMobileOpen(false);
-    setProductsOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setProductsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   const handleLogout = () => {
@@ -76,38 +54,7 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
         <div className="qz-nav__links">
           <Link className={`qz-nav__link ${isActive('/') ? 'qz-nav__link--active' : ''}`} to="/">Home</Link>
 
-          {/* Products dropdown */}
-          <div className="qz-nav__dropdown" ref={dropdownRef}>
-            <button
-              type="button"
-              className={`qz-nav__link qz-nav__link--btn ${productsOpen ? 'qz-nav__link--active' : ''}`}
-              onClick={() => setProductsOpen((o) => !o)}
-              aria-expanded={productsOpen}
-            >
-              Products <ChevronDown size={14} className={`qz-nav__chevron ${productsOpen ? 'qz-nav__chevron--open' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {productsOpen && (
-                <motion.div
-                  className="qz-nav__dropdown-panel"
-                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
-                >
-                  {products.map(({ icon: Icon, label, sub, href }) => (
-                    <Link key={label} className="qz-nav__dropdown-item" to={href} onClick={() => setProductsOpen(false)}>
-                      <span className="qz-nav__dropdown-icon"><Icon size={18} /></span>
-                      <span>
-                        <strong>{label}</strong>
-                        <small>{sub}</small>
-                      </span>
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <Link className={`qz-nav__link ${isActive('/products') ? 'qz-nav__link--active' : ''}`} to="/products">Products</Link>
 
           <Link className={`qz-nav__link ${isActive('/how-it-works') ? 'qz-nav__link--active' : ''}`} to="/how-it-works">
             <Route size={15} /> How it works

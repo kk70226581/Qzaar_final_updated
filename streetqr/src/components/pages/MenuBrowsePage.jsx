@@ -26,6 +26,7 @@ import {
   Mail,
   Phone,
   CreditCard,
+  QrCode,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -320,31 +321,25 @@ const MenuBrowsePage = () => {
   }, [foods, restaurantId]);
 
   const heroSlides = useMemo(() => {
-    const foodPhoto = foods.find((item) => item.image)?.image || '/images/landing/slide-1.png';
+    const restaurantName = shop?.shopName || 'Our restaurant';
+    const qzaarHeroImage = '/images/brand/qzaar-table-service-hero.png';
     return [
       {
-        eyebrow: 'Welcome to',
-        title: shop?.heroHeadline || shop?.shopName || 'Fresh food, made with care.',
-        description: shop?.tagline || 'Discover a menu prepared for your table.',
-        image: shop?.logo || foodPhoto,
+        eyebrow: `Welcome to ${restaurantName}`,
+        title: shop?.heroHeadline || 'A table experience made for good food.',
+        description: shop?.tagline || 'Browse the menu, choose your favourites, and enjoy your time at the table.',
+        image: '/images/brand/qzaar-guest-welcome-hero.png',
         label: shop?.cuisineType || 'Restaurant menu',
       },
       {
-        eyebrow: 'Our promise',
-        title: shop?.qualityPromise || 'Quality you can taste in every bite.',
-        description: 'Freshly prepared dishes, clear ordering, and a better table experience.',
-        image: foodPhoto,
-        label: 'Made to order',
-      },
-      {
-        eyebrow: 'Easy table service',
-        title: 'Scan. Choose. Relax.',
-        description: 'Your order goes directly to the kitchen while you enjoy your time together.',
-        image: '/images/brand/qzaar-restaurant-hero.png',
-        label: 'Fast QR ordering',
+        eyebrow: 'Powered by Qzaar',
+        title: 'Scan. Choose. Enjoy the moment.',
+        description: 'A simple digital menu that helps guests order with ease while your restaurant stays in sync.',
+        image: qzaarHeroImage,
+        label: 'Smart table ordering',
       },
     ];
-  }, [foods, shop]);
+  }, [shop]);
 
   useEffect(() => {
     setActiveHeroSlide(0);
@@ -482,16 +477,17 @@ const MenuBrowsePage = () => {
       {/* 1. RESTAURANT HERO BANNER */}
       <header className="menu-browse__hero">
         <AnimatePresence mode="wait">
-          <motion.img
+          <motion.div
             key={currentHeroSlide.image}
-            src={currentHeroSlide.image}
-            alt={currentHeroSlide.title}
+            className="menu-browse__hero-media"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="menu-browse__hero-img"
-          />
+            transition={{ duration: 0.55 }}
+          >
+            <img className="menu-browse__hero-img menu-browse__hero-img--ambient" src={currentHeroSlide.image} alt="" aria-hidden="true" />
+            <img className="menu-browse__hero-img menu-browse__hero-img--full" src={currentHeroSlide.image} alt={currentHeroSlide.title} />
+          </motion.div>
         </AnimatePresence>
         <div className="menu-browse__hero-overlay" />
         
@@ -513,6 +509,11 @@ const MenuBrowsePage = () => {
             <span><Star size={16} fill="currentColor" /> {shop?.rating || '4.8'}</span>
             <span><Clock3 size={16} /> {shop?.avgPrepTime || '25'} min</span>
             <span><UtensilsCrossed size={16} /> {foods.length} items</span>
+          </div>
+          <div className="menu-browse__hero-qzaar">
+            <span><QrCode size={15} /> Powered by Qzaar</span>
+            <i />
+            <small>Scan · Browse · Order</small>
           </div>
         </div>
 

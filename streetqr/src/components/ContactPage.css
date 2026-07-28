@@ -25,6 +25,8 @@
   letter-spacing: -0.02em;
 }
 
+.contact-eyebrow, .contact-form-eyebrow { display: inline-block; color: var(--accent-500); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }.contact-eyebrow { margin-bottom: .9rem; }.contact-form-eyebrow { margin-bottom: .7rem; }
+
 .contact-header p {
   font-size: 1.125rem;
   color: var(--ink-500);
@@ -41,6 +43,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+}
+
+.contact-cards--single {
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
 }
 
 .contact-card {
@@ -105,6 +112,21 @@
   gap: 48px;
 }
 
+.contact-grid--single {
+  grid-template-columns: minmax(0, 680px);
+  justify-content: center;
+}
+
+.contact-unavailable {
+  margin: 0;
+  color: var(--ink-500);
+  line-height: 1.7;
+}
+
+.contact-unavailable code {
+  color: var(--accent-500);
+}
+
 /* FORM */
 .glass-form-card {
   background: rgba(255, 255, 255, 0.03);
@@ -118,7 +140,7 @@
 .glass-form-card h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 32px;
+  margin: 0 0 32px;
 }
 
 .form-group {
@@ -196,6 +218,7 @@
 
 .submit-btn:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .success-state {
