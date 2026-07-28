@@ -1,25 +1,52 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, ChevronDown, ChefHat, House, Info, LayoutDashboard, LogIn, LogOut, Menu, Phone, QrCode, Route, Sparkles, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  BarChart3, ChefHat, ChevronDown, LayoutDashboard,
+  LogIn, LogOut, Mail, Menu, QrCode, Route, Sparkles, X
+} from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
+
+const products = [
+  { icon: QrCode, label: 'QR Digital Menu', sub: 'Menus guests enjoy using', href: '/products' },
+  { icon: ChefHat, label: 'Kitchen Display', sub: 'Live orders in sync', href: '/products' },
+  { icon: BarChart3, label: 'Analytics', sub: 'Insights for every shift', href: '/products' },
+];
 
 function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProductOpen, setIsProductOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const loggedIn = hasActiveSession();
-    setIsLoggedIn(loggedIn);
+    setIsLoggedIn(hasActiveSession());
   }, [location.pathname]);
 
   useEffect(() => {
-    setIsMenuOpen(false);
-    setIsProductOpen(false);
+    setMobileOpen(false);
+    setProductsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setProductsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const handleLogout = () => {
     clearSession();
@@ -27,109 +54,148 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
     navigate('/login');
   };
 
-  const handleScrollTo = (id) => {
-    setIsMenuOpen(false);
-    setIsProductOpen(false);
-    if (location.pathname !== '/') {
-      navigate('/');
-      window.setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-      return;
-    }
-
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  const isActive = (path) => location.pathname === path;
   const shouldShowAuth = !hideAuth && showAuthLinks !== false;
 
   return (
-    <nav className="site-nav">
-      <div className="site-nav__container">
-        <Link className="site-nav__brand" to="/">
-          <span className="site-nav__brand-mark" aria-hidden="true">
-            <span className="site-nav__brand-q">Q</span>
-            <span className="site-nav__brand-pixel site-nav__brand-pixel--one" />
-            <span className="site-nav__brand-pixel site-nav__brand-pixel--two" />
+    <nav className={`qz-nav ${scrolled ? 'qz-nav--scrolled' : ''}`}>
+      <div className="qz-nav__inner">
+        {/* Brand */}
+        <Link className="qz-nav__brand" to="/">
+          <span className="qz-nav__logo" aria-hidden="true">
+            <span className="qz-nav__logo-q">Q</span>
+            <span className="qz-nav__logo-dot" />
           </span>
-          <span>Qzaar<small>Restaurant OS</small></span>
+          <span className="qz-nav__brand-text">
+            Qzaar
+            <small>Restaurant OS</small>
+          </span>
         </Link>
-        <span className="site-nav__statement">A calmer way to run service.</span>
 
-        <button
-          type="button"
-          className="site-nav__menu-toggle"
-          onClick={() => setIsMenuOpen((current) => !current)}
-          aria-expanded={isMenuOpen}
-          aria-label="Toggle navigation"
-        >
-          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        {/* Desktop links */}
+        <div className="qz-nav__links">
+          <Link className={`qz-nav__link ${isActive('/') ? 'qz-nav__link--active' : ''}`} to="/">Home</Link>
 
-        <div className={`site-nav__links-wrap ${isMenuOpen ? 'is-open' : ''}`}>
-          <div className="site-nav__links">
-            <Link className={`site-nav__link ${location.pathname === '/' ? 'is-active' : ''}`} to="/" aria-label="Home" title="Home">
-              <House size={17} />
-              <span>Home</span>
-            </Link>
-            <div className="site-nav__product">
-              <button type="button" className={`site-nav__link site-nav__link--button ${isProductOpen ? 'is-open' : ''}`} onClick={() => setIsProductOpen((current) => !current)} aria-expanded={isProductOpen}>
-                <span>Products</span><ChevronDown size={15} />
-              </button>
-              {isProductOpen && <div className="site-nav__product-menu">
-                <button type="button" onClick={() => handleScrollTo('platform')}><span className="site-nav__product-icon"><QrCode size={17} /></span><span><strong>QR ordering</strong><small>Menus guests enjoy using</small></span></button>
-                <button type="button" onClick={() => handleScrollTo('workflow')}><span className="site-nav__product-icon"><ChefHat size={17} /></span><span><strong>Live operations</strong><small>Orders that stay in sync</small></span></button>
-                <button type="button" onClick={() => handleScrollTo('platform')}><span className="site-nav__product-icon"><BarChart3 size={17} /></span><span><strong>Business insight</strong><small>See each day more clearly</small></span></button>
-              </div>}
-            </div>
-            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('workflow')}>
-              <Route size={16} />
-              <span>How it works</span>
+          {/* Products dropdown */}
+          <div className="qz-nav__dropdown" ref={dropdownRef}>
+            <button
+              type="button"
+              className={`qz-nav__link qz-nav__link--btn ${productsOpen ? 'qz-nav__link--active' : ''}`}
+              onClick={() => setProductsOpen((o) => !o)}
+              aria-expanded={productsOpen}
+            >
+              Products <ChevronDown size={14} className={`qz-nav__chevron ${productsOpen ? 'qz-nav__chevron--open' : ''}`} />
             </button>
-            <Link className={`site-nav__link ${location.pathname === '/about' ? 'is-active' : ''}`} to="/about" aria-label="About" title="About">
-              <Info size={17} />
-              <span>About</span>
-            </Link>
-            {isLoggedIn && (
-              <>
-                <Link className={`site-nav__link ${location.pathname === '/dashboard' ? 'is-active' : ''}`} to="/dashboard">
-                  <LayoutDashboard size={16} />
-                  <span>Dashboard</span>
-                </Link>
-                <Link className={`site-nav__link ${location.pathname === '/menu' ? 'is-active' : ''}`} to="/menu">
-                  <QrCode size={16} />
-                  <span>Menu</span>
-                </Link>
-                <Link className={`site-nav__link ${location.pathname === '/orders' ? 'is-active' : ''}`} to="/orders">
-                  <Sparkles size={16} />
-                  <span>Orders</span>
-                </Link>
-              </>
-            )}
-            <button type="button" className="site-nav__link site-nav__link--button" onClick={() => handleScrollTo('contact')}>
-              <Phone size={16} />
-              <span>Contact</span>
-            </button>
+            <AnimatePresence>
+              {productsOpen && (
+                <motion.div
+                  className="qz-nav__dropdown-panel"
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                >
+                  {products.map(({ icon: Icon, label, sub, href }) => (
+                    <Link key={label} className="qz-nav__dropdown-item" to={href} onClick={() => setProductsOpen(false)}>
+                      <span className="qz-nav__dropdown-icon"><Icon size={18} /></span>
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{sub}</small>
+                      </span>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {shouldShowAuth && (
-            <div className="site-nav__actions">
-              {!isLoggedIn ? (
-                <Link className="site-nav__cta" to="/login">
-                  <LogIn size={16} />
-                  <span>Get started</span>
-                </Link>
-              ) : (
-                <button type="button" className="site-nav__cta site-nav__cta--ghost" onClick={handleLogout}>
-                  <LogOut size={16} />
-                  <span>Logout</span>
-                </button>
-              )}
-            </div>
+          <Link className={`qz-nav__link ${isActive('/how-it-works') ? 'qz-nav__link--active' : ''}`} to="/how-it-works">
+            <Route size={15} /> How it works
+          </Link>
+          <Link className={`qz-nav__link ${isActive('/about') ? 'qz-nav__link--active' : ''}`} to="/about">About</Link>
+          <Link className={`qz-nav__link ${isActive('/contact') ? 'qz-nav__link--active' : ''}`} to="/contact">
+            <Mail size={15} /> Contact
+          </Link>
+
+          {isLoggedIn && (
+            <>
+              <Link className={`qz-nav__link ${isActive('/dashboard') ? 'qz-nav__link--active' : ''}`} to="/dashboard">
+                <LayoutDashboard size={15} /> Dashboard
+              </Link>
+              <Link className={`qz-nav__link ${isActive('/orders') ? 'qz-nav__link--active' : ''}`} to="/orders">
+                <Sparkles size={15} /> Orders
+              </Link>
+            </>
           )}
         </div>
+
+        {/* Auth actions */}
+        {shouldShowAuth && (
+          <div className="qz-nav__actions">
+            {!isLoggedIn ? (
+              <Link className="qz-nav__cta" to="/login">
+                <LogIn size={16} />
+                Get started
+              </Link>
+            ) : (
+              <button type="button" className="qz-nav__cta qz-nav__cta--ghost" onClick={handleLogout}>
+                <LogOut size={16} />
+                Logout
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Mobile toggle */}
+        <button
+          type="button"
+          className="qz-nav__burger"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-label="Toggle navigation"
+          aria-expanded={mobileOpen}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
-      {isMenuOpen && <button className="site-nav__scrim" type="button" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)} />}
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            className="qz-nav__mobile"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            <div className="qz-nav__mobile-inner">
+              <Link className="qz-nav__mobile-link" to="/">Home</Link>
+              <Link className="qz-nav__mobile-link" to="/products">Products</Link>
+              <Link className="qz-nav__mobile-link" to="/how-it-works">How it works</Link>
+              <Link className="qz-nav__mobile-link" to="/about">About</Link>
+              <Link className="qz-nav__mobile-link" to="/contact">Contact</Link>
+              {isLoggedIn && (
+                <>
+                  <Link className="qz-nav__mobile-link" to="/dashboard">Dashboard</Link>
+                  <Link className="qz-nav__mobile-link" to="/orders">Orders</Link>
+                </>
+              )}
+              <div className="qz-nav__mobile-divider" />
+              {shouldShowAuth && (
+                !isLoggedIn ? (
+                  <Link className="qz-nav__mobile-cta" to="/login">
+                    <LogIn size={16} /> Get started
+                  </Link>
+                ) : (
+                  <button type="button" className="qz-nav__mobile-cta qz-nav__mobile-cta--ghost" onClick={handleLogout}>
+                    <LogOut size={16} /> Logout
+                  </button>
+                )
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import {
   Activity,
@@ -11,7 +12,13 @@ import {
   Search,
   Sparkles,
   XCircle,
-  Zap
+  Zap,
+  ChevronRight,
+  X,
+  Receipt,
+  User,
+  Phone,
+  CreditCard
 } from 'lucide-react';
 import { getSocket } from '../api';
 import Navbar from './Navbar';
@@ -43,6 +50,7 @@ function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [lastLiveEvent, setLastLiveEvent] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const shopId = localStorage.getItem('shopId');
 
   const fetchData = useCallback(async () => {
@@ -146,6 +154,9 @@ function OrdersPage() {
       const response = await axios.put(`${API}/api/order-status/${orderId}`, { status });
       if (response.data.success) {
         fetchData();
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status });
+        }
       }
     } catch (error) {
       console.error('Unable to update order status.');
@@ -160,6 +171,9 @@ function OrdersPage() {
 
       if (response.data.success) {
         fetchData();
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder(null);
+        }
       }
     } catch (error) {
       console.error('Unable to cancel order.');
@@ -365,24 +379,12 @@ function OrdersPage() {
                         <div className="orders-card__side">
                           <div className="orders-card__total">{formatCurrency(order.total)}</div>
                           <div className="orders-card__actions">
+                            <button type="button" className="orders-inline-btn orders-inline-btn--dark" onClick={() => setSelectedOrder(order)}>
+                              View Details <ChevronRight size={16} />
+                            </button>
                             {renderActionButtons(order)}
                           </div>
                         </div>
-                      </div>
-
-                      <div className="orders-card__items">
-                        {(order.items || []).map((item, index) => (
-                          <div key={`${order._id}-${index}`} className="orders-item-row">
-                            <div className="orders-item-row__product">
-                              <img src={getOrderItemImage(item.name)} alt="" />
-                              <div>
-                                <strong>{item.name}</strong>
-                                <span>Qty {item.quantity || 1}</span>
-                              </div>
-                            </div>
-                            <b>{formatCurrency((item.price || 0) * (item.quantity || 1))}</b>
-                          </div>
-                        ))}
                       </div>
                     </article>
                   ))}
@@ -392,6 +394,113 @@ function OrdersPage() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedOrder && (
+          <>
+            <motion.div 
+              className="order-details-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSelectedOrder(null)}
+            />
+            <motion.div 
+              className="order-details-drawer"
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              <div className="order-details-drawer__header">
+                <div>
+                  <h2>Order #{selectedOrder._id.slice(-6)}</h2>
+                  <span className={`orders-badge orders-badge--${selectedOrder.status}`}>{selectedOrder.status}</span>
+                </div>
+                <button className="order-details-drawer__close" onClick={() => setSelectedOrder(null)}><X size={24} /></button>
+              </div>
+
+              <div className="order-details-drawer__body">
+                <div className="order-details-section">
+                  <h3>Customer Details</h3>
+                  <div className="order-details-grid">
+                    <div className="order-details-item">
+                      <User size={16} />
+                      <div>
+                        <label>Name</label>
+                        <span>{selectedOrder.customerName || 'Guest'}</span>
+                      </div>
+                    </div>
+                    <div className="order-details-item">
+                      <Zap size={16} />
+                      <div>
+                        <label>Table</label>
+                        <span>{selectedOrder.tableNumber || 'N/A'}</span>
+                      </div>
+                    </div>
+                    {selectedOrder.customerPhone && (
+                      <div className="order-details-item">
+                        <Phone size={16} />
+                        <div>
+                          <label>Phone</label>
+                          <span>{selectedOrder.customerPhone}</span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="order-details-item">
+                      <CreditCard size={16} />
+                      <div>
+                        <label>Payment</label>
+                        <span>{selectedOrder.paymentMethod} · <b style={{textTransform:'capitalize', color: selectedOrder.paymentStatus === 'paid' ? '#16a34a' : '#ea580c'}}>{selectedOrder.paymentStatus}</b></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedOrder.customerNote && (
+                  <div className="order-details-section">
+                    <div className="order-details-note">
+                      <strong>Note from customer:</strong>
+                      <p>{selectedOrder.customerNote}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="order-details-section">
+                  <h3>Order Items ({(selectedOrder.items || []).length})</h3>
+                  <div className="order-details-items">
+                    {(selectedOrder.items || []).map((item, index) => (
+                      <div key={`${selectedOrder._id}-${index}`} className="order-details-item-row">
+                        <div className="order-details-item-row__product">
+                          <img src={getOrderItemImage(item.name)} alt="" />
+                          <div>
+                            <strong>{item.name}</strong>
+                            <span>Qty {item.quantity || 1}</span>
+                          </div>
+                        </div>
+                        <b>{formatCurrency((item.price || 0) * (item.quantity || 1))}</b>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="order-details-section order-details-summary">
+                  <div className="summary-row">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(selectedOrder.total)}</span>
+                  </div>
+                  <div className="summary-row total">
+                    <span>Total Paid</span>
+                    <span>{formatCurrency(selectedOrder.total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="order-details-drawer__footer">
+                <div className="order-details-drawer__actions">
+                  {renderActionButtons(selectedOrder)}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

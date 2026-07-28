@@ -33,7 +33,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   FRONTEND_URL,
-  'https://www.qzaar.shop',
+  'https://www.qzaar.store',
   'https://updated-ver.vercel.app',
   'https://updated-ver.onrender.com',
   'https://streetqr-backend.onrender.com',
@@ -423,8 +423,9 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
+
 // ✅ Menu Routes
-app.post('/api/menu/:userId', async (req, res) => {
+app.post('/api/menu/:userId',  async (req, res) => {
   try {
     const user = await Shopkeeper.findById(req.params.userId);
     if (!user) {
@@ -492,7 +493,7 @@ app.post('/api/coupons/:shopId', async (req, res) => {
     const coupon = await Coupon.create({
       restaurantId: shopId,
       code: code.toUpperCase(),
-      discountType,
+      discountType ,
       discountValue,
       minOrderValue: minOrderValue || 0,
       maxDiscount,
@@ -597,6 +598,7 @@ app.post('/api/create-razorpay-order', async (req, res) => {
     const estimatedReadyAt = new Date(Date.now() + prepMinutes * 60 * 1000);
 
     // Create Razorpay order
+    
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(total * 100), // Amount in paise
       currency: 'INR',

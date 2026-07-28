@@ -17,11 +17,12 @@ function Footer() {
         </div>
 
         <div className="site-footer__content">
-          <nav className="site-footer__links" aria-label="Footer navigation">
+          <nav className="site-footer__links" aria-label="Platform links">
             <span>Platform</span>
+            <Link to="/products">Products</Link>
+            <Link to="/how-it-works">How it works</Link>
             <Link to="/modern/menu">Guest menu</Link>
-            <Link to="/login">Restaurant workspace</Link>
-            <Link to="/about">Why Qzaar</Link>
+            <Link to="/login">Get started</Link>
           </nav>
           <nav className="site-footer__links" aria-label="Operations links">
             <span>Operations</span>
@@ -31,6 +32,8 @@ function Footer() {
           </nav>
           <nav className="site-footer__links" aria-label="Company links">
             <span>Company</span>
+            <Link to="/about">About us</Link>
+            <Link to="/contact">Contact</Link>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
           </nav>

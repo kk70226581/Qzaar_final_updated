@@ -10,11 +10,12 @@ import DashboardHub from './components/DashboardHub';
 import AboutPage from './components/AboutPage';
 import QRCodePage from './components/QRCodePage';
 import ModernMenuView from './components/ModernMenuView';
-import OrderSummary from './components/OrderSummary';
-import OrdersPage from './components/OrdersPage';
-import ScrollToTop from './components/ScrollToTop';
+import OrderSummary from './components/OrderSummary';import OrdersPage from './components/OrdersPage';import ScrollToTop from './components/ScrollToTop';
 import NotFoundPage from './components/NotFoundPage';
 import LegalPage from './components/LegalPage';
+import HowItWorksPage from './components/HowItWorksPage';
+import ProductsPage from './components/ProductsPage';
+import ContactPage from './components/ContactPage';
 
 // Modern Redesign Pages
 import {
@@ -62,6 +63,9 @@ function AppRoutes() {
           <Route path="/track-order/:orderId" element={<OrderSummary />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/reset-password/:token" element={<Navigate to="/login" replace />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* Modern Redesign - Customer Pages */}
           <Route path="/modern/landing" element={<LandingPage />} />

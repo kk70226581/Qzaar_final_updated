@@ -24,7 +24,13 @@ import {
   ShieldCheck,
   UtensilsCrossed,
   X,
+  User,
+  Hash,
+  Banknote,
+  Mail,
   Zap,
+  Phone,
+  CreditCard,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -49,18 +55,6 @@ const categories = [
   { id: 'desserts', name: 'Desserts', icon: CakeSlice },
   { id: 'beverages', name: 'Beverages', icon: CupSoda },
   { id: 'specials', name: 'Chef Specials', icon: ChefHat },
-];
-
-const heroStats = [
-  { icon: Star, value: '4.8', label: 'Guest rating' },
-  { icon: Clock3, value: '18m', label: 'Avg prep' },
-  { icon: Sparkles, value: '24', label: 'Menu picks' },
-];
-
-const menuPromos = [
-  { icon: ScanLine, title: 'Scan to table', text: 'QR orders land straight in the kitchen.' },
-  { icon: Zap, title: 'Fast favourites', text: 'Popular combos and chef picks stay one tap away.' },
-  { icon: ShoppingCart, title: 'Smart cart', text: 'Clear totals, offers, and checkout in one flow.' },
 ];
 
 const mockFoods = [
@@ -170,8 +164,6 @@ const mockFoods = [
   { id: 24, name: 'Tandoori Feast', description: 'A sharing platter of grilled favourites and sides', price: 699, rating: 4.8, reviews: 241, prepTime: 25, calories: 780, category: 'specials', image: '/images/showcase/showcase-2.png', isVeg: false, isChefRecommended: true },
 ];
 
-// Keep every starter menu card appetising even before a restaurant uploads its
-// own photography. These are project-owned food photos, not generic product UI.
 const getFoodImage = (item) => {
   const existingImage = item.image || '';
   const isPlaceholder = !existingImage || /\/images\/(showcase|landing|brand)\//.test(existingImage);
@@ -461,22 +453,18 @@ const MenuBrowsePage = () => {
     });
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 30 },
-    },
-  };
+  // Group foods by category when "All items" is selected
+  // Must be declared BEFORE any early returns to follow React hooks rules
+  const groupedFoods = useMemo(() => {
+    if (selectedCategory !== 'all') return null;
+    const groups = {};
+    filteredFoods.forEach(food => {
+      const cat = dynamicCategories.find(c => c.id === (food.categoryId || food.category))?.name || 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(food);
+    });
+    return groups;
+  }, [filteredFoods, selectedCategory, dynamicCategories]);
 
   if (error) {
     return (
@@ -498,408 +486,456 @@ const MenuBrowsePage = () => {
   }
 
   return (
-    <ResponsiveLayout>
-      <main className="menu-browse">
-        <header className="menu-browse__header">
-          <div className="menu-browse__header-copy">
-            <span className="menu-browse__eyebrow">
-              <Sparkles size={16} />
-              {currentHeroSlide.eyebrow}
-            </span>
-            <h1 className="menu-browse__title">{currentHeroSlide.title}</h1>
-            <p className="menu-browse__subtitle">
-              {currentHeroSlide.description}
-            </p>
-            <div className="menu-browse__hero-stats">
-              {heroStats.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <span key={stat.label}>
-                    <Icon size={16} />
-                    <strong>{stat.value}</strong>
-                    {stat.label}
-                  </span>
-                );
-              })}
-            </div>
-
-            <div className="menu-browse__hero-actions">
-              <button type="button" onClick={() => { setCartStep('cart'); setIsCartOpen(true); }}>
-                <ShoppingCart size={18} />
-                View cart{cartCount > 0 ? ` (${cartCount})` : ''}
-              </button>
-              <button type="button" onClick={() => setShowFilters(true)}>
-                <SlidersHorizontal size={18} />
-                Tune menu
-              </button>
-            </div>
-          </div>
-
-          <motion.div
-            className="menu-browse__hero-card"
-            initial={{ opacity: 0, y: 18, rotate: -1 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
-          >
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentHeroSlide.image}
-                src={currentHeroSlide.image}
-                alt={currentHeroSlide.title}
-                initial={{ opacity: 0, scale: 1.06 }}
-                animate={{ opacity: 1, scale: 1.02 }}
-                exit={{ opacity: 0, scale: 1 }}
-                transition={{ duration: 0.55 }}
-              />
-            </AnimatePresence>
-            <div className="menu-browse__hero-card-caption">
-              <span>{currentHeroSlide.eyebrow}</span>
-              <strong>{currentHeroSlide.label}</strong>
-            </div>
-            <div className="menu-browse__hero-controls">
-              <button type="button" aria-label="Previous feature" onClick={() => setActiveHeroSlide((current) => (current + heroSlides.length - 1) % heroSlides.length)}><ChevronLeft size={17} /></button>
-              <div>{heroSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Show feature ${index + 1}`} className={index === activeHeroSlide ? 'is-active' : ''} onClick={() => setActiveHeroSlide(index)} />)}</div>
-              <button type="button" aria-label="Next feature" onClick={() => setActiveHeroSlide((current) => (current + 1) % heroSlides.length)}><ChevronRight size={17} /></button>
-            </div>
-          </motion.div>
-        </header>
-
-        <section className="menu-browse__promo-strip" aria-label="Ordering highlights">
-          {menuPromos.map((promo, index) => {
-            const Icon = promo.icon;
-            return (
-              <motion.article
-                key={promo.title}
-                className="menu-browse__promo-card"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
-              >
-                <motion.span
-                  className="menu-browse__promo-icon"
-                  animate={{ y: [0, -3, 0], rotate: [0, -4, 4, 0] }}
-                  transition={{ duration: 3 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <Icon size={20} />
-                </motion.span>
-                <div>
-                  <h2>{promo.title}</h2>
-                  <p>{promo.text}</p>
-                </div>
-              </motion.article>
-            );
-          })}
-        </section>
-
-        {!loading && (
-          <nav className="menu-browse__nav">
-            <CategoryTabs
-              categories={dynamicCategories}
-              activeId={selectedCategory}
-              onCategoryClick={setSelectedCategory}
-            />
-          </nav>
-        )}
-
-        <div className="menu-browse__toolbar">
-          <div className="menu-browse__search">
-            <Search size={20} className="menu-browse__search-icon" />
-            <ModernInput
-              type="search"
-              placeholder="Search items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="menu-browse__search-input"
-            />
-          </div>
-
-          <label className="menu-browse__veg-toggle">
-            <input
-              type="checkbox"
-              checked={vegOnly}
-              onChange={(e) => setVegOnly(e.target.checked)}
-            />
-            <Leaf size={18} />
-            Veg only
-          </label>
-
-          <label className="menu-browse__sort">
-            <ArrowUpDown size={18} />
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="popular">Most popular</option>
-              <option value="rating">Top rated</option>
-              <option value="fastest">Fastest prep</option>
-              <option value="priceLow">Price: low to high</option>
-              <option value="priceHigh">Price: high to low</option>
-            </select>
-          </label>
-
-          <button
-            className="menu-browse__filter-toggle"
-            onClick={() => setShowFilters(!showFilters)}
-            aria-expanded={showFilters}
-            aria-label="Toggle filters"
-          >
-            <Filter size={20} />
-            Filters
+    <div className="menu-browse">
+      {/* 1. RESTAURANT HERO BANNER */}
+      <header className="menu-browse__hero">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentHeroSlide.image}
+            src={currentHeroSlide.image}
+            alt={currentHeroSlide.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="menu-browse__hero-img"
+          />
+        </AnimatePresence>
+        <div className="menu-browse__hero-overlay" />
+        
+        <div className="menu-browse__hero-top-right">
+          <button className="menu-browse__icon-btn" onClick={() => setShowFilters(true)}>
+            <SlidersHorizontal size={20} />
+          </button>
+          <button className="menu-browse__icon-btn menu-browse__cart-btn" onClick={() => setIsCartOpen(true)}>
+            <ShoppingCart size={20} />
+            {cartCount > 0 && <span className="menu-browse__cart-badge">{cartCount}</span>}
           </button>
         </div>
 
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              className="menu-browse__filters"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            >
-              <div className="menu-browse__filters-content">
-                <div className="menu-browse__filter-group">
-                  <label>Price Range</label>
-                  <div className="menu-browse__filter-input-group">
-                    <input
-                      type="number"
-                      min="0"
-                      max="1000"
-                      value={filters.priceMin}
-                      onChange={(e) =>
-                        setFilters({
-                          ...filters,
-                          priceMin: parseInt(e.target.value, 10) || 0,
-                        })
-                      }
-                      placeholder="Min"
-                      className="menu-browse__filter-input"
-                    />
-                    <span>-</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max="1000"
-                      value={filters.priceMax}
-                      onChange={(e) =>
-                        setFilters({
-                          ...filters,
-                          priceMax: parseInt(e.target.value, 10) || 1000,
-                        })
-                      }
-                      placeholder="Max"
-                      className="menu-browse__filter-input"
-                    />
-                  </div>
-                </div>
+        <div className="menu-browse__hero-content">
+          <span className="menu-browse__hero-eyebrow">{currentHeroSlide.label}</span>
+          <h1 className="menu-browse__hero-title">{currentHeroSlide.title}</h1>
+          <p className="menu-browse__hero-subtitle">{currentHeroSlide.description}</p>
+          <div className="menu-browse__hero-stats-row">
+            <span><Star size={16} fill="currentColor" /> {shop?.rating || '4.8'}</span>
+            <span><Clock3 size={16} /> {shop?.avgPrepTime || '25'} min</span>
+            <span><UtensilsCrossed size={16} /> {foods.length} items</span>
+          </div>
+        </div>
 
-                <div className="menu-browse__filter-group">
-                  <label>Minimum Rating</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="5"
-                    step="0.5"
-                    value={filters.minRating}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        minRating: parseFloat(e.target.value),
-                      })
-                    }
-                    className="menu-browse__filter-range"
-                  />
-                  <span className="menu-browse__filter-value">
-                    {filters.minRating} star and up
-                  </span>
-                </div>
+        <div className="menu-browse__hero-dots">
+          {heroSlides.map((_, idx) => (
+            <button 
+              key={idx} 
+              className={`menu-browse__hero-dot ${idx === activeHeroSlide ? 'active' : ''}`}
+              onClick={() => setActiveHeroSlide(idx)}
+            />
+          ))}
+        </div>
+      </header>
 
-                <div className="menu-browse__filter-group">
-                  <label>Max Prep Time</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="60"
-                    step="5"
-                    value={filters.maxPrepTime}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        maxPrepTime: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="menu-browse__filter-range"
-                  />
-                  <span className="menu-browse__filter-value">
-                    {filters.maxPrepTime} mins
-                  </span>
-                </div>
+      {/* 2. CATEGORY NAVIGATION */}
+      <nav className="menu-browse__cat-nav">
+        <div className="menu-browse__cat-scroll">
+          {dynamicCategories.map(cat => {
+            const Icon = cat.icon || UtensilsCrossed;
+            return (
+              <button 
+                key={cat.id} 
+                className={`menu-browse__cat-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                <Icon size={16} />
+                {cat.name}
+              </button>
+            )
+          })}
+          <button 
+            className={`menu-browse__cat-pill veg-toggle ${vegOnly ? 'active' : ''}`}
+            onClick={() => setVegOnly(!vegOnly)}
+          >
+            <Leaf size={16} />
+            Veg Only
+          </button>
+        </div>
+      </nav>
 
-                <div className="menu-browse__filter-actions">
-                  <button type="button" onClick={clearFilters}>
-                    Clear filters
-                  </button>
+      {/* 3. SEARCH + FILTER BAR */}
+      <div className="menu-browse__search-bar-wrapper">
+        <div className="menu-browse__search-bar">
+          <Search size={20} className="menu-browse__search-icon" />
+          <input 
+            type="text" 
+            placeholder="Search menu..." 
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+          <button className="menu-browse__filter-btn" onClick={() => setShowFilters(true)}>
+            <Filter size={18} />
+            <span>Filter</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4. MENU GRID */}
+      <main className="menu-browse__main-content">
+        {loading ? (
+          <div className="menu-browse__grid">
+            {Array(6).fill(0).map((_, i) => (
+              <div key={i} className="menu-browse__skeleton-card">
+                <ModernSkeleton variant="rectangle" height={200} className="menu-browse__skel-img" />
+                <div className="menu-browse__skel-body">
+                  <ModernSkeleton variant="text" width="70%" height={24} />
+                  <ModernSkeleton variant="text" width="90%" height={16} />
+                  <ModernSkeleton variant="text" width="40%" height={16} />
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            ))}
+          </div>
+        ) : filteredFoods.length === 0 ? (
+          <ModernEmpty
+            type="search"
+            title="No Items Found"
+            description={searchTerm ? `No items matching "${searchTerm}".` : 'Try adjusting your filters.'}
+            primaryCTA={{ label: 'Clear Filters', onClick: clearFilters }}
+          />
+        ) : groupedFoods ? (
+          <div className="menu-browse__sections">
+            {Object.entries(groupedFoods).map(([catName, items]) => (
+              <section key={catName} className="menu-browse__section">
+                <h2 className="menu-browse__section-title">
+                  {catName} <span>{items.length} items</span>
+                </h2>
+                <div className="menu-browse__grid">
+                  {items.map(food => renderFoodCard(food))}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div className="menu-browse__grid">
+            {filteredFoods.map(food => renderFoodCard(food))}
+          </div>
+        )}
+      </main>
 
-        <section className="menu-browse__content">
-          {!loading && (
-            <div className="menu-browse__results-bar">
-              <span>{filteredFoods.length} dishes available</span>
-              <button type="button" onClick={clearFilters}>Reset view</button>
+      {/* 5. FLOATING CART BUTTON */}
+      <AnimatePresence>
+        {cartCount > 0 && !isCartOpen && (
+          <motion.div 
+            className="menu-browse__floating-cart-wrapper"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+          >
+            <div className="menu-browse__floating-cart">
+              <div className="menu-browse__floating-cart-info">
+                <span className="menu-browse__floating-cart-count">{cartCount} items</span>
+                <span className="menu-browse__floating-cart-total">₹{cartTotal}</span>
+              </div>
+              <button onClick={() => setIsCartOpen(true)} className="menu-browse__floating-cart-btn">
+                View Cart &rarr;
+              </button>
             </div>
-          )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {loading ? (
-            <motion.div
-              className="menu-browse__grid"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {Array(8)
-                .fill(0)
-                .map((_, i) => (
-                  <motion.div key={i} variants={itemVariants}>
-                    <ModernSkeleton
-                      variant="rectangle"
-                      width="100%"
-                      height={320}
-                    />
-                  </motion.div>
-                ))}
-            </motion.div>
-          ) : filteredFoods.length > 0 ? (
-            <motion.div
-              className="menu-browse__grid"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {filteredFoods.map((food) => (
-                <motion.div key={food.id} variants={itemVariants}>
-                  <ModernFoodCard
-                    {...food}
-                  quantity={cart.find((item) => item.id === food.id)?.quantity || 0}
-                  onAddClick={() => updateCart(food, 1)}
-                  onRemoveClick={() => updateCart(food, -1)}
-                  onClick={() => { setRatingFood(food); setSelectedRating(0); setRatingComment(''); }}
-                  />
-                </motion.div>
-              ))}
-              <motion.article className="menu-browse__closing-card" variants={itemVariants}>
-                <div>
-                  <span><Sparkles size={16} /> Made for easy ordering</span>
-                  <h2>Good food, one easy order.</h2>
-                  <p>Take your time, explore the menu, and send your favourites straight to the kitchen when you are ready.</p>
-                </div>
-                <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  Back to menu <ChevronRight size={17} />
-                </button>
-              </motion.article>
-            </motion.div>
-          ) : (
-            <ModernEmpty
-              type="search"
-              title="No Items Found"
-              description={
-                searchTerm
-                  ? `No items matching "${searchTerm}". Try a different search term.`
-                  : 'Try adjusting your filters to find what you are looking for.'
-              }
-              primaryCTA={{
-                label: 'Clear Filters',
-                onClick: clearFilters,
-              }}
+      {/* 6. CART DRAWER */}
+      <AnimatePresence>
+        {isCartOpen && (
+          <>
+            <motion.div 
+              className="menu-browse__backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsCartOpen(false)}
             />
-          )}
-        </section>
-
-        <AnimatePresence>
-          {isCartOpen && (
-            <>
-              <motion.button
-                type="button"
-                aria-label="Close cart"
-                className="fixed inset-0 z-40 bg-slate-950/50"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setIsCartOpen(false)}
-              />
-              <motion.aside
-                className="menu-cart-panel fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto bg-white shadow-2xl"
-                initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-                aria-label="Your order"
-              >
-                <div className="menu-cart__header flex items-center justify-between border-b border-slate-200">
-                  <div><p className="text-xs font-bold uppercase tracking-wider text-orange-600">Table order</p><h2 className="m-0 text-2xl font-bold text-slate-900">{cartStep === 'cart' ? 'Your cart' : 'Checkout'}</h2><span className="menu-cart__item-count">{cart.length} {cart.length === 1 ? 'dish' : 'dishes'} selected</span></div>
-                  <button type="button" onClick={() => setIsCartOpen(false)} className="menu-cart__close rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Close cart"><X size={22} /></button>
+            <motion.aside 
+              className="menu-browse__cart-drawer"
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              <div className="menu-browse__cart-header">
+                <div>
+                  <h2>Your Order</h2>
+                  <p>{shop?.shopName || 'Restaurant'}</p>
                 </div>
+                <button onClick={() => setIsCartOpen(false)} className="menu-browse__close-btn"><X size={24} /></button>
+              </div>
 
-                <ol className="menu-cart__steps" aria-label="Checkout progress">
-                  <li className="is-active"><span>1</span> Food</li>
-                  <li className={cartStep === 'checkout' ? 'is-active' : ''}><span>2</span> Checkout</li>
-                  <li className={cartStep === 'checkout' && customerName && tableNumber ? 'is-active' : ''}><span>3</span> Pay</li>
-                </ol>
-
+              <div className="menu-browse__cart-body">
                 {cartStep === 'cart' ? (
                   <>
-                    <div className="menu-cart__items space-y-3">
-                      {cart.length ? cart.map((item) => (
-                        <div key={item.id} className="menu-cart__item flex items-center gap-3 rounded-xl border border-slate-200 p-3">
-                          <img src={item.image} alt={item.name} className="h-14 w-14 rounded-xl object-cover" />
-                          <div className="min-w-0 flex-1"><strong className="block truncate text-slate-900">{item.name}</strong><span className="text-sm text-slate-500">Rs. {item.price} each</span></div>
-                          <div className="menu-cart__quantity" aria-label={`${item.name} quantity`}><button type="button" onClick={() => updateCart(item, -1)} aria-label={`Remove one ${item.name}`}><Minus size={15} /></button><span>{item.quantity}</span><button type="button" onClick={() => updateCart(item, 1)} aria-label={`Add one ${item.name}`}><Plus size={15} /></button></div>
+                    <div className="menu-browse__cart-items">
+                      {cart.length === 0 ? (
+                        <p className="menu-browse__cart-empty">Your cart is empty.</p>
+                      ) : cart.map(item => (
+                        <div key={item.id} className="menu-browse__cart-item">
+                          <img src={item.image} alt={item.name} />
+                          <div className="menu-browse__cart-item-info">
+                            <h4>{item.name}</h4>
+                            <span>₹{item.price}</span>
+                          </div>
+                          <div className="menu-browse__cart-item-actions">
+                            <button onClick={() => updateCart(item, -1)}><Minus size={16} /></button>
+                            <span>{item.quantity}</span>
+                            <button onClick={() => updateCart(item, 1)}><Plus size={16} /></button>
+                          </div>
                         </div>
-                      )) : <p className="rounded-xl bg-slate-50 p-5 text-center text-slate-500">Your cart is empty. Add dishes from the menu.</p>}
+                      ))}
                     </div>
-                    {cart.length > 0 && <div className="menu-cart__cart-footer mt-auto border-t border-slate-200"><div><span>Food total</span><strong>Rs. {cartTotal}</strong></div><button type="button" onClick={() => setCartStep('checkout')} className="menu-cart__submit w-full rounded-xl px-4 py-3 font-bold text-white shadow-lg transition">Continue to checkout <ChevronRight size={18} /></button></div>}
+                    {cart.length > 0 && (
+                      <div className="menu-browse__cart-footer">
+                        <CouponApplier shopId={restaurantId} cartTotal={cartTotal} onCouponApplied={setAppliedCoupon} />
+                        <div className="menu-browse__cart-summary">
+                          <div className="summary-row"><span>Subtotal</span><span>₹{cartTotal}</span></div>
+                          {discountAmount > 0 && <div className="summary-row discount"><span>Discount</span><span>-₹{discountAmount}</span></div>}
+                          <div className="summary-row"><span>GST (5%)</span><span>₹{gst}</span></div>
+                          <div className="summary-row total"><span>Total</span><span>₹{finalTotal}</span></div>
+                        </div>
+                        <button className="menu-browse__primary-btn" onClick={() => setCartStep('checkout')}>
+                          Proceed to Details
+                        </button>
+                      </div>
+                    )}
                   </>
-                ) : cart.length > 0 && (
-                  <div className="menu-cart__checkout mt-auto space-y-4 border-t border-slate-200">
-                    <button type="button" className="menu-cart__back" onClick={() => setCartStep('cart')}><ChevronLeft size={17} /> Edit food order</button>
-                    <div className="menu-cart__checkout-heading"><ReceiptText size={18} /><div><strong>Guest details</strong><span>Needed to send your order to the kitchen</span></div></div>
-                    <div className="menu-cart__fields grid grid-cols-2 gap-3">
-                      <label className="col-span-2 text-sm font-semibold text-slate-700">Name<input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Your name" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
-                      <label className="text-sm font-semibold text-slate-700">Table<input value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} placeholder="e.g. 12" inputMode="numeric" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>
-                      <label className="text-sm font-semibold text-slate-700">Phone<input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} placeholder="Optional" inputMode="tel" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>
+                ) : (
+                  <div className="menu-browse__checkout-form">
+                    <button className="menu-browse__back-btn" onClick={() => setCartStep('cart')}><ChevronLeft size={20} /> Back to cart</button>
+                    
+                    {/* Mini Order Summary */}
+                    <div className="checkout-mini-summary">
+                      <div className="checkout-mini-summary__row">
+                        <span>{cart.length} item{cart.length !== 1 ? 's' : ''}</span>
+                        <span>₹{cartTotal}</span>
+                      </div>
+                      {discountAmount > 0 && (
+                        <div className="checkout-mini-summary__row checkout-mini-summary__discount">
+                          <span>Discount</span>
+                          <span>-₹{discountAmount}</span>
+                        </div>
+                      )}
+                      <div className="checkout-mini-summary__row">
+                        <span>GST (5%)</span>
+                        <span>₹{gst}</span>
+                      </div>
+                      <div className="checkout-mini-summary__row checkout-mini-summary__total">
+                        <span>Total</span>
+                        <span>₹{finalTotal}</span>
+                      </div>
                     </div>
-                    <label className="menu-cart__payment text-sm font-semibold text-slate-700">Payment method<select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="cash">Cash at counter</option><option value="razorpay">Online - UPI, card or netbanking</option></select></label>
-                    {paymentMethod === 'razorpay' && <label className="block text-sm font-semibold text-slate-700">Email<input type="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="For your payment receipt" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required /></label>}
-                    <CouponApplier shopId={restaurantId} cartTotal={cartTotal} onCouponApplied={setAppliedCoupon} />
-                    <div className="menu-cart__summary space-y-1 rounded-xl p-3 text-sm"><div className="flex justify-between"><span>Subtotal</span><strong>Rs. {cartTotal}</strong></div>{discountAmount > 0 && <div className="flex justify-between text-emerald-700"><span>Discount ({appliedCoupon?.code})</span><strong>-Rs. {discountAmount}</strong></div>}<div className="flex justify-between"><span>GST (5%)</span><strong>Rs. {gst}</strong></div><div className="flex justify-between border-t border-slate-200 pt-2 text-base"><span className="font-bold">Total</span><strong>Rs. {finalTotal}</strong></div></div>
-                    <button type="button" disabled={isPlacingOrder} onClick={placeOrder} className="menu-cart__submit w-full rounded-xl px-4 py-3 font-bold text-white shadow-lg transition disabled:opacity-60">{isPlacingOrder ? 'Placing order...' : paymentMethod === 'razorpay' ? `Pay Rs. ${finalTotal}` : `Place order - Rs. ${finalTotal}`}</button>
-                    <p className="menu-cart__assurance"><ShieldCheck size={15} /> Your table is held while this order is being placed.</p>
+
+                    {/* Customer Details */}
+                    <h4 className="checkout-section-title"><User size={18} /> Your Details</h4>
+                    
+                    <div className="checkout-field">
+                      <label><User size={14} /> Full Name <span className="required">*</span></label>
+                      <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Enter your name" />
+                    </div>
+                    
+                    <div className="checkout-field">
+                      <label><Hash size={14} /> Table Number <span className="required">*</span></label>
+                      <input type="text" value={tableNumber} onChange={e => setTableNumber(e.target.value)} placeholder="e.g. 12" />
+                    </div>
+                    
+                    <div className="checkout-field">
+                      <label><Phone size={14} /> Phone <span className="optional">(optional)</span></label>
+                      <input type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+91 98765 43210" />
+                    </div>
+
+                    {/* Payment Method */}
+                    <h4 className="checkout-section-title"><CreditCard size={18} /> Payment</h4>
+                    
+                    <div className="checkout-payment-options">
+                      <button 
+                        type="button"
+                        className={`checkout-payment-card ${paymentMethod === 'cash' ? 'active' : ''}`}
+                        onClick={() => setPaymentMethod('cash')}
+                      >
+                        <Banknote size={22} />
+                        <div>
+                          <strong>Cash / Counter</strong>
+                          <small>Pay when you receive</small>
+                        </div>
+                        <div className={`checkout-radio ${paymentMethod === 'cash' ? 'checked' : ''}`} />
+                      </button>
+                      <button 
+                        type="button"
+                        className={`checkout-payment-card ${paymentMethod === 'razorpay' ? 'active' : ''}`}
+                        onClick={() => setPaymentMethod('razorpay')}
+                      >
+                        <CreditCard size={22} />
+                        <div>
+                          <strong>Pay Online</strong>
+                          <small>UPI, Cards, Wallets</small>
+                        </div>
+                        <div className={`checkout-radio ${paymentMethod === 'razorpay' ? 'checked' : ''}`} />
+                      </button>
+                    </div>
+
+                    {paymentMethod === 'razorpay' && (
+                      <div className="checkout-field">
+                        <label><Mail size={14} /> Email <span className="required">*</span></label>
+                        <input type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="your@email.com" />
+                      </div>
+                    )}
+
+                    {/* Secure Badge */}
+                    <div className="checkout-secure-badge">
+                      <ShieldCheck size={16} />
+                      <span>Secure checkout · Order goes directly to kitchen</span>
+                    </div>
+                    
+                    <button className="menu-browse__primary-btn checkout-place-btn" disabled={isPlacingOrder} onClick={placeOrder}>
+                      {isPlacingOrder ? 'Processing...' : `Place Order · ₹${finalTotal}`}
+                    </button>
                   </div>
                 )}
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-
-        {showPaymentGateway && (
-          <PaymentGateway amount={finalTotal} customerName={customerName} customerEmail={customerEmail} customerPhone={customerPhone} tableNumber={tableNumber} shopId={restaurantId} items={cart} couponCode={appliedCoupon?.code} discountAmount={discountAmount} subTotal={cartTotal}
-            onClose={() => setShowPaymentGateway(false)}
-            onSuccess={(order) => { setCart([]); setShowPaymentGateway(false); navigate(`/track-order/${order._id}`); }} />
+              </div>
+            </motion.aside>
+          </>
         )}
+      </AnimatePresence>
 
-        <AnimatePresence>
-          {ratingFood && (
-            <motion.div className="menu-rating-modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-label={`Rate ${ratingFood.name}`}>
-              <button type="button" className="menu-rating-modal__backdrop" onClick={() => setRatingFood(null)} aria-label="Close rating" />
-              <motion.div className="menu-rating-modal__card" initial={{ y: 24, scale: .96 }} animate={{ y: 0, scale: 1 }} exit={{ y: 24, scale: .96 }}>
-                <button type="button" className="menu-rating-modal__close" onClick={() => setRatingFood(null)} aria-label="Close"><X size={20} /></button>
-                <p>How was it?</p><h2>Rate {ratingFood.name}</h2>
-                <div className="menu-rating-modal__stars" aria-label="Select rating">{[1, 2, 3, 4, 5].map((star) => <button type="button" key={star} onClick={() => setSelectedRating(star)} aria-label={`${star} star${star > 1 ? 's' : ''}`}><Star size={30} fill={star <= selectedRating ? 'currentColor' : 'none'} /></button>)}</div>
-                <textarea value={ratingComment} onChange={(event) => setRatingComment(event.target.value)} placeholder="Tell other guests what you liked (optional)" maxLength={300} />
-                <button type="button" className="menu-rating-modal__submit" onClick={submitRating} disabled={isSubmittingRating || !selectedRating}>{isSubmittingRating ? 'Saving...' : 'Submit rating'}</button>
-              </motion.div>
+      {/* FILTER BOTTOM SHEET */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div 
+              className="menu-browse__backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowFilters(false)}
+            />
+            <motion.div 
+              className="menu-browse__filter-sheet"
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              <div className="filter-sheet-header">
+                <h3>Filters & Sort</h3>
+                <button onClick={() => setShowFilters(false)}><X size={24} /></button>
+              </div>
+              <div className="filter-sheet-body">
+                <div className="filter-section">
+                  <label>Sort By</label>
+                  <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="filter-select">
+                    <option value="popular">Popularity</option>
+                    <option value="rating">Top Rated</option>
+                    <option value="fastest">Fastest Prep</option>
+                    <option value="priceLow">Price: Low to High</option>
+                    <option value="priceHigh">Price: High to Low</option>
+                  </select>
+                </div>
+                
+                <div className="filter-section">
+                  <label>Max Prep Time ({filters.maxPrepTime} mins)</label>
+                  <input type="range" min="5" max="60" step="5" value={filters.maxPrepTime} onChange={e => setFilters({...filters, maxPrepTime: parseInt(e.target.value)})} />
+                </div>
+                
+                <div className="filter-section">
+                  <label>Min Rating ({filters.minRating} stars)</label>
+                  <input type="range" min="0" max="5" step="0.5" value={filters.minRating} onChange={e => setFilters({...filters, minRating: parseFloat(e.target.value)})} />
+                </div>
+
+                <div className="filter-section price-range">
+                  <label>Price Range</label>
+                  <div className="inputs">
+                    <input type="number" placeholder="Min" value={filters.priceMin} onChange={e => setFilters({...filters, priceMin: parseInt(e.target.value) || 0})} />
+                    <span>-</span>
+                    <input type="number" placeholder="Max" value={filters.priceMax} onChange={e => setFilters({...filters, priceMax: parseInt(e.target.value) || 1000})} />
+                  </div>
+                </div>
+
+                <label className="filter-checkbox">
+                  <input type="checkbox" checked={vegOnly} onChange={e => setVegOnly(e.target.checked)} />
+                  <span>Vegetarian Only</span>
+                </label>
+              </div>
+              <div className="filter-sheet-footer">
+                <button className="clear-btn" onClick={clearFilters}>Clear All</button>
+                <button className="apply-btn" onClick={() => setShowFilters(false)}>Apply Filters</button>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-    </ResponsiveLayout>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* RATING MODAL */}
+      <AnimatePresence>
+        {ratingFood && (
+          <div className="menu-rating-modal">
+            <div className="menu-rating-modal__backdrop" onClick={() => setRatingFood(null)} />
+            <motion.div className="menu-rating-modal__card" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
+              <button className="menu-rating-modal__close" onClick={() => setRatingFood(null)}><X size={20} /></button>
+              <h3>Rate {ratingFood.name}</h3>
+              <div className="stars">
+                {[1,2,3,4,5].map(star => (
+                  <button key={star} onClick={() => setSelectedRating(star)}>
+                    <Star size={32} fill={star <= selectedRating ? '#f59e0b' : 'none'} color={star <= selectedRating ? '#f59e0b' : '#cbd5e1'} />
+                  </button>
+                ))}
+              </div>
+              <textarea placeholder="Write a comment..." value={ratingComment} onChange={e => setRatingComment(e.target.value)}></textarea>
+              <button className="menu-browse__primary-btn" onClick={submitRating} disabled={!selectedRating || isSubmittingRating}>
+                {isSubmittingRating ? 'Submitting...' : 'Submit Rating'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {showPaymentGateway && (
+        <PaymentGateway amount={finalTotal} customerName={customerName} customerEmail={customerEmail} customerPhone={customerPhone} tableNumber={tableNumber} shopId={restaurantId} items={cart} couponCode={appliedCoupon?.code} discountAmount={discountAmount} subTotal={cartTotal}
+          onClose={() => setShowPaymentGateway(false)}
+          onSuccess={(order) => { setCart([]); setShowPaymentGateway(false); navigate(`/track-order/${order._id}`); }} />
+      )}
+    </div>
   );
+
+  function renderFoodCard(food) {
+    const qty = cart.find(i => i.id === food.id)?.quantity || 0;
+    
+    return (
+      <div key={food.id} className={`menu-browse__food-card ${qty > 0 ? 'in-cart' : ''}`}>
+        <div className="food-card-img-wrapper" onClick={() => { setRatingFood(food); setSelectedRating(0); setRatingComment(''); }}>
+          <img src={food.image} alt={food.name} />
+          <div className="food-card-badges">
+            {food.isBestseller && <span className="badge bestseller">BESTSELLER</span>}
+            {food.isChefRecommended && <span className="badge chef">CHEF'S PICK</span>}
+            {food.isNew && <span className="badge new">NEW</span>}
+          </div>
+          <div className={`veg-indicator ${food.isVeg ? 'veg' : 'non-veg'}`}></div>
+        </div>
+        <div className="food-card-body">
+          <div className="food-card-header" onClick={() => { setRatingFood(food); setSelectedRating(0); setRatingComment(''); }}>
+            <h3 className="food-title">{food.name}</h3>
+            <p className="food-desc">{food.description}</p>
+          </div>
+          <div className="food-card-meta">
+            <span className="rating"><Star size={14} fill="#f59e0b" color="#f59e0b" /> {food.rating} ({food.reviews})</span>
+            <span className="prep-time"><Clock3 size={14} /> {food.prepTime}m</span>
+          </div>
+          <div className="food-card-footer">
+            <div className="price-info">
+              <span className="price">₹{food.price}</span>
+              {food.originalPrice && <span className="original-price">₹{food.originalPrice}</span>}
+            </div>
+            
+            {qty > 0 ? (
+              <div className="food-qty-stepper">
+                <button onClick={() => updateCart(food, -1)}><Minus size={16} /></button>
+                <span>{qty}</span>
+                <button onClick={() => updateCart(food, 1)}><Plus size={16} /></button>
+              </div>
+            ) : (
+              <button className="add-btn" onClick={() => updateCart(food, 1)}><Plus size={20} /></button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default MenuBrowsePage;

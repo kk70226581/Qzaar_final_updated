@@ -1,40 +1,173 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, BarChart3, BellRing, CheckCircle2, ChefHat, Clock3, Globe2, QrCode, ScanLine, ShieldCheck, Sparkles, Store, UsersRound } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Zap, Shield, Heart, Lightbulb, Search, Activity, Linkedin } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './AboutPage.css';
 
-const audience = [
-  { icon: Store, title: 'Independent restaurants', text: 'A polished digital front door without a stack of complicated tools.' },
-  { icon: ChefHat, title: 'Busy service teams', text: 'A shared live view that helps the kitchen and floor move together.' },
-  { icon: UsersRound, title: 'Guests at every table', text: 'A simple, welcoming way to browse, order, and stay informed.' }
-];
+const AboutPage = () => {
+  const timelineEvents = [
+    { year: '2023', title: 'Identified the problem', desc: 'Restaurateurs struggling with disjointed ordering systems.' },
+    { year: '2024', title: 'Built the first QR menu system', desc: 'Our MVP helped 50+ local restaurants survive.' },
+    { year: '2024', title: 'Added live kitchen display', desc: 'Connecting front-of-house to back-of-house seamlessly.' },
+    { year: '2025', title: 'Launched analytics dashboard', desc: 'Giving owners real actionable data.' },
+  ];
 
-const principles = [
-  { icon: ScanLine, title: 'Make the first interaction effortless', text: 'One scan should lead to a clear, beautiful menu — never a confusing detour.' },
-  { icon: BellRing, title: 'Keep everyone in the loop', text: 'Every order has a visible place, so no one has to chase information during a rush.' },
-  { icon: BarChart3, title: 'Turn everyday activity into clarity', text: 'Useful insight should help owners make better calls, not create more work.' }
-];
+  const values = [
+    { icon: <Zap size={24} />, title: 'Simplicity', desc: 'Complex problems deserve elegant, intuitive solutions.' },
+    { icon: <Activity size={24} />, title: 'Speed', desc: 'In a kitchen, every second counts.' },
+    { icon: <Shield size={24} />, title: 'Reliability', desc: 'Rock-solid infrastructure when it matters most.' },
+    { icon: <Heart size={24} />, title: 'Empathy', desc: 'We build for humans, not just businesses.' },
+    { icon: <Lightbulb size={24} />, title: 'Innovation', desc: 'Constantly rethinking the status quo.' },
+    { icon: <Search size={24} />, title: 'Transparency', desc: 'Open communication with our partners and users.' },
+  ];
 
-const rise = { hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0 } };
+  const team = [
+    { name: 'Alex Chen', role: 'Founder & CEO', bio: 'Former restaurateur turned tech builder.', initials: 'AC', color: '#f59e0b' },
+    { name: 'Priya Sharma', role: 'Head of Design', bio: 'Creating beautiful, functional experiences.', initials: 'PS', color: '#f97316' },
+    { name: 'Marcus Lee', role: 'Lead Engineer', bio: 'Architecting robust, scalable systems.', initials: 'ML', color: '#3b82f6' },
+  ];
 
-function AboutPage() {
-  const reduceMotion = useReducedMotion();
-  return <div className="about-page"><Navbar /><main>
-    <section className="about-hero"><div className="about-container about-hero__grid"><motion.div initial="hidden" animate="visible" variants={rise} transition={{ duration: reduceMotion ? 0 : .55 }}><span className="about-kicker"><Sparkles size={15} /> The Qzaar story</span><h1>We believe restaurant technology should make service feel more human.</h1><p>Qzaar was created around a simple idea: the right tools should remove friction for teams and make every guest feel looked after.</p><div className="about-hero__actions"><Link to="/login" className="about-button about-button--primary">Create your workspace <ArrowRight size={18} /></Link><Link to="/modern/menu" className="about-button about-button--secondary">See the guest experience</Link></div></motion.div><motion.div className="about-hero__visual" initial="hidden" animate="visible" variants={rise} transition={{ duration: reduceMotion ? 0 : .62, delay: reduceMotion ? 0 : .12 }}><img src="/images/landing/slide-5.png" alt="Restaurant QR ordering in use" /><div className="about-hero__visual-card"><span><QrCode size={18} /></span><div><strong>One scan, a better start</strong><small>A clear path from menu to order</small></div></div></motion.div></div></section>
+  return (
+    <div className="about-page">
+      <Navbar />
+      
+      <main>
+        {/* HERO */}
+        <section className="about-hero">
+          <div className="container">
+            <div className="about-hero-content">
+              <motion.div 
+                className="about-hero-text"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1>We build tools that make restaurant service feel more human.</h1>
+                <p>Technology should disappear into the background, letting hospitality take center stage. Qzaar is built by people who love food, for people who serve it.</p>
+              </motion.div>
+              
+              <motion.div 
+                className="about-hero-art"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="art-circle art-circle-1"></div>
+                <div className="art-circle art-circle-2"></div>
+                <div className="art-circle art-circle-3"></div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
 
-    <section className="about-belief"><div className="about-container about-belief__grid"><div><span className="about-section-kicker">Built with purpose</span><h2>Every shift is full of small moments that matter.</h2></div><div className="about-belief__copy"><p>A guest deciding what to order. A server checking what is ready. A chef balancing the next ticket. An owner asking how the day is going. Qzaar brings those moments into one calmer, more connected flow.</p><p>We focus on the details that make digital ordering feel natural: useful information, considered visual design, and tools that stay out of the way when service gets busy.</p></div></div></section>
+        {/* TIMELINE */}
+        <section className="about-timeline-section">
+          <div className="container">
+            <div className="section-header">
+              <h2>Our Journey</h2>
+              <p>How we got to where we are today.</p>
+            </div>
+            
+            <div className="timeline-container">
+              {timelineEvents.map((item, index) => (
+                <motion.div 
+                  className="timeline-item"
+                  key={index}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <div className="timeline-dot"></div>
+                  <div className="timeline-content">
+                    <span className="timeline-year">{item.year}</span>
+                    <h3 className="timeline-title">{item.title}</h3>
+                    <p className="timeline-desc">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-    <section className="about-principles"><div className="about-container"><div className="about-heading"><span className="about-section-kicker">What guides the platform</span><h2>Designed around real restaurant work.</h2><p>From the first menu scan to the final service update, Qzaar is built to make the next best action obvious.</p></div><div className="about-principles__grid">{principles.map((item, index) => { const Icon = item.icon; return <motion.article key={item.title} initial="hidden" whileInView="visible" viewport={{ once: true, amount: .25 }} variants={rise} transition={{ duration: .42, delay: reduceMotion ? 0 : index * .08 }}><span><Icon size={23} /></span><h3>{item.title}</h3><p>{item.text}</p></motion.article>; })}</div></div></section>
+        {/* VALUES */}
+        <section className="about-values-section">
+          <div className="container">
+            <div className="section-header">
+              <h2>What Drives Us</h2>
+              <p>The principles that guide every feature we build.</p>
+            </div>
+            
+            <div className="values-grid">
+              {values.map((val, index) => (
+                <motion.div 
+                  className="value-card"
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <div className="value-icon">{val.icon}</div>
+                  <h3>{val.title}</h3>
+                  <p>{val.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-    <section className="about-people"><div className="about-container"><div className="about-heading about-heading--center"><span className="about-section-kicker">Made for the whole room</span><h2>One experience, shaped for every person in service.</h2></div><div className="about-people__grid">{audience.map((item, index) => { const Icon = item.icon; return <motion.article key={item.title} initial="hidden" whileInView="visible" viewport={{ once: true, amount: .2 }} variants={rise} transition={{ duration: .42, delay: reduceMotion ? 0 : index * .07 }}><span className="about-people__icon"><Icon size={26} /></span><h3>{item.title}</h3><p>{item.text}</p><span className="about-people__index">0{index + 1}</span></motion.article>; })}</div></div></section>
+        {/* TEAM */}
+        <section className="about-team-section">
+          <div className="container">
+            <div className="section-header">
+              <h2>Built with heart</h2>
+              <p>Meet the people behind the platform.</p>
+            </div>
+            
+            <div className="team-grid">
+              {team.map((member, index) => (
+                <motion.div 
+                  className="team-card"
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <div className="team-avatar" style={{ '--avatar-color': member.color }}>
+                    {member.initials}
+                  </div>
+                  <h3>{member.name}</h3>
+                  <span className="team-role">{member.role}</span>
+                  <p className="team-bio">{member.bio}</p>
+                  <button className="linkedin-btn"><Linkedin size={18} /></button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-    <section className="about-commitment"><div className="about-container about-commitment__grid"><div className="about-commitment__stat"><span><Clock3 size={21} /></span><strong>Less time managing the process.</strong><p>More time serving people well.</p></div><div><span className="about-section-kicker">Our commitment</span><h2>Practical technology, elevated by care.</h2><p>We are building Qzaar for restaurants that want a more modern way to run service without losing the warmth, personality, and craft that make their place special.</p><div className="about-commitment__list"><span><CheckCircle2 size={18} /> Clear experiences for guests and teams</span><span><ShieldCheck size={18} /> Security designed into the essentials</span><span><Globe2 size={18} /> Browser-based access, wherever service happens</span></div></div></div></section>
+        {/* CTA */}
+        <section className="about-cta-section">
+          <div className="container">
+            <div className="cta-content">
+              <h2>Every great restaurant deserves great technology.</h2>
+              <div className="cta-buttons">
+                <button className="btn-primary">
+                  Join us <ArrowRight size={18} />
+                </button>
+                <button className="btn-secondary">View openings</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
 
-    <section className="about-cta"><div className="about-container"><div><span className="about-section-kicker">Let’s make service smoother</span><h2>Build the experience your restaurant deserves.</h2></div><Link to="/login" className="about-button about-button--primary">Start with Qzaar <ArrowRight size={18} /></Link></div></section>
-  </main><Footer /></div>;
-}
+      <Footer />
+    </div>
+  );
+};
 
 export default AboutPage;

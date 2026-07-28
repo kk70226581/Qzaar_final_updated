@@ -1,407 +1,425 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ArrowRight,
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ShoppingBag, 
+  Trash2, 
+  Plus, 
+  Minus, 
+  TicketPercent, 
+  ArrowLeft,
+  Clock,
   BadgeCheck,
-  Clock3,
+  X,
   CreditCard,
-  Gift,
-  Minus,
-  Plus,
-  ShieldCheck,
-  ShoppingBag,
-  ShoppingCart,
-  TicketPercent,
-  Trash2,
-  UtensilsCrossed,
+  Utensils,
+  ShoppingBag as TakeawayBag
 } from 'lucide-react';
-import {
-  ModernButton,
-  ModernCard,
-  ModernEmpty,
-  ModernInput,
-} from '../ui';
+import { ModernButton, ModernCard, ModernEmpty, ModernInput } from '../ui';
 import ResponsiveLayout from '../layout/ResponsiveLayout';
 import '../../styles/pages/CartPage.css';
 
-const formatCurrency = (value) => `\u20b9${value}`;
+const formatCurrency = (v) => `₹${v.toFixed(2)}`;
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const DUMMY_CART_ITEMS = [
+  {
+    id: 1,
+    name: 'Butter Chicken',
+    price: 320,
+    quantity: 1,
+    image: 'https://images.unsplash.com/photo-1603894584373-5ac82bea3f02?auto=format&fit=crop&w=200&q=80',
+    customization: ['Spicy', 'Extra Butter'],
+    itemTotal: 320
+  },
+  {
+    id: 2,
+    name: 'Garlic Naan',
+    price: 65,
+    quantity: 2,
+    image: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?auto=format&fit=crop&w=200&q=80',
+    customization: [],
+    itemTotal: 130
+  }
+];
+
+const SUGGESTIONS = [
+  { id: 101, name: 'Mango Lassi', price: 90 },
+  { id: 102, name: 'Gulab Jamun', price: 100 },
+  { id: 103, name: 'Papadum', price: 40 }
+];
 
 const CartPage = () => {
   const navigate = useNavigate();
-
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: 'Butter Paneer Tikka',
-      price: 299,
-      quantity: 2,
-      image: '/images/showcase/showcase-1.png',
-      customization: {
-        size: 'Medium',
-        spice: 'Medium',
-        addOns: ['Extra Cheese'],
-      },
-      itemTotal: 598,
-    },
-    {
-      id: 2,
-      name: 'Garlic Naan',
-      price: 79,
-      quantity: 1,
-      image: '/images/showcase/showcase-3.png',
-      customization: {
-        addOns: [],
-      },
-      itemTotal: 79,
-    },
-    {
-      id: 3,
-      name: 'Mango Lassi',
-      price: 89,
-      quantity: 1,
-      image: '/images/showcase/showcase-6.png',
-      customization: {},
-      itemTotal: 89,
-    },
-  ]);
-
+  
+  const [items, setItems] = useState(DUMMY_CART_ITEMS);
+  const [orderType, setOrderType] = useState('dine-in'); // 'dine-in' | 'takeaway'
+  const [tableNumber, setTableNumber] = useState('');
+  const [instructions, setInstructions] = useState({});
+  
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.itemTotal, 0),
-    [items]
-  );
-
-  const deliveryFee = 30;
-  const gst = Math.round(subtotal * 0.05);
-  const discount = appliedCoupon ? Math.round(subtotal * 0.1) : 0;
-  const total = subtotal + deliveryFee + gst - discount;
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const estimatedTime = '24-30 mins';
-
-  const cartPerks = [
-    { icon: Clock3, label: 'Prep time', value: estimatedTime },
-    { icon: ShieldCheck, label: 'Payment', value: 'Encrypted' },
-    { icon: Gift, label: 'Offer', value: appliedCoupon ? `${appliedCoupon.discount}% off` : 'Try SAVE10' },
-  ];
-
   const updateQuantity = (id, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-      return;
-    }
-
-    setItems(items.map((item) =>
-      item.id === id
-        ? { ...item, quantity: newQuantity, itemTotal: item.price * newQuantity }
+    if (newQuantity < 1) return;
+    setItems(items.map(item => 
+      item.id === id 
+        ? { ...item, quantity: newQuantity, itemTotal: item.price * newQuantity } 
         : item
     ));
   };
 
   const removeItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+    setItems(items.filter(item => item.id !== id));
   };
 
-  const applyCoupon = () => {
-    if (couponCode.trim()) {
-      setAppliedCoupon({
-        code: couponCode.trim().toUpperCase(),
-        discount: 10,
-      });
-      setCouponCode('');
+  const handleAddSuggestion = (suggestion) => {
+    const existing = items.find(item => item.id === suggestion.id);
+    if (existing) {
+      updateQuantity(suggestion.id, existing.quantity + 1);
+    } else {
+      setItems([...items, {
+        ...suggestion,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80', // placeholder
+        customization: [],
+        itemTotal: suggestion.price
+      }]);
+    }
+  };
+
+  const handleApplyCoupon = () => {
+    if (couponCode.trim().toLowerCase() === 'save10') {
+      setAppliedCoupon('SAVE10');
+    } else if (couponCode.trim()) {
+      setAppliedCoupon(couponCode.toUpperCase());
     }
   };
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
+    setCouponCode('');
   };
+
+  const handleInstructionChange = (id, value) => {
+    setInstructions(prev => ({ ...prev, [id]: value }));
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + item.itemTotal, 0);
+  
+  const FREE_DELIVERY_THRESHOLD = 499;
+  const progressPercent = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100);
+  const awayFromFree = Math.max(FREE_DELIVERY_THRESHOLD - subtotal, 0);
+
+  const deliveryFee = orderType === 'takeaway' || subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : 30;
+  const gst = subtotal * 0.05;
+  const discount = appliedCoupon ? subtotal * 0.10 : 0; // 10% discount for any applied coupon
+  const total = subtotal + deliveryFee + gst - discount;
 
   if (items.length === 0) {
     return (
       <ResponsiveLayout>
         <div className="cart__empty-container">
-          <ModernEmpty
-            type="cart"
+          <ModernEmpty 
+            icon={<ShoppingBag size={64} className="cart__empty-icon" />}
             title="Your cart is empty"
-            description="Browse our menu and add delicious items to your cart."
-            primaryCTA={{
-              label: 'Browse Menu',
-              onClick: () => navigate('/modern/menu'),
-            }}
+            description="Browse our delicious menu and discover your next favorite meal."
+            action={
+              <ModernButton 
+                variant="primary" 
+                onClick={() => navigate('/')}
+                className="cart__empty-btn"
+              >
+                Browse Menu
+              </ModernButton>
+            }
           />
         </div>
       </ResponsiveLayout>
     );
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { type: 'spring', stiffness: 280, damping: 28 },
-    },
-    exit: {
-      opacity: 0,
-      x: 20,
-      transition: { duration: 0.2 },
-    },
-  };
-
   return (
     <ResponsiveLayout>
-      <main className="cart">
-        <header className="cart__header">
-          <div className="cart__header-copy">
-            <span className="cart__eyebrow">
-              <ShoppingBag size={16} />
-              Ready for checkout
-            </span>
-            <h1 className="cart__title">Your table cart</h1>
-            <p className="cart__subtitle">
-              Review items, apply offers, and move to secure payment when everything looks right.
-            </p>
-            <div className="cart__perks">
-              {cartPerks.map((perk) => {
-                const Icon = perk.icon;
-                return (
-                  <span key={perk.label}>
-                    <Icon size={16} />
-                    <strong>{perk.value}</strong>
-                    {perk.label}
-                  </span>
-                );
-              })}
+      <motion.div 
+        className="cart__container"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
+        <div className="cart__header">
+          <button className="cart__back-btn" onClick={() => navigate(-1)}>
+            <ArrowLeft size={24} />
+          </button>
+          <div className="cart__header-title-area">
+            <h1 className="cart__title">Your Cart</h1>
+            <div className="cart__time-badge">
+              <span className="cart__pulse-dot"></span>
+              24-30 mins
             </div>
           </div>
+        </div>
 
-          <motion.div
-            className="cart__hero-art"
-            initial={{ opacity: 0, y: 18, rotate: 1 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 24 }}
-          >
-            <img src="/images/ads/cart-cartoon-banner.png" alt="Cartoon checkout basket" />
-            <div className="cart__hero-badge">
-              <CreditCard size={18} />
-              <span>Secure payment next</span>
-            </div>
-          </motion.div>
-        </header>
-
-        <div className="cart__container">
-          <motion.section
-            className="cart__items"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="cart__section-heading">
-              <div>
-                <h2 className="cart__section-title">Items in cart</h2>
-                <p>{totalItems} total servings across {items.length} dishes</p>
-              </div>
-              <button type="button" onClick={() => navigate('/modern/menu')}>
-                <UtensilsCrossed size={17} />
-                Add more
-              </button>
-            </div>
-
-            <AnimatePresence>
-              {items.map((item) => (
-                <motion.div
-                  key={item.id}
-                  className="cart__item"
-                  variants={itemVariants}
-                  exit="exit"
+        <div className="cart__layout">
+          <div className="cart__main">
+            {/* Order Type Toggle */}
+            <motion.div className="cart__order-type-card" variants={fadeUp}>
+              <div className="cart__order-toggle">
+                <button 
+                  className={`cart__toggle-btn ${orderType === 'dine-in' ? 'cart__toggle-btn--active' : ''}`}
+                  onClick={() => setOrderType('dine-in')}
                 >
-                  <div className="cart__item-image">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      onError={(e) => {
-                        e.currentTarget.src = '/images/showcase/showcase-1.png';
-                      }}
+                  <Utensils size={18} />
+                  Dine In
+                </button>
+                <button 
+                  className={`cart__toggle-btn ${orderType === 'takeaway' ? 'cart__toggle-btn--active' : ''}`}
+                  onClick={() => setOrderType('takeaway')}
+                >
+                  <TakeawayBag size={18} />
+                  Takeaway
+                </button>
+              </div>
+              <AnimatePresence>
+                {orderType === 'dine-in' && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="cart__table-input-wrapper"
+                  >
+                    <ModernInput 
+                      placeholder="Enter Table Number" 
+                      value={tableNumber}
+                      onChange={(e) => setTableNumber(e.target.value)}
+                      className="cart__table-input"
                     />
-                  </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-                  <div className="cart__item-details">
-                    <div className="cart__item-topline">
-                      <h3 className="cart__item-name">{item.name}</h3>
-                      <span className="cart__item-unit">{formatCurrency(item.price)} each</span>
+            {/* Free Delivery Progress */}
+            <motion.div className="cart__delivery-progress" variants={fadeUp}>
+              <div className="cart__progress-header">
+                <span className="cart__progress-title">Free Delivery Progress</span>
+                <span className="cart__progress-status">
+                  {awayFromFree > 0 
+                    ? `Add ${formatCurrency(awayFromFree)} more` 
+                    : 'You get free delivery! 🎉'}
+                </span>
+              </div>
+              <div className="cart__progress-bar-bg">
+                <motion.div 
+                  className="cart__progress-fill"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Items List */}
+            <div className="cart__items-list">
+              <AnimatePresence>
+                {items.map(item => (
+                  <motion.div 
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }}
+                    className="cart__item-card"
+                  >
+                    <div className="cart__item-image-wrapper">
+                      <img src={item.image} alt={item.name} className="cart__item-image" />
+                    </div>
+                    
+                    <div className="cart__item-details">
+                      <div className="cart__item-header">
+                        <h3 className="cart__item-name">{item.name}</h3>
+                        <span className="cart__item-price">{formatCurrency(item.price)}</span>
+                      </div>
+                      
+                      {item.customization && item.customization.length > 0 && (
+                        <div className="cart__item-tags">
+                          {item.customization.map((tag, i) => (
+                            <span key={i} className="cart__item-tag">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="cart__instructions-wrapper">
+                        <textarea 
+                          className="cart__instructions-input" 
+                          placeholder="Add note (e.g., make it spicy)..."
+                          value={instructions[item.id] || ''}
+                          onChange={(e) => handleInstructionChange(item.id, e.target.value)}
+                          rows={1}
+                        />
+                      </div>
                     </div>
 
-                    {(item.customization.size ||
-                      item.customization.spice ||
-                      (item.customization.addOns && item.customization.addOns.length > 0)) && (
-                      <div className="cart__item-customization">
-                        {item.customization.size && (
-                          <span className="cart__custom-tag">{item.customization.size}</span>
-                        )}
-                        {item.customization.spice && (
-                          <span className="cart__custom-tag">{item.customization.spice}</span>
-                        )}
-                        {item.customization.addOns?.map((addon) => (
-                          <span key={addon} className="cart__custom-tag">+{addon}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="cart__item-footer">
-                      <span className="cart__item-price">{formatCurrency(item.itemTotal)}</span>
-
-                      <div className="cart__quantity-control">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          aria-label="Decrease quantity"
-                          className="cart__qty-btn"
-                        >
+                    <div className="cart__item-actions">
+                      <div className="cart__item-total">{formatCurrency(item.itemTotal)}</div>
+                      <div className="cart__stepper">
+                        <button className="cart__stepper-btn" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                           <Minus size={16} />
                         </button>
-                        <span className="cart__qty-value">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          aria-label="Increase quantity"
-                          className="cart__qty-btn"
+                        <motion.span 
+                          key={item.quantity}
+                          initial={{ scale: 1.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="cart__stepper-val"
                         >
+                          {item.quantity}
+                        </motion.span>
+                        <button className="cart__stepper-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                           <Plus size={16} />
                         </button>
                       </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    aria-label="Remove item"
-                    className="cart__item-remove"
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.section>
-
-          <motion.aside
-            className="cart__summary-sidebar"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <ModernCard variant="elevated" className="cart__summary-card">
-              <div className="cart__summary">
-                <div className="cart__summary-head">
-                  <div>
-                    <h2 className="cart__section-title">Payment summary</h2>
-                    <p>Taxes, offers, and delivery are calculated here.</p>
-                  </div>
-                  <span>
-                    <BadgeCheck size={18} />
-                  </span>
-                </div>
-
-                <div className="cart__promo-section">
-                  <div className="cart__promo-title">
-                    <TicketPercent size={18} />
-                    <strong>Apply offer</strong>
-                  </div>
-                  {appliedCoupon ? (
-                    <div className="cart__coupon-applied">
-                      <div className="cart__coupon-info">
-                        <span className="cart__coupon-code">{appliedCoupon.code}</span>
-                        <span className="cart__coupon-badge">{appliedCoupon.discount}% OFF</span>
-                      </div>
-                      <button
-                        onClick={removeCoupon}
-                        className="cart__coupon-remove"
-                        aria-label="Remove coupon"
-                      >
-                        x
+                      <button className="cart__remove-btn" onClick={() => removeItem(item.id)}>
+                        <Trash2 size={18} />
                       </button>
                     </div>
-                  ) : (
-                    <div className="cart__promo-input-group">
-                      <ModernInput
-                        type="text"
-                        placeholder="Promo code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        className="cart__promo-input"
-                      />
-                      <button onClick={applyCoupon} className="cart__apply-coupon">
-                        Apply
-                      </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Suggestions */}
+            <motion.div className="cart__suggestions-section" variants={fadeUp}>
+              <h4 className="cart__suggestions-title">You might also like</h4>
+              <div className="cart__suggestions-list">
+                {SUGGESTIONS.map(suggestion => (
+                  <div key={suggestion.id} className="cart__suggestion-chip" onClick={() => handleAddSuggestion(suggestion)}>
+                    <div className="cart__suggestion-info">
+                      <span className="cart__suggestion-name">{suggestion.name}</span>
+                      <span className="cart__suggestion-price">{formatCurrency(suggestion.price)}</span>
                     </div>
-                  )}
-                </div>
+                    <button className="cart__suggestion-add">
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-                <div className="cart__summary-rows">
-                  <div className="cart__summary-row">
-                    <span>Subtotal</span>
-                    <span>{formatCurrency(subtotal)}</span>
+          </div>
+
+          <motion.div className="cart__sidebar" variants={fadeUp}>
+            <ModernCard className="cart__summary-card">
+              <div className="cart__summary-header">
+                <BadgeCheck className="cart__summary-icon" size={24} />
+                <h2>Order Summary</h2>
+              </div>
+
+              {/* Coupon Section */}
+              <div className="cart__coupon-section">
+                {!appliedCoupon ? (
+                  <div className="cart__coupon-input-wrapper">
+                    <TicketPercent className="cart__coupon-icon" size={20} />
+                    <input 
+                      type="text" 
+                      placeholder="Coupon Code" 
+                      className="cart__coupon-input"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                    />
+                    <button className="cart__coupon-apply" onClick={handleApplyCoupon}>
+                      Apply
+                    </button>
                   </div>
-                  <div className="cart__summary-row">
-                    <span>Delivery fee</span>
-                    <span>{formatCurrency(deliveryFee)}</span>
-                  </div>
-                  <div className="cart__summary-row">
-                    <span>GST and taxes</span>
-                    <span>{formatCurrency(gst)}</span>
-                  </div>
-                  {discount > 0 && (
-                    <div className="cart__summary-row cart__summary-row--discount">
-                      <span>Discount</span>
-                      <span>-{formatCurrency(discount)}</span>
+                ) : (
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="cart__coupon-success"
+                  >
+                    <div className="cart__coupon-success-left">
+                      <TicketPercent size={18} />
+                      <span className="cart__coupon-code">{appliedCoupon} applied</span>
                     </div>
-                  )}
-                  <div className="cart__summary-divider" />
-                  <div className="cart__summary-row cart__summary-total">
-                    <span>Total amount</span>
-                    <span>{formatCurrency(total)}</span>
+                    <button className="cart__coupon-remove" onClick={removeCoupon}>
+                      <X size={16} />
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="cart__breakdown">
+                <div className="cart__breakdown-row">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="cart__breakdown-row">
+                  <span>Delivery Fee</span>
+                  <span>{deliveryFee === 0 ? <span className="cart__free-text">Free</span> : formatCurrency(deliveryFee)}</span>
+                </div>
+                <div className="cart__breakdown-row">
+                  <span>GST (5%)</span>
+                  <span>{formatCurrency(gst)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="cart__breakdown-row cart__discount-row">
+                    <span>Discount</span>
+                    <span>-{formatCurrency(discount)}</span>
                   </div>
-                </div>
+                )}
+              </div>
 
-                <div className="cart__actions">
-                  <ModernButton
-                    variant="secondary"
-                    size="lg"
-                    onClick={() => navigate('/modern/menu')}
-                    className="cart__continue-shopping"
-                  >
-                    Continue Shopping
-                  </ModernButton>
-
-                  <ModernButton
-                    variant="primary"
-                    size="lg"
-                    onClick={() => navigate('/modern/checkout')}
-                    className="cart__checkout-btn"
-                  >
-                    <ShoppingCart size={20} />
-                    Proceed to Checkout
-                    <ArrowRight size={18} />
-                  </ModernButton>
+              {discount > 0 && (
+                <div className="cart__savings-banner">
+                  🎉 You saved {formatCurrency(discount)} on this order!
                 </div>
+              )}
 
-                <div className="cart__secure-note">
-                  <ShieldCheck size={16} />
-                  <span>Secure checkout. Your payment data is encrypted.</span>
-                </div>
+              <div className="cart__total-row">
+                <span>Total</span>
+                <span className="cart__total-amount">{formatCurrency(total)}</span>
+              </div>
+
+              <div className="cart__actions">
+                <ModernButton 
+                  variant="primary" 
+                  className="cart__checkout-btn"
+                  onClick={() => alert('Proceeding to checkout...')}
+                >
+                  <CreditCard size={18} />
+                  Proceed to Checkout
+                </ModernButton>
+                <ModernButton 
+                  variant="outline" 
+                  className="cart__continue-btn"
+                  onClick={() => navigate('/')}
+                >
+                  Continue Shopping
+                </ModernButton>
+              </div>
+
+              <div className="cart__secure-note">
+                <Clock size={14} />
+                <span>Secure and fast checkout powered by Qzaar</span>
               </div>
             </ModernCard>
-          </motion.aside>
+          </motion.div>
         </div>
-      </main>
+      </motion.div>
     </ResponsiveLayout>
   );
 };
