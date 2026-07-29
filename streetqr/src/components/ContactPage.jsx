@@ -5,9 +5,11 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import './ContactPage.css';
 
-const contactEmail = (process.env.REACT_APP_CONTACT_EMAIL || '').trim();
-const contactPhone = (process.env.REACT_APP_CONTACT_PHONE || '').trim();
-const contactLocation = (process.env.REACT_APP_CONTACT_LOCATION || '').trim();
+// Public project details intentionally live in code so the contact page works
+// on every static deployment without requiring frontend environment variables.
+const contactEmail = 'iit2023129@iiita.ac.in';
+const contactPhone = '+91-7348112368';
+const contactLocation = 'Gorakhpur, Uttar Pradesh';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });

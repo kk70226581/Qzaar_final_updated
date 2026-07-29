@@ -20,10 +20,10 @@ const productPrinciples = [
 ];
 
 const builder = {
-  name: (process.env.REACT_APP_FOUNDER_NAME || '').trim(),
-  role: (process.env.REACT_APP_FOUNDER_ROLE || '').trim(),
-  education: (process.env.REACT_APP_FOUNDER_EDUCATION || '').trim(),
-  location: (process.env.REACT_APP_FOUNDER_LOCATION || '').trim(),
+  name: 'Karan Kannaujiya',
+  role: 'Full-stack MERN software engineering student',
+  education: 'B.Tech in Information Technology, IIIT Allahabad',
+  location: 'Gorakhpur, Uttar Pradesh',
 };
 
 const AboutPage = () => (
