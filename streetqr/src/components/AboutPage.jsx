@@ -19,12 +19,26 @@ const productPrinciples = [
   { icon: <ShieldCheck size={24} />, title: 'Thoughtful by default', desc: 'Authentication, payments, and account recovery are treated as core product work.' },
 ];
 
-const builder = {
-  name: 'Karan Kannaujiya',
-  role: 'Full-stack MERN software engineering student',
-  education: 'B.Tech in Information Technology, IIIT Allahabad',
-  location: 'Gorakhpur, Uttar Pradesh',
-};
+const founders = [
+  {
+    name: 'Karan Kannaujiya',
+    role: 'Co-founder · Full-stack MERN developer',
+    education: 'B.Tech in Information Technology, IIIT Allahabad',
+    color: '#3b82f6',
+  },
+  {
+    name: 'Ankan Sarkar',
+    role: 'Co-founder',
+    education: 'IIIT Allahabad',
+    color: '#8b5cf6',
+  },
+  {
+    name: 'Pritam Kumar',
+    role: 'Co-founder',
+    education: 'IIIT Allahabad',
+    color: '#14b8a6',
+  },
+];
 
 const AboutPage = () => (
   <div className="about-page">
@@ -106,34 +120,29 @@ const AboutPage = () => (
         </div>
       </section>
 
-      {(builder.name || builder.role || builder.education) && (
-        <section className="about-team-section">
-          <div className="container">
-            <div className="section-header">
-              <h2>Built by {builder.name || 'the Qzaar project team'}</h2>
-              <p>{[builder.role, builder.education, builder.location].filter(Boolean).join(' · ')}</p>
-            </div>
-            <div className="about-builder-layout">
-              <article className="team-card about-builder-card">
-                <div className="team-avatar" style={{ '--avatar-color': '#3b82f6' }}>{builder.name ? builder.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2) : 'Q'}</div>
-                <h3>{builder.name || 'Qzaar'}</h3>
-                {builder.role && <span className="team-role">{builder.role}</span>}
-                <p className="team-bio">Qzaar is a hands-on full-stack project focused on practical restaurant ordering, real-time workflows, and secure customer experiences.</p>
-              </article>
-              <div className="about-builder-story">
-                <span className="about-eyebrow">The product approach</span>
-                <h3>Designed to connect the moments around an order.</h3>
-                <p>From the first QR scan to order updates and payment confirmation, Qzaar keeps the customer journey and restaurant workflow in one product.</p>
-                <ul>
-                  <li>Responsive product experiences with React</li>
-                  <li>API and data workflows with Node.js, Express, and MongoDB</li>
-                  <li>Real-time order coordination with Socket.IO</li>
-                </ul>
-              </div>
-            </div>
+      <section className="about-team-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>Meet the Qzaar founders</h2>
+            <p>Built collaboratively by students from IIIT Allahabad.</p>
           </div>
-        </section>
-      )}
+          <div className="team-grid">
+            {founders.map((founder, index) => (
+              <motion.article className="team-card" key={founder.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }}>
+                <div className="team-avatar" style={{ '--avatar-color': founder.color }}>{founder.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</div>
+                <h3>{founder.name}</h3>
+                <span className="team-role">{founder.role}</span>
+                <p className="team-bio">{founder.education}</p>
+              </motion.article>
+            ))}
+          </div>
+          <div className="about-builder-story about-founder-story">
+            <span className="about-eyebrow">The product approach</span>
+            <h3>Designed to connect the moments around an order.</h3>
+            <p>From the first QR scan to order updates and payment confirmation, Qzaar keeps the customer journey and restaurant workflow in one product.</p>
+          </div>
+        </div>
+      </section>
 
       <section className="about-cta-section">
         <div className="container">
