@@ -176,7 +176,7 @@ const HomePage = () => {
             </div>
             <h3 className="feature-title">Digital QR Menus</h3>
             <p className="feature-desc">Create stunning digital menus that your customers can access instantly by scanning a QR code at their table.</p>
-            <Link to="/features/menu" className="feature-link">Learn more <ChevronRight size={16} /></Link>
+            <Link to="/qrcode" className="feature-link">Learn more <ChevronRight size={16} /></Link>
           </motion.div>
 
           <motion.div variants={fadeUp} className="feature-card">
@@ -185,7 +185,7 @@ const HomePage = () => {
             </div>
             <h3 className="feature-title">Kitchen Display System</h3>
             <p className="feature-desc">Streamline your back-of-house operations with real-time order tracking and digital kitchen tickets.</p>
-            <Link to="/features/kds" className="feature-link">Learn more <ChevronRight size={16} /></Link>
+            <Link to="/modern/admin/kitchen" className="feature-link">Learn more <ChevronRight size={16} /></Link>
           </motion.div>
 
           <motion.div variants={fadeUp} className="feature-card">
@@ -194,7 +194,7 @@ const HomePage = () => {
             </div>
             <h3 className="feature-title">Powerful Analytics</h3>
             <p className="feature-desc">Get insights into your best-selling items, peak hours, and revenue trends to make data-driven decisions.</p>
-            <Link to="/features/analytics" className="feature-link">Learn more <ChevronRight size={16} /></Link>
+            <Link to="/modern/admin/analytics" className="feature-link">Learn more <ChevronRight size={16} /></Link>
           </motion.div>
 
           <motion.div variants={fadeUp} className="feature-card">
@@ -203,7 +203,7 @@ const HomePage = () => {
             </div>
             <h3 className="feature-title">Advanced Settings</h3>
             <p className="feature-desc">Customize tax rates, add staff accounts, configure business hours, and manage multiple locations easily.</p>
-            <Link to="/features/settings" className="feature-link">Learn more <ChevronRight size={16} /></Link>
+            <Link to="/modern/admin/settings" className="feature-link">Learn more <ChevronRight size={16} /></Link>
           </motion.div>
         </motion.div>
       </section>
