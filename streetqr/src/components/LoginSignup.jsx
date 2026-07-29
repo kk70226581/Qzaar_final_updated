@@ -23,6 +23,12 @@ const productPoints = [
   'Daily business insight'
 ];
 
+// OAuth client IDs identify the public browser application; they are not
+// secrets. Keeping this fallback prevents a static deployment from hiding the
+// Google sign-in option when a build variable is accidentally omitted.
+const GOOGLE_OAUTH_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID
+  || '191638845568-lm99kser6egvvne0m5n2oso7klls059b.apps.googleusercontent.com';
+
 function LoginSignup() {
   const navigate = useNavigate();
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
@@ -44,7 +50,7 @@ function LoginSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const googleButtonRef = useRef(null);
-  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const googleClientId = GOOGLE_OAUTH_CLIENT_ID;
   const isResetMode = showForgotPanel && !isSignup;
 
   const showMessage = useCallback((text, type) => {
