@@ -1,14 +1,40 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import NotFoundPage from './components/NotFoundPage';
+import DemoPage from './components/DemoPage';
+import Navbar from './components/Navbar';
 
-test('offers a recovery path for an unknown page', () => {
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  const element = (tag) => ({ children, className }) => React.createElement(tag, { className }, children);
+
+  return {
+    motion: {
+      div: element('div'),
+      article: element('article'),
+    },
+    AnimatePresence: ({ children }) => children,
+    useReducedMotion: () => true,
+  };
+});
+
+test('publishes a working demo destination from the shared navigation', () => {
   render(
     <MemoryRouter>
-      <NotFoundPage />
+      <Navbar />
     </MemoryRouter>
   );
 
-  expect(screen.getByRole('heading', { name: /This page is not on the menu/i })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /Back to home/i })).toHaveAttribute('href', '/');
+  const demoLinks = screen.getAllByRole('link', { name: /live demo/i });
+  expect(demoLinks[0]).toHaveAttribute('href', '/demo');
+});
+
+test('renders the product demo with a working first step', () => {
+  render(
+    <MemoryRouter>
+      <DemoPage />
+    </MemoryRouter>
+  );
+
+  expect(screen.getByRole('heading', { name: /See the whole restaurant flow/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Start live demo/i })).toHaveAttribute('href', '/modern/menu');
 });

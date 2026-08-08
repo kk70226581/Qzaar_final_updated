@@ -11,7 +11,6 @@ import AboutPage from './components/AboutPage';
 import QRCodePage from './components/QRCodePage';
 import ModernMenuView from './components/ModernMenuView';
 import OrderSummary from './components/OrderSummary';import OrdersPage from './components/OrdersPage';import ScrollToTop from './components/ScrollToTop';
-import NotFoundPage from './components/NotFoundPage';
 import LegalPage from './components/LegalPage';
 import HowItWorksPage from './components/HowItWorksPage';
 import ProductsPage from './components/ProductsPage';
@@ -55,6 +54,14 @@ function AppRoutes() {
           <Route path="/signup" element={<LoginSignup initialMode="signup" />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/vendor" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/signin" element={<Navigate to="/login" replace />} />
+          <Route path="/register" element={<Navigate to="/signup" replace />} />
+          <Route path="/book-demo" element={<Navigate to="/demo" replace />} />
+          <Route path="/features" element={<Navigate to="/products" replace />} />
+          <Route path="/pricing" element={<Navigate to="/products" replace />} />
+          <Route path="/support" element={<Navigate to="/contact" replace />} />
+          <Route path="/help" element={<Navigate to="/contact" replace />} />
+          <Route path="/faq" element={<Navigate to="/how-it-works" replace />} />
           <Route path="/dashboard" element={<DashboardHub />} />
           <Route path="/menu" element={<MenuBuilder />} />
           <Route path="/about" element={<AboutPage />} />
@@ -87,7 +94,7 @@ function AppRoutes() {
           <Route path="/modern/admin/analytics" element={<AnalyticsPage />} />
           <Route path="/modern/admin/settings" element={<SettingsPage />} />
           <Route path="/modern/admin/inventory" element={<InventoryPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
