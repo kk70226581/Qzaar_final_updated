@@ -121,9 +121,71 @@
 .hero-mockup-wrapper {
   position: relative;
   width: 100%;
-  height: 500px;
-  perspective: 1000px;
+  height: 520px;
 }
+
+.hero-product-visual {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 28px;
+  background: #111827;
+  box-shadow: 0 35px 85px rgba(0, 0, 0, .48);
+}
+
+.hero-product-visual::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 27px;
+}
+
+.hero-product-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-product-visual__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(6, 12, 24, .78));
+}
+
+.hero-product-visual__caption {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 16px;
+  background: rgba(8, 17, 31, .76);
+  backdrop-filter: blur(16px);
+}
+
+.hero-product-visual__caption > span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #d25fa3);
+}
+
+.hero-product-visual__caption strong,
+.hero-product-visual__caption small { display: block; }
+.hero-product-visual__caption strong { color: #fff; font-size: .92rem; }
+.hero-product-visual__caption small { margin-top: .15rem; color: #94a3b8; font-size: .76rem; }
 
 .hero-mockup {
   background: rgba(15, 23, 42, 0.7);
@@ -602,7 +664,6 @@
   .hero-mockup-wrapper {
     max-width: 600px;
     margin: 0 auto;
-    perspective: 800px;
   }
   .hero-mockup {
     transform: rotateY(0) rotateX(0);
@@ -629,4 +690,16 @@
   .testimonials-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 560px) {
+  .hero-section { min-height: auto; padding: 5.5rem 1rem 3.5rem; }
+  .hero-title { font-size: clamp(2.65rem, 13vw, 3.65rem); }
+  .hero-subtitle { max-width: none; font-size: 1.02rem; }
+  .hero-buttons { flex-direction: column; }
+  .hero-buttons > * { width: 100%; justify-content: center; }
+  .hero-mockup-wrapper { height: 390px; }
+  .hero-product-visual { border-radius: 20px; }
+  .hero-product-visual::before { border-radius: 19px; }
+  .hero-badge { display: none; }
 }

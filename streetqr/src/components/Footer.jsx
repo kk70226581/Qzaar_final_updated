@@ -12,7 +12,7 @@ function Footer() {
           <div>
             <strong>Qzaar</strong>
             <p>The restaurant operating system that turns a simple scan into smoother, more considered service.</p>
-            <Link className="site-footer__brand-link" to="/login">Build your workspace <ArrowUpRight size={15} /></Link>
+            <Link className="site-footer__brand-link" to="/signup">Build your workspace <ArrowUpRight size={15} /></Link>
           </div>
         </div>
 
@@ -21,8 +21,9 @@ function Footer() {
             <span>Platform</span>
             <Link to="/products">Products</Link>
             <Link to="/how-it-works">How it works</Link>
+            <Link to="/demo">Live demo</Link>
             <Link to="/modern/menu">Guest menu</Link>
-            <Link to="/login">Get started</Link>
+            <Link to="/signup">Get started</Link>
           </nav>
           <nav className="site-footer__links" aria-label="Operations links">
             <span>Operations</span>
@@ -48,7 +49,7 @@ function Footer() {
         <div className="site-footer__bottom">
           <span>&copy; {new Date().getFullYear()} Qzaar. Built for modern food operations.</span>
           <span className="site-footer__payments"><CreditCard size={14} /> UPI &middot; Cards &middot; Netbanking</span>
-          <Link to="/login">Start a workspace <ArrowUpRight size={15} /></Link>
+          <Link to="/signup">Start a workspace <ArrowUpRight size={15} /></Link>
         </div>
       </div>
     </footer>

@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, LogIn, LogOut, Mail, Menu, Route, Sparkles, X } from 'lucide-react';
+import { BookOpen, LayoutDashboard, LogIn, LogOut, Mail, Menu, Route, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
+
+const publicLinks = [
+  { label: 'Home', path: '/', end: true },
+  { label: 'Products', path: '/products' },
+  { label: 'How it works', path: '/how-it-works', icon: Route },
+  { label: 'Live demo', path: '/demo', icon: BookOpen },
+  { label: 'About', path: '/about' },
+  { label: 'Contact', path: '/contact', icon: Mail },
+];
+
+const workspaceLinks = [
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { label: 'Orders', path: '/orders', icon: Sparkles },
+];
 
 function Navbar({ hideAuth = false, showAuthLinks = true }) {
   const location = useLocation();
@@ -32,8 +46,8 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
     navigate('/login');
   };
 
-  const isActive = (path) => location.pathname === path;
   const shouldShowAuth = !hideAuth && showAuthLinks !== false;
+  const visibleLinks = isLoggedIn ? [...publicLinks, ...workspaceLinks] : publicLinks;
 
   return (
     <nav className={`qz-nav ${scrolled ? 'qz-nav--scrolled' : ''}`}>
@@ -51,36 +65,24 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
         </Link>
 
         {/* Desktop links */}
-        <div className="qz-nav__links">
-          <Link className={`qz-nav__link ${isActive('/') ? 'qz-nav__link--active' : ''}`} to="/">Home</Link>
-
-          <Link className={`qz-nav__link ${isActive('/products') ? 'qz-nav__link--active' : ''}`} to="/products">Products</Link>
-
-          <Link className={`qz-nav__link ${isActive('/how-it-works') ? 'qz-nav__link--active' : ''}`} to="/how-it-works">
-            <Route size={15} /> How it works
-          </Link>
-          <Link className={`qz-nav__link ${isActive('/about') ? 'qz-nav__link--active' : ''}`} to="/about">About</Link>
-          <Link className={`qz-nav__link ${isActive('/contact') ? 'qz-nav__link--active' : ''}`} to="/contact">
-            <Mail size={15} /> Contact
-          </Link>
-
-          {isLoggedIn && (
-            <>
-              <Link className={`qz-nav__link ${isActive('/dashboard') ? 'qz-nav__link--active' : ''}`} to="/dashboard">
-                <LayoutDashboard size={15} /> Dashboard
-              </Link>
-              <Link className={`qz-nav__link ${isActive('/orders') ? 'qz-nav__link--active' : ''}`} to="/orders">
-                <Sparkles size={15} /> Orders
-              </Link>
-            </>
-          )}
+        <div className="qz-nav__links" aria-label="Primary navigation">
+          {visibleLinks.map(({ label, path, icon: Icon, end }) => (
+            <NavLink
+              key={path}
+              className={({ isActive }) => `qz-nav__link ${isActive ? 'qz-nav__link--active' : ''}`}
+              to={path}
+              end={end}
+            >
+              {Icon && <Icon size={15} aria-hidden="true" />} {label}
+            </NavLink>
+          ))}
         </div>
 
         {/* Auth actions */}
         {shouldShowAuth && (
           <div className="qz-nav__actions">
             {!isLoggedIn ? (
-              <Link className="qz-nav__cta" to="/login">
+              <Link className="qz-nav__cta" to="/signup">
                 <LogIn size={16} />
                 Get started
               </Link>
@@ -116,21 +118,20 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <div className="qz-nav__mobile-inner">
-              <Link className="qz-nav__mobile-link" to="/">Home</Link>
-              <Link className="qz-nav__mobile-link" to="/products">Products</Link>
-              <Link className="qz-nav__mobile-link" to="/how-it-works">How it works</Link>
-              <Link className="qz-nav__mobile-link" to="/about">About</Link>
-              <Link className="qz-nav__mobile-link" to="/contact">Contact</Link>
-              {isLoggedIn && (
-                <>
-                  <Link className="qz-nav__mobile-link" to="/dashboard">Dashboard</Link>
-                  <Link className="qz-nav__mobile-link" to="/orders">Orders</Link>
-                </>
-              )}
+              {visibleLinks.map(({ label, path, icon: Icon, end }) => (
+                <NavLink
+                  key={path}
+                  className={({ isActive }) => `qz-nav__mobile-link ${isActive ? 'qz-nav__mobile-link--active' : ''}`}
+                  to={path}
+                  end={end}
+                >
+                  {Icon && <Icon size={17} aria-hidden="true" />} {label}
+                </NavLink>
+              ))}
               <div className="qz-nav__mobile-divider" />
               {shouldShowAuth && (
                 !isLoggedIn ? (
-                  <Link className="qz-nav__mobile-cta" to="/login">
+                  <Link className="qz-nav__mobile-cta" to="/signup">
                     <LogIn size={16} /> Get started
                   </Link>
                 ) : (

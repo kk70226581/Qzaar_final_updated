@@ -42,7 +42,7 @@ const HomePage = () => {
     if (isLoggedIn) {
       navigate('/dashboard');
     } else {
-      navigate('/login');
+      navigate('/signup');
     }
   };
 
@@ -82,32 +82,14 @@ const HomePage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="hero-mockup-wrapper"
           >
-            <motion.div 
-              animate={{ y: [0, -12, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              className="hero-mockup"
-            >
-              <div className="mockup-header">
-                <div className="mockup-dot red"></div>
-                <div className="mockup-dot yellow"></div>
-                <div className="mockup-dot green"></div>
+            <div className="hero-product-visual">
+              <img src="/images/brand/qzaar-restaurant-hero.png" alt="Qzaar QR ordering at a restaurant table" />
+              <div className="hero-product-visual__shade" />
+              <div className="hero-product-visual__caption">
+                <span><QrCode size={21} /></span>
+                <div><strong>From scan to service</strong><small>A smoother experience for every table</small></div>
               </div>
-              <div className="mockup-body">
-                <div className="mockup-stats-row">
-                  <div className="mockup-stat-card">
-                    <div className="mockup-stat-label">Today's Revenue</div>
-                    <div className="mockup-stat-val">$2,450.00</div>
-                  </div>
-                  <div className="mockup-stat-card">
-                    <div className="mockup-stat-label">Active Orders</div>
-                    <div className="mockup-stat-val">24</div>
-                  </div>
-                </div>
-                <div className="mockup-chart">
-                  <div className="mockup-chart-line"></div>
-                </div>
-              </div>
-            </motion.div>
+            </div>
 
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
@@ -116,7 +98,7 @@ const HomePage = () => {
               className="hero-badge badge-1"
             >
               <TrendingUp size={16} color="#4ade80" />
-              +14% this week
+              Live business insight
             </motion.div>
 
             <motion.div 
@@ -126,7 +108,7 @@ const HomePage = () => {
               className="hero-badge badge-2"
             >
               <CheckCircle size={16} color="#38bdf8" />
-              Kitchen synced
+              Kitchen in sync
             </motion.div>
           </motion.div>
         </div>

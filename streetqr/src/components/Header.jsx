@@ -1,23 +1,24 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Header() {
   return (
     <header className="bg-warning py-3 shadow-sm">
       <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
         <div>
-          <h1 className="h3 mb-1 fw-bold text-dark">🚀 StreetQR</h1>
+          <h1 className="h3 mb-1 fw-bold text-dark">Qzaar</h1>
           <p className="mb-0 text-dark">Digital menus and QR ordering for food businesses</p>
         </div>
-        <nav className="mt-3 mt-md-0">
+        <nav className="mt-3 mt-md-0" aria-label="Quick links">
           <ul className="nav">
             <li className="nav-item">
-              <a className="nav-link text-dark fw-semibold" href="/">Home</a>
+              <Link className="nav-link text-dark fw-semibold" to="/">Home</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link text-dark fw-semibold" href="/vendor">Vendor Panel</a>
+              <Link className="nav-link text-dark fw-semibold" to="/dashboard">Owner workspace</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link text-dark fw-semibold" href="/menu/demo">View Menu</a>
+              <Link className="nav-link text-dark fw-semibold" to="/modern/menu">View menu</Link>
             </li>
           </ul>
         </nav>

@@ -16,6 +16,7 @@ import LegalPage from './components/LegalPage';
 import HowItWorksPage from './components/HowItWorksPage';
 import ProductsPage from './components/ProductsPage';
 import ContactPage from './components/ContactPage';
+import DemoPage from './components/DemoPage';
 
 // Modern Redesign Pages
 import {
@@ -51,6 +52,9 @@ function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/landing" element={<HomePage />} />
           <Route path="/login" element={<LoginSignup />} />
+          <Route path="/signup" element={<LoginSignup initialMode="signup" />} />
+          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/vendor" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardHub />} />
           <Route path="/menu" element={<MenuBuilder />} />
           <Route path="/about" element={<AboutPage />} />

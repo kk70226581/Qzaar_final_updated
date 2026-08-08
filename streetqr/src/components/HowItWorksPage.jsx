@@ -278,7 +278,7 @@ export default function HowItWorksPage() {
             />
             <FAQItem 
               question="How are payments handled?" 
-              answer="We process payments securely via Stripe, supporting Apple Pay, Google Pay, and all major credit cards. Funds are deposited directly to your bank account."
+              answer="Payments are verified through Razorpay, with support for UPI, cards, and netbanking in the checkout flow."
             />
           </div>
         </section>
@@ -288,10 +288,10 @@ export default function HowItWorksPage() {
           <h2 className="hiw-cta-title">Ready to get started?</h2>
           <p className="hiw-cta-desc">Join hundreds of modern restaurants increasing their revenue and delighting guests with Qzaar.</p>
           <div className="hiw-cta-buttons">
-            <Link to="/login" className="hiw-btn hiw-btn-primary">
+            <Link to="/signup" className="hiw-btn hiw-btn-primary">
               Create free account <ArrowRight size={18} style={{ marginLeft: 8 }} />
             </Link>
-            <Link to="/login" className="hiw-btn hiw-btn-secondary">
+            <Link to="/demo" className="hiw-btn hiw-btn-secondary">
               Book a demo
             </Link>
           </div>

@@ -29,7 +29,7 @@ const productPoints = [
 const GOOGLE_OAUTH_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID
   || '191638845568-lm99kser6egvvne0m5n2oso7klls059b.apps.googleusercontent.com';
 
-function LoginSignup() {
+function LoginSignup({ initialMode = 'login' }) {
   const navigate = useNavigate();
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -37,7 +37,7 @@ function LoginSignup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [forgotEmail, setForgotEmail] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
+  const [isSignup, setIsSignup] = useState(initialMode === 'signup');
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPanel, setShowForgotPanel] = useState(false);
   const [resetStep, setResetStep] = useState('email');
@@ -52,6 +52,11 @@ function LoginSignup() {
   const googleButtonRef = useRef(null);
   const googleClientId = GOOGLE_OAUTH_CLIENT_ID;
   const isResetMode = showForgotPanel && !isSignup;
+
+  useEffect(() => {
+    setIsSignup(initialMode === 'signup');
+    setShowForgotPanel(false);
+  }, [initialMode]);
 
   const showMessage = useCallback((text, type) => {
     setMessage(text);

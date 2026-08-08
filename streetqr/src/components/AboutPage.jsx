@@ -19,26 +19,11 @@ const productPrinciples = [
   { icon: <ShieldCheck size={24} />, title: 'Thoughtful by default', desc: 'Authentication, payments, and account recovery are treated as core product work.' },
 ];
 
-const founders = [
-  {
-    name: 'Karan Kannaujiya',
-    role: 'Co-founder · Full-stack MERN developer',
-    education: 'B.Tech in Information Technology, IIIT Allahabad',
-    color: '#3b82f6',
-  },
-  {
-    name: 'Ankan Sarkar',
-    role: 'Co-founder',
-    education: 'IIIT Allahabad',
-    color: '#8b5cf6',
-  },
-  {
-    name: 'Pritam Kumar',
-    role: 'Co-founder',
-    education: 'IIIT Allahabad',
-    color: '#14b8a6',
-  },
-];
+const founder = {
+  name: 'Karan Kannaujiya',
+  role: 'Founder · Full-stack MERN developer',
+  education: 'B.Tech in Information Technology, IIIT Allahabad',
+};
 
 const AboutPage = () => (
   <div className="about-page">
@@ -61,8 +46,8 @@ const AboutPage = () => (
                 <span>QR menus</span><span>Live orders</span><span>Secure payments</span>
               </div>
               <div className="about-hero-actions">
-                <Link className="btn-primary" to="/login">Try Qzaar <ArrowRight size={18} /></Link>
-                <Link className="btn-secondary" to="/products">See features</Link>
+                <Link className="btn-primary" to="/signup">Try Qzaar <ArrowRight size={18} /></Link>
+                <Link className="btn-secondary" to="/demo">See the demo</Link>
               </div>
             </motion.div>
 
@@ -123,18 +108,23 @@ const AboutPage = () => (
       <section className="about-team-section">
         <div className="container">
           <div className="section-header">
-            <h2>Meet the Qzaar founders</h2>
-            <p>Built collaboratively by students from IIIT Allahabad.</p>
+            <h2>Meet the founder</h2>
+            <p>Qzaar is founded and built by Karan Kannaujiya.</p>
           </div>
-          <div className="team-grid">
-            {founders.map((founder, index) => (
-              <motion.article className="team-card" key={founder.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }}>
-                <div className="team-avatar" style={{ '--avatar-color': founder.color }}>{founder.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</div>
+          <div className="about-founder-card">
+            <motion.article className="team-card team-card--founder" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }}>
+              <div className="team-photo-wrap">
+                <img className="team-photo" src="/images/karan.jpg" alt="Karan Kannaujiya, founder of Qzaar" />
+                <span className="team-founder-badge">Founder</span>
+              </div>
+              <div className="team-card__content">
+                <span className="about-eyebrow">Building Qzaar</span>
                 <h3>{founder.name}</h3>
                 <span className="team-role">{founder.role}</span>
                 <p className="team-bio">{founder.education}</p>
-              </motion.article>
-            ))}
+                <p className="team-story">Karan is building Qzaar end to end—combining product design, restaurant workflows, and full-stack engineering into one focused platform.</p>
+              </div>
+            </motion.article>
           </div>
           <div className="about-builder-story about-founder-story">
             <span className="about-eyebrow">The product approach</span>
@@ -149,8 +139,8 @@ const AboutPage = () => (
           <div className="cta-content">
             <h2>Explore the Qzaar experience.</h2>
             <div className="cta-buttons">
-              <Link className="btn-primary" to="/login">Get started <ArrowRight size={18} /></Link>
-              <Link className="btn-secondary" to="/products">Explore features</Link>
+              <Link className="btn-primary" to="/signup">Get started <ArrowRight size={18} /></Link>
+              <Link className="btn-secondary" to="/demo">Open demo</Link>
             </div>
           </div>
         </div>
