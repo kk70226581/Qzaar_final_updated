@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, LayoutDashboard, LogIn, LogOut, Mail, Menu, Route, Sparkles, X } from 'lucide-react';
+import { BookOpen, LayoutDashboard, LogIn, LogOut, Mail, Menu, Route, ScanLine, Sparkles, X } from 'lucide-react';
 import './Navbar.css';
 import { clearSession, hasActiveSession } from '../utils/authSession';
 
@@ -55,17 +55,17 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
         {/* Brand */}
         <Link className="qz-nav__brand" to="/">
           <span className="qz-nav__logo" aria-hidden="true">
-            <span className="qz-nav__logo-q">Q</span>
+            <ScanLine className="qz-nav__logo-icon" size={23} strokeWidth={2.35} />
             <span className="qz-nav__logo-dot" />
           </span>
           <span className="qz-nav__brand-text">
-            Qzaar
+            <strong>Qzaar</strong>
             <small>Restaurant OS</small>
           </span>
         </Link>
 
         {/* Desktop links */}
-        <div className="qz-nav__links" aria-label="Primary navigation">
+        <div className="qz-nav__links" role="navigation" aria-label="Primary navigation">
           {visibleLinks.map(({ label, path, icon: Icon, end }) => (
             <NavLink
               key={path}
@@ -103,7 +103,8 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
           aria-label="Toggle navigation"
           aria-expanded={mobileOpen}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          <span>{mobileOpen ? 'Close' : 'Menu'}</span>
         </button>
       </div>
 
