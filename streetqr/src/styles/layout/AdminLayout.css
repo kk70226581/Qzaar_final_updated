@@ -276,6 +276,7 @@
 /* ========== MAIN CONTENT AREA ========== */
 .admin-layout-main-content {
   flex: 1;
+  min-width: 0;
   padding: 32px 24px;
   overflow-y: auto;
   height: calc(100vh - 64px);
@@ -307,6 +308,8 @@
 .dark .admin-sidebar__link:hover { background: #172033; border-color: #26354e; }
 
 .admin-layout-container {
+  width: 100%;
+  min-width: 0;
   max-width: 1400px;
   margin: 0 auto;
 }

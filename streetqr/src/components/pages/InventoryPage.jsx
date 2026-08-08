@@ -1,519 +1,365 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Package,
   AlertTriangle,
-  Plus,
-  Minus,
-  Edit2,
-  Trash2,
-  Search,
-  MoreVertical,
-  TrendingDown,
+  CalendarClock,
   Check,
+  IndianRupee,
+  Minus,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
 } from 'lucide-react';
 import {
-  ModernCard,
+  ModernBadge,
   ModernButton,
   ModernInput,
-  ModernBadge,
   ModernModal,
 } from '../ui';
 import AdminLayout from '../layout/AdminLayout';
 import '../../styles/pages/InventoryPage.css';
 
-/**
- * InventoryPage - Restaurant inventory management
- * 
- * Features:
- * - Inventory tracking
- * - Low stock alerts
- * - Stock level management
- * - Item categories
- * - Reorder automation
- * - Stock history
- * - Expiry tracking
- * - Search and filters
- */
+const categories = [
+  { id: 'all', label: 'All items' },
+  { id: 'dairy', label: 'Dairy' },
+  { id: 'meat', label: 'Meat' },
+  { id: 'grains', label: 'Grains' },
+  { id: 'oils', label: 'Oils & ghee' },
+  { id: 'vegetables', label: 'Vegetables' },
+];
+
+const initialItems = [
+  { id: 1, name: 'Paneer', category: 'dairy', unit: 'kg', currentStock: 8, minStock: 10, maxStock: 30, costPerUnit: 350, expiryDate: '2026-08-20' },
+  { id: 2, name: 'Chicken Breast', category: 'meat', unit: 'kg', currentStock: 15, minStock: 10, maxStock: 40, costPerUnit: 280, expiryDate: '2026-08-11' },
+  { id: 3, name: 'Basmati Rice', category: 'grains', unit: 'kg', currentStock: 25, minStock: 20, maxStock: 60, costPerUnit: 80, expiryDate: '2027-03-15' },
+  { id: 4, name: 'Olive Oil', category: 'oils', unit: 'liters', currentStock: 4, minStock: 5, maxStock: 15, costPerUnit: 600, expiryDate: '2027-01-20' },
+  { id: 5, name: 'Garlic', category: 'vegetables', unit: 'kg', currentStock: 1, minStock: 3, maxStock: 10, costPerUnit: 120, expiryDate: '2026-08-12' },
+  { id: 6, name: 'All-Purpose Flour', category: 'grains', unit: 'kg', currentStock: 42, minStock: 30, maxStock: 80, costPerUnit: 45, expiryDate: '2027-05-30' },
+];
+
+const emptyForm = {
+  name: '',
+  category: 'dairy',
+  unit: 'kg',
+  currentStock: '',
+  minStock: '',
+  maxStock: '',
+  costPerUnit: '',
+  expiryDate: '',
+};
+
+const getStockStatus = (item) => {
+  if (item.currentStock <= Math.max(1, item.minStock * 0.5)) return 'critical';
+  if (item.currentStock <= item.minStock) return 'low';
+  return 'optimal';
+};
+
+const getStatusBadge = (status) => ({
+  critical: { variant: 'danger', label: 'Critical' },
+  low: { variant: 'warning', label: 'Low stock' },
+  optimal: { variant: 'success', label: 'Healthy' },
+}[status] || { variant: 'default', label: 'Unknown' });
+
+const getExpiryDetails = (dateValue) => {
+  if (!dateValue) return { label: 'No date', tone: 'neutral', days: Infinity };
+  const expiry = new Date(`${dateValue}T23:59:59`);
+  const days = Math.ceil((expiry.getTime() - Date.now()) / 86400000);
+
+  if (days < 0) return { label: 'Expired', tone: 'danger', days };
+  if (days === 0) return { label: 'Expires today', tone: 'danger', days };
+  if (days <= 7) return { label: `${days}d left`, tone: 'warning', days };
+  if (days <= 14) return { label: `${days}d left`, tone: 'soon', days };
+  return { label: 'Fresh', tone: 'neutral', days };
+};
+
+const formatDate = (dateValue) => new Intl.DateTimeFormat('en-IN', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+}).format(new Date(`${dateValue}T00:00:00`));
 
 const InventoryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [sortBy, setSortBy] = useState('status');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [inventoryItems, setInventoryItems] = useState(initialItems);
 
-  const [inventoryItems, setInventoryItems] = useState([
-    {
-      id: 1,
-      name: 'Paneer',
-      category: 'dairy',
-      unit: 'kg',
-      currentStock: 8,
-      minStock: 10,
-      maxStock: 30,
-      costPerUnit: 350,
-      expiryDate: '2024-07-15',
-      lastUpdated: '2024-07-05',
-      status: 'low',
-    },
-    {
-      id: 2,
-      name: 'Chicken Breast',
-      category: 'meat',
-      unit: 'kg',
-      currentStock: 15,
-      minStock: 10,
-      maxStock: 40,
-      costPerUnit: 280,
-      expiryDate: '2024-07-07',
-      lastUpdated: '2024-07-05',
-      status: 'optimal',
-    },
-    {
-      id: 3,
-      name: 'Basmati Rice',
-      category: 'grains',
-      unit: 'kg',
-      currentStock: 25,
-      minStock: 20,
-      maxStock: 60,
-      costPerUnit: 80,
-      expiryDate: '2025-01-01',
-      lastUpdated: '2024-07-04',
-      status: 'optimal',
-    },
-    {
-      id: 4,
-      name: 'Olive Oil',
-      category: 'oils',
-      unit: 'liters',
-      currentStock: 3,
-      minStock: 5,
-      maxStock: 15,
-      costPerUnit: 600,
-      expiryDate: '2025-06-01',
-      lastUpdated: '2024-07-05',
-      status: 'low',
-    },
-    {
-      id: 5,
-      name: 'Garlic',
-      category: 'vegetables',
-      unit: 'kg',
-      currentStock: 2,
-      minStock: 3,
-      maxStock: 10,
-      costPerUnit: 120,
-      expiryDate: '2024-07-20',
-      lastUpdated: '2024-07-03',
-      status: 'critical',
-    },
-    {
-      id: 6,
-      name: 'All-Purpose Flour',
-      category: 'grains',
-      unit: 'kg',
-      currentStock: 42,
-      minStock: 30,
-      maxStock: 80,
-      costPerUnit: 45,
-      expiryDate: '2024-12-01',
-      lastUpdated: '2024-07-02',
-      status: 'optimal',
-    },
-  ]);
-
-  const categories = [
-    { id: 'all', label: 'All Items' },
-    { id: 'dairy', label: 'Dairy' },
-    { id: 'meat', label: 'Meat' },
-    { id: 'grains', label: 'Grains' },
-    { id: 'oils', label: 'Oils & Ghee' },
-    { id: 'vegetables', label: 'Vegetables' },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 30 },
-    },
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'critical':
-        return { variant: 'danger', label: 'Critical' };
-      case 'low':
-        return { variant: 'warning', label: 'Low Stock' };
-      case 'optimal':
-        return { variant: 'success', label: 'In Stock' };
-      default:
-        return { variant: 'default', label: 'Unknown' };
-    }
-  };
-
-  const getStockPercentage = (current, min, max) => {
-    if (current <= min) return 25;
-    if (current >= max) return 100;
-    return ((current - min) / (max - min)) * 100;
-  };
-
-  const filteredItems = inventoryItems
-    .filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredItems = useMemo(() => inventoryItems
+    .filter((item) => {
+      const query = searchTerm.trim().toLowerCase();
+      const matchesSearch = !query || item.name.toLowerCase().includes(query) || item.category.includes(query);
       const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name);
-      if (sortBy === 'stock') return b.currentStock - a.currentStock;
-      if (sortBy === 'status') {
-        const statusOrder = { critical: 0, low: 1, optimal: 2 };
-        return statusOrder[a.status] - statusOrder[b.status];
-      }
-      return 0;
+      if (sortBy === 'stock') return a.currentStock - b.currentStock;
+      if (sortBy === 'expiry') return new Date(a.expiryDate) - new Date(b.expiryDate);
+      const statusOrder = { critical: 0, low: 1, optimal: 2 };
+      return statusOrder[getStockStatus(a)] - statusOrder[getStockStatus(b)];
+    }), [inventoryItems, searchTerm, selectedCategory, sortBy]);
+
+  const lowStockCount = inventoryItems.filter((item) => getStockStatus(item) !== 'optimal').length;
+  const totalValue = inventoryItems.reduce((sum, item) => sum + item.currentStock * item.costPerUnit, 0);
+  const expiringSoonCount = inventoryItems.filter((item) => getExpiryDetails(item.expiryDate).days <= 14).length;
+
+  const updateStock = (itemId, delta) => {
+    setInventoryItems((items) => items.map((item) => (
+      item.id === itemId
+        ? { ...item, currentStock: Math.min(Math.max(item.currentStock + delta, 0), item.maxStock) }
+        : item
+    )));
+  };
+
+  const openAddModal = () => {
+    setEditingItemId(null);
+    setFormData(emptyForm);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item) => {
+    setEditingItemId(item.id);
+    setFormData({
+      name: item.name,
+      category: item.category,
+      unit: item.unit,
+      currentStock: String(item.currentStock),
+      minStock: String(item.minStock),
+      maxStock: String(item.maxStock),
+      costPerUnit: String(item.costPerUnit),
+      expiryDate: item.expiryDate,
     });
-
-  const lowStockCount = inventoryItems.filter(item => item.status !== 'optimal').length;
-  const totalValue = inventoryItems.reduce((sum, item) => sum + (item.currentStock * item.costPerUnit), 0);
-
-  const handleAddStock = (itemId, amount) => {
-    setInventoryItems(items =>
-      items.map(item =>
-        item.id === itemId
-          ? { ...item, currentStock: Math.min(item.currentStock + amount, item.maxStock) }
-          : item
-      )
-    );
+    setIsModalOpen(true);
   };
 
-  const handleRemoveStock = (itemId, amount) => {
-    setInventoryItems(items =>
-      items.map(item =>
-        item.id === itemId
-          ? { ...item, currentStock: Math.max(item.currentStock - amount, 0) }
-          : item
-      )
-    );
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingItemId(null);
+    setFormData(emptyForm);
   };
 
-  const handleDeleteItem = (itemId) => {
-    setInventoryItems(items => items.filter(item => item.id !== itemId));
+  const handleFormChange = (field, value) => {
+    setFormData((current) => ({ ...current, [field]: value }));
   };
+
+  const handleSaveItem = () => {
+    const nextItem = {
+      name: formData.name.trim(),
+      category: formData.category,
+      unit: formData.unit.trim() || 'units',
+      currentStock: Math.max(0, Number(formData.currentStock) || 0),
+      minStock: Math.max(0, Number(formData.minStock) || 0),
+      maxStock: Math.max(1, Number(formData.maxStock) || 1),
+      costPerUnit: Math.max(0, Number(formData.costPerUnit) || 0),
+      expiryDate: formData.expiryDate,
+    };
+
+    if (!nextItem.name || !nextItem.expiryDate) return;
+    nextItem.currentStock = Math.min(nextItem.currentStock, nextItem.maxStock);
+
+    if (editingItemId) {
+      setInventoryItems((items) => items.map((item) => (
+        item.id === editingItemId ? { ...item, ...nextItem } : item
+      )));
+    } else {
+      setInventoryItems((items) => [...items, { ...nextItem, id: Date.now() }]);
+    }
+    closeModal();
+  };
+
+  const summaryCards = [
+    { label: 'Tracked items', value: inventoryItems.length, detail: `${categories.length - 1} categories`, icon: Package, tone: 'blue' },
+    { label: 'Needs attention', value: lowStockCount, detail: 'At or below minimum', icon: AlertTriangle, tone: 'amber' },
+    { label: 'Inventory value', value: `₹${(totalValue / 1000).toFixed(1)}K`, detail: 'Current stock value', icon: IndianRupee, tone: 'green' },
+    { label: 'Expiring soon', value: expiringSoonCount, detail: 'Within the next 14 days', icon: CalendarClock, tone: 'violet' },
+  ];
 
   return (
-    <AdminLayout title="Inventory Management">
-      <motion.div
-        className="inventory"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="inventory__controls-row">
+    <AdminLayout title="Inventory">
+      <motion.div className="inventory" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <section className="inventory__hero">
           <div className="inventory__hero-copy">
             <p className="inventory__eyebrow"><span /> Stock control centre</p>
-            <h2>Keep every ingredient service-ready.</h2>
-            <p>Track stock levels, item costs and expiry alerts from one place.</p>
+            <h2>Everything you need for the next service.</h2>
+            <p>Monitor stock, catch expiry risks, and update quantities without leaving the floor.</p>
           </div>
-          <ModernButton
-            variant="primary"
-            size="md"
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            <Plus size={18} />
-            Add Item
+          <ModernButton variant="primary" size="md" onClick={openAddModal}>
+            <Plus size={18} /> Add item
           </ModernButton>
+        </section>
+
+        <section className="inventory__stats" aria-label="Inventory overview">
+          {summaryCards.map(({ icon: Icon, ...card }, index) => (
+            <motion.article
+              className={`inventory__stat-card inventory__stat-card--${card.tone}`}
+              key={card.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <span className="inventory__stat-icon"><Icon size={20} /></span>
+              <div><p>{card.label}</p><strong>{card.value}</strong><small>{card.detail}</small></div>
+            </motion.article>
+          ))}
+        </section>
+
+        <section className="inventory__toolbar" aria-label="Inventory filters">
+          <div className="inventory__search">
+            <Search size={18} />
+            <input
+              type="search"
+              placeholder="Search ingredients or categories"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              aria-label="Search inventory"
+            />
+          </div>
+          <div className="inventory__category-tabs" role="group" aria-label="Filter by category">
+            {categories.map((category) => (
+              <button
+                type="button"
+                key={category.id}
+                className={selectedCategory === category.id ? 'is-active' : ''}
+                onClick={() => setSelectedCategory(category.id)}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+          <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} aria-label="Sort inventory">
+            <option value="status">Attention first</option>
+            <option value="name">Name A–Z</option>
+            <option value="stock">Lowest stock</option>
+            <option value="expiry">Expiry date</option>
+          </select>
+        </section>
+
+        <div className="inventory__result-line">
+          <span><strong>{filteredItems.length}</strong> of {inventoryItems.length} items</span>
+          {lowStockCount > 0 && <span className="inventory__attention"><AlertTriangle size={14} /> {lowStockCount} need attention</span>}
         </div>
 
-        <div className="inventory__container-inner">
-        {/* STATS CARDS */}
-        <motion.div
-          className="inventory__stats"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div className="inventory__stat-card" variants={itemVariants}>
-            <div className="inventory__stat-icon inventory__stat-icon--info">
-              <Package size={24} />
+        <section className="inventory__items" aria-live="polite">
+          {filteredItems.length > 0 ? filteredItems.map((item, index) => {
+            const status = getStockStatus(item);
+            const statusBadge = getStatusBadge(status);
+            const expiry = getExpiryDetails(item.expiryDate);
+            const stockPercentage = Math.min((item.currentStock / item.maxStock) * 100, 100);
+            const categoryLabel = categories.find((category) => category.id === item.category)?.label || item.category;
+
+            return (
+              <motion.article
+                className={`inventory__item inventory__item--${status}`}
+                key={item.id}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index * 0.04, 0.2) }}
+              >
+                <div className="inventory__item-topline" />
+                <header className="inventory__item-header">
+                  <span className="inventory__item-icon"><Package size={19} /></span>
+                  <div className="inventory__item-title">
+                    <h3>{item.name}</h3>
+                    <span>{categoryLabel}</span>
+                  </div>
+                  <ModernBadge variant={statusBadge.variant} size="sm">{statusBadge.label}</ModernBadge>
+                </header>
+
+                <div className="inventory__stock-overview">
+                  <div><strong>{item.currentStock}</strong><span>{item.unit} available</span></div>
+                  <span>{Math.round(stockPercentage)}% of capacity</span>
+                </div>
+                <div className="inventory__stock-bar" aria-label={`${Math.round(stockPercentage)} percent stocked`}>
+                  <span style={{ width: `${stockPercentage}%` }} />
+                </div>
+                <div className="inventory__stock-limits">
+                  <span>Reorder at {item.minStock} {item.unit}</span>
+                  <span>Capacity {item.maxStock} {item.unit}</span>
+                </div>
+
+                <div className="inventory__details">
+                  <div><span>Unit cost</span><strong>₹{item.costPerUnit}/{item.unit}</strong></div>
+                  <div><span>Stock value</span><strong>₹{(item.currentStock * item.costPerUnit).toLocaleString('en-IN')}</strong></div>
+                  <div className={`inventory__expiry inventory__expiry--${expiry.tone}`}>
+                    <span>Expiry · {expiry.label}</span><strong>{formatDate(item.expiryDate)}</strong>
+                  </div>
+                </div>
+
+                <footer className="inventory__item-actions">
+                  <div className="inventory__stepper" aria-label={`Update ${item.name} stock`}>
+                    <button type="button" onClick={() => updateStock(item.id, -1)} disabled={item.currentStock <= 0} aria-label={`Decrease ${item.name} stock`}><Minus size={15} /></button>
+                    <strong>{item.currentStock}</strong>
+                    <button type="button" onClick={() => updateStock(item.id, 1)} disabled={item.currentStock >= item.maxStock} aria-label={`Increase ${item.name} stock`}><Plus size={15} /></button>
+                  </div>
+                  <div className="inventory__quick-actions">
+                    <button type="button" onClick={() => openEditModal(item)} aria-label={`Edit ${item.name}`} title="Edit item"><Pencil size={16} /></button>
+                    <button type="button" className="is-danger" onClick={() => setInventoryItems((items) => items.filter((entry) => entry.id !== item.id))} aria-label={`Delete ${item.name}`} title="Delete item"><Trash2 size={16} /></button>
+                  </div>
+                </footer>
+              </motion.article>
+            );
+          }) : (
+            <div className="inventory__empty">
+              <span><Search size={25} /></span>
+              <h3>No matching ingredients</h3>
+              <p>Try another search or clear the active category.</p>
+              <button type="button" onClick={() => { setSearchTerm(''); setSelectedCategory('all'); }}>Clear filters</button>
             </div>
-            <div className="inventory__stat-content">
-              <p className="inventory__stat-label">Total Items</p>
-              <p className="inventory__stat-value">{inventoryItems.length}</p>
-            </div>
-          </motion.div>
-
-          <motion.div className="inventory__stat-card" variants={itemVariants}>
-            <div className="inventory__stat-icon inventory__stat-icon--warning">
-              <AlertTriangle size={24} />
-            </div>
-            <div className="inventory__stat-content">
-              <p className="inventory__stat-label">Low Stock</p>
-              <p className="inventory__stat-value">{lowStockCount}</p>
-            </div>
-          </motion.div>
-
-          <motion.div className="inventory__stat-card" variants={itemVariants}>
-            <div className="inventory__stat-icon inventory__stat-icon--success">
-              <TrendingDown size={24} />
-            </div>
-            <div className="inventory__stat-content">
-              <p className="inventory__stat-label">Stock Value</p>
-              <p className="inventory__stat-value">₹{(totalValue / 1000).toFixed(1)}K</p>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* FILTERS & SEARCH */}
-        <motion.div
-          className="inventory__filters"
-          variants={itemVariants}
-        >
-          <ModernCard variant="flat">
-            <div className="inventory__filter-row">
-              <div className="inventory__search">
-                <Search size={18} />
-                <ModernInput
-                  type="text"
-                  placeholder="Search items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="inventory__search-input"
-                />
-              </div>
-
-              <div className="inventory__filter-controls">
-                <select
-                  className="inventory__filter-select"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.label}</option>
-                  ))}
-                </select>
-
-                <select
-                  className="inventory__filter-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="name">Sort by Name</option>
-                  <option value="stock">Sort by Stock</option>
-                  <option value="status">Sort by Status</option>
-                </select>
-              </div>
-            </div>
-          </ModernCard>
-        </motion.div>
-
-        {/* ITEMS LIST */}
-        <motion.div
-          className="inventory__items"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item, idx) => {
-              const statusBadge = getStatusBadge(item.status);
-              const stockPercentage = getStockPercentage(item.currentStock, item.minStock, item.maxStock);
-
-              return (
-                <motion.div
-                  key={item.id}
-                  className="inventory__item"
-                  variants={itemVariants}
-                >
-                  <ModernCard variant="elevated">
-                    <div className="inventory__item-header">
-                      <div className="inventory__item-title">
-                        <h3 className="inventory__item-name">{item.name}</h3>
-                        <ModernBadge variant={statusBadge.variant} size="sm">
-                          {statusBadge.label}
-                        </ModernBadge>
-                      </div>
-                      <button
-                        className="inventory__item-menu"
-                        onClick={() => setSelectedItem(item.id === selectedItem ? null : item.id)}
-                        aria-label="More options"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
-                    </div>
-
-                    <div className="inventory__item-content">
-                      <div className="inventory__item-meta">
-                        <span className="inventory__meta-label">Unit:</span>
-                        <span className="inventory__meta-value">{item.unit}</span>
-                      </div>
-                      <div className="inventory__item-meta">
-                        <span className="inventory__meta-label">Cost:</span>
-                        <span className="inventory__meta-value">₹{item.costPerUnit}/{item.unit}</span>
-                      </div>
-                      <div className="inventory__item-meta">
-                        <span className="inventory__meta-label">Expiry:</span>
-                        <span className={`inventory__meta-value ${new Date(item.expiryDate) < new Date() ? 'expired' : ''}`}>
-                          {item.expiryDate}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="inventory__stock-section">
-                      <div className="inventory__stock-header">
-                        <span className="inventory__stock-label">Stock Level</span>
-                        <span className="inventory__stock-range">
-                          {item.currentStock}/{item.maxStock} {item.unit}
-                        </span>
-                      </div>
-                      <div className="inventory__stock-bar">
-                        <div
-                          className="inventory__stock-fill"
-                          style={{ width: `${Math.min(stockPercentage, 100)}%` }}
-                        />
-                      </div>
-                      <div className="inventory__stock-info">
-                        <span>Min: {item.minStock}</span>
-                        <span>Max: {item.maxStock}</span>
-                      </div>
-                    </div>
-
-                    <div className="inventory__item-actions">
-                      <button
-                        className="inventory__qty-btn inventory__qty-btn--decrease"
-                        onClick={() => handleRemoveStock(item.id, 1)}
-                        disabled={item.currentStock <= 0}
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="inventory__qty-display">{item.currentStock}</span>
-                      <button
-                        className="inventory__qty-btn inventory__qty-btn--increase"
-                        onClick={() => handleAddStock(item.id, 1)}
-                        disabled={item.currentStock >= item.maxStock}
-                      >
-                        <Plus size={16} />
-                      </button>
-
-                      <div className="inventory__item-buttons">
-                        <ModernButton
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setSelectedItem(item.id)}
-                        >
-                          <Edit2 size={16} />
-                          Edit
-                        </ModernButton>
-                        <ModernButton
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleDeleteItem(item.id)}
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </ModernButton>
-                      </div>
-                    </div>
-                  </ModernCard>
-                </motion.div>
-              );
-            })
-          ) : (
-            <ModernCard variant="flat">
-              <div className="inventory__empty">
-                <Package size={48} />
-                <p>No items found</p>
-                <ModernButton
-                  variant="primary"
-                  size="md"
-                  onClick={() => setIsAddModalOpen(true)}
-                >
-                  Add First Item
-                </ModernButton>
-              </div>
-            </ModernCard>
           )}
-        </motion.div>
-      </div>
+        </section>
 
-      {/* ADD ITEM MODAL */}
-      <ModernModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Add Inventory Item"
-      >
-        <div className="inventory__modal-content">
-          <div className="inventory__form-group">
-            <label>Item Name</label>
-            <ModernInput placeholder="e.g., Paneer" />
+        <ModernModal isOpen={isModalOpen} onClose={closeModal} title={editingItemId ? 'Edit inventory item' : 'Add inventory item'}>
+          <div className="inventory__modal-content">
+            <label className="inventory__form-group inventory__form-group--wide">
+              <span>Item name</span>
+              <ModernInput value={formData.name} onChange={(event) => handleFormChange('name', event.target.value)} placeholder="e.g., Paneer" />
+            </label>
+            <label className="inventory__form-group">
+              <span>Category</span>
+              <select value={formData.category} onChange={(event) => handleFormChange('category', event.target.value)}>
+                {categories.filter((category) => category.id !== 'all').map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}
+              </select>
+            </label>
+            <label className="inventory__form-group">
+              <span>Unit</span>
+              <ModernInput value={formData.unit} onChange={(event) => handleFormChange('unit', event.target.value)} placeholder="kg, liters, pcs" />
+            </label>
+            <label className="inventory__form-group">
+              <span>Current stock</span>
+              <ModernInput type="number" min="0" value={formData.currentStock} onChange={(event) => handleFormChange('currentStock', event.target.value)} />
+            </label>
+            <label className="inventory__form-group">
+              <span>Reorder level</span>
+              <ModernInput type="number" min="0" value={formData.minStock} onChange={(event) => handleFormChange('minStock', event.target.value)} />
+            </label>
+            <label className="inventory__form-group">
+              <span>Maximum capacity</span>
+              <ModernInput type="number" min="1" value={formData.maxStock} onChange={(event) => handleFormChange('maxStock', event.target.value)} />
+            </label>
+            <label className="inventory__form-group">
+              <span>Cost per unit (₹)</span>
+              <ModernInput type="number" min="0" value={formData.costPerUnit} onChange={(event) => handleFormChange('costPerUnit', event.target.value)} />
+            </label>
+            <label className="inventory__form-group inventory__form-group--wide">
+              <span>Expiry date</span>
+              <ModernInput type="date" value={formData.expiryDate} onChange={(event) => handleFormChange('expiryDate', event.target.value)} />
+            </label>
+            <div className="inventory__modal-actions">
+              <ModernButton variant="secondary" size="md" onClick={closeModal}>Cancel</ModernButton>
+              <ModernButton variant="primary" size="md" onClick={handleSaveItem} disabled={!formData.name.trim() || !formData.expiryDate}>
+                <Check size={17} /> {editingItemId ? 'Save changes' : 'Add item'}
+              </ModernButton>
+            </div>
           </div>
-          <div className="inventory__form-group">
-            <label>Category</label>
-            <select className="inventory__modal-select">
-              {categories.filter(c => c.id !== 'all').map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="inventory__form-group">
-            <label>Unit (kg, liters, pcs, etc.)</label>
-            <ModernInput placeholder="e.g., kg" />
-          </div>
-          <div className="inventory__form-group">
-            <label>Current Stock</label>
-            <ModernInput type="number" placeholder="0" />
-          </div>
-          <div className="inventory__form-group">
-            <label>Min Stock</label>
-            <ModernInput type="number" placeholder="0" />
-          </div>
-          <div className="inventory__form-group">
-            <label>Max Stock</label>
-            <ModernInput type="number" placeholder="0" />
-          </div>
-          <div className="inventory__form-group">
-            <label>Cost Per Unit (₹)</label>
-            <ModernInput type="number" placeholder="0" />
-          </div>
-          <div className="inventory__form-group">
-            <label>Expiry Date</label>
-            <ModernInput type="date" />
-          </div>
-          <div className="inventory__modal-actions">
-            <ModernButton
-              variant="secondary"
-              size="md"
-              onClick={() => setIsAddModalOpen(false)}
-            >
-              Cancel
-            </ModernButton>
-            <ModernButton
-              variant="primary"
-              size="md"
-              onClick={() => setIsAddModalOpen(false)}
-            >
-              <Check size={18} />
-              Add Item
-            </ModernButton>
-          </div>
-        </div>
-      </ModernModal>
-    </motion.div>
-  </AdminLayout>
-);
+        </ModernModal>
+      </motion.div>
+    </AdminLayout>
+  );
 };
-
-
 
 export default InventoryPage;
