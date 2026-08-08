@@ -41,6 +41,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3002',
   FRONTEND_URL,
+  'https://qzaar.store',
   'https://www.qzaar.store',
   'https://updated-ver.vercel.app',
   'https://updated-ver.onrender.com',
