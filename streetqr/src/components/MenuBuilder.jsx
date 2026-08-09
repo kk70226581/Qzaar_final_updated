@@ -11,10 +11,13 @@ import {
   Camera,
   ChevronDown,
   Clock3,
+  CircleDollarSign,
+  Eye,
   ImageOff,
   ImagePlus,
   Leaf,
   LoaderCircle,
+  LayoutGrid,
   LogOut,
   Plus,
   Search,
@@ -114,7 +117,7 @@ const demoItems = [
   { name: 'Rasmalai', price: '120', remarks: 'Soft cheese patties in saffron milk with pistachios.', category: 'Desserts', image: 'https://images.unsplash.com/photo-1595246140625-5736f7c1a74c?auto=format&fit=crop&w=900&q=80', prepTime: 5, spiceLevel: 'Mild', featured: false, isVeg: true, available: true },
 ];
 
-const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 const getTodayIso = () => new Date().toISOString().split('T')[0];
 const createCouponDraft = () => ({
   code: '',
@@ -586,15 +589,16 @@ function MenuBuilder() {
         {/* HEADER BAR */}
         <header className="builder-header">
           <div className="builder-header__left">
-            <div className="builder-header__logo">Q</div>
-            <span className="builder-header__title">Menu Builder</span>
-            <span className="builder-header__step-indicator">Step {activeStep} of 4</span>
+            <div className="builder-header__logo"><UtensilsCrossed size={18} /></div>
+            <span className="builder-header__title">Menu workspace<small>{shopProfile.shopName || 'Restaurant setup'}</small></span>
+            <span className="builder-header__step-indicator">Step {activeStep} of 4 · {steps[activeStep - 1].label}</span>
           </div>
           <div className="builder-header__right">
             <div className="builder-stats-row">
-              <span>{stats.totalItems} Items</span>
-              <span className="builder-score-badge">{stats.readinessScore}% Ready</span>
+              <span>{stats.totalItems} dishes</span>
+              <span className="builder-score-badge"><i style={{ width: `${stats.readinessScore}%` }} />{stats.readinessScore}% ready</span>
             </div>
+            <button type="button" className="builder-header-preview" onClick={() => navigate(`/modern/menu/${shopId}`)}><Eye size={16} /> Guest preview</button>
             <button className="builder-logout-btn" onClick={handleLogout} title="Logout">
               <LogOut size={20} />
             </button>
@@ -609,6 +613,24 @@ function MenuBuilder() {
             </div>
           )}
 
+          <section className="builder-workspace-intro">
+            <div className="builder-workspace-intro__copy">
+              <span><Sparkles size={14} /> Restaurant menu control</span>
+              <h1>Build a menu guests can order from.</h1>
+              <p>Shape your restaurant identity, keep every dish current, create offers, and publish the complete QR experience from one workspace.</p>
+              <div className="builder-workspace-intro__actions">
+                <button type="button" className="builder-action builder-action--primary" onClick={() => goToStep(2)}><Plus size={17} /> Manage dishes</button>
+                <button type="button" className="builder-action builder-action--secondary" onClick={() => navigate(`/modern/menu/${shopId}`)}><Eye size={17} /> View guest menu</button>
+              </div>
+            </div>
+            <div className="builder-workspace-intro__metrics">
+              <article><span className="is-violet"><UtensilsCrossed size={18} /></span><div><small>TOTAL DISHES</small><b>{stats.totalItems}</b><em>Across {categoryOptions.length} categories</em></div></article>
+              <article><span className="is-green"><CheckCircle size={18} /></span><div><small>AVAILABLE NOW</small><b>{stats.availableItems}</b><em>{Math.max(0, stats.totalItems - stats.availableItems)} currently paused</em></div></article>
+              <article><span className="is-orange"><Star size={18} /></span><div><small>FEATURED</small><b>{stats.featuredItems}</b><em>Highlighted for guests</em></div></article>
+              <article><span className="is-blue"><CircleDollarSign size={18} /></span><div><small>AVERAGE PRICE</small><b>{formatCurrency(stats.averagePrice)}</b><em>Across the full menu</em></div></article>
+            </div>
+          </section>
+
           {/* STEP WIZARD */}
           <div className="builder-stepper">
             <div className="builder-stepper__line">
@@ -617,7 +639,8 @@ function MenuBuilder() {
             {steps.map((step) => {
               const Icon = step.icon;
               return (
-                <div 
+                <button
+                  type="button"
                   key={step.id} 
                   className={`builder-step-item ${activeStep === step.id ? 'builder-step-item--active' : ''} ${activeStep > step.id ? 'builder-step-item--done' : ''}`}
                   onClick={() => goToStep(step.id)}
@@ -629,7 +652,7 @@ function MenuBuilder() {
                     <div className="builder-step-title"><Icon size={14} /> {step.label}</div>
                     <div className="builder-step-hint">{step.hint}</div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -732,6 +755,19 @@ function MenuBuilder() {
               {/* STEP 2: MENU */}
               {activeStep === 2 && (
                 <motion.div key="step2" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+                  <div className="builder-section-heading">
+                    <div><span><LayoutGrid size={14} /> Menu catalogue</span><h2>Every dish, easy to find and update.</h2><p>{filteredItems.length} of {items.length} dishes shown · Changes stay in draft until you publish.</p></div>
+                    <button type="button" className="builder-action builder-action--primary" onClick={() => setIsAddingItem(true)}><Plus size={17} /> Add new dish</button>
+                  </div>
+
+                  <div className="builder-category-rail" aria-label="Filter dishes by category">
+                    <button type="button" className={activeCategory === 'All' ? 'is-active' : ''} onClick={() => setActiveCategory('All')}><LayoutGrid size={15} /><span>All dishes</span><b>{items.length}</b></button>
+                    {categoryOptions.map((category) => {
+                      const count = items.filter((item) => item.category === category).length;
+                      return <button type="button" className={activeCategory === category ? 'is-active' : ''} onClick={() => setActiveCategory(category)} key={category}><span>{category}</span><b>{count}</b></button>;
+                    })}
+                  </div>
+
                   <div className="builder-toolbar">
                     <div className="builder-search-wrapper">
                       <Search size={18} color="#64748b" />
@@ -748,25 +784,17 @@ function MenuBuilder() {
                       <option value="featured">Featured first</option>
                     </select>
                     
-                    {/* Add Item Desktop Button */}
-                    <button className="btn btn-primary" style={{ display: window.innerWidth > 900 ? 'flex' : 'none' }} onClick={() => setIsAddingItem(true)}>
-                      <Plus size={18} /> Add Dish
-                    </button>
                   </div>
-
-                  {/* Add Item FAB (Mobile) */}
-                  <button className="btn btn-primary fab-btn" style={{ display: window.innerWidth <= 900 ? 'flex' : 'none' }} onClick={() => setIsAddingItem(true)}>
-                    <Plus size={20} /> Add Dish
-                  </button>
 
                   <div className="builder-menu-grid">
                     {filteredItems.length === 0 ? (
-                      <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#64748b' }}>No dishes found.</div>
+                      <div className="builder-menu-empty"><span><Search size={22} /></span><h3>No dishes found</h3><p>Try another category or search term, or add a new dish to this menu.</p><button type="button" onClick={() => { setSearchTerm(''); setActiveCategory('All'); }}>Clear filters</button></div>
                     ) : (
-                      filteredItems.map((item) => {
+                      filteredItems.map((item, visibleIndex) => {
                         const originalIndex = items.findIndex((c, i) => c.name === item.name && c.category === item.category && c.price === item.price);
                         return (
                           <div className="builder-menu-card" key={`${item.name}-${originalIndex}`}>
+                            <span className="builder-menu-card__number">{String(visibleIndex + 1).padStart(2, '0')}</span>
                             <SmartImage 
                               src={item.image} 
                               alt={item.name} 
@@ -784,11 +812,11 @@ function MenuBuilder() {
                                 {item.isVeg && <span className="builder-badge builder-badge--veg">Veg</span>}
                                 {item.featured && <span className="builder-badge builder-badge--featured" style={{background:'#fffbeb', color:'#d97706', border:'1px solid #fde68a'}}>Featured</span>}
                               </div>
+                              <p className="builder-menu-card__description">{item.remarks || 'Add a short description so guests know what makes this dish special.'}</p>
                               <div className="builder-menu-card__meta">
                                 <span><Clock3 size={14} style={{verticalAlign:'middle', marginRight:'4px'}}/>{item.prepTime}m</span>
                                 <div style={{flex: 1}}></div>
-                                <div className={`builder-status-dot ${item.available ? 'active' : 'inactive'}`}></div>
-                                <span>{item.available ? 'Available' : 'Unavailable'}</span>
+                                <button type="button" className={`builder-availability ${item.available ? 'is-on' : ''}`} onClick={() => handleItemChange(originalIndex, 'available', !item.available)}><i /><span>{item.available ? 'Available' : 'Paused'}</span></button>
                               </div>
                               <div className="builder-menu-card__actions">
                                 <button className="btn btn-icon" onClick={() => duplicateItem(originalIndex)} title="Duplicate"><Copy size={16}/></button>
