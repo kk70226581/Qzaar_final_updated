@@ -3,6 +3,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
   BarChart3,
+  BookOpen,
+  Building2,
   Check,
   ChefHat,
   ChevronRight,
@@ -10,9 +12,12 @@ import {
   Clock3,
   CreditCard,
   Gauge,
+  IndianRupee,
   Layers3,
+  MapPin,
   PackageCheck,
   QrCode,
+  RefreshCw,
   ScanLine,
   Settings2,
   ShieldCheck,
@@ -117,6 +122,21 @@ const roleCards = [
   { role: 'For service teams', title: 'One shared order picture', copy: 'Table and item details stay visible as each order moves.', icon: ClipboardCheck },
   { role: 'For the kitchen', title: 'A queue made for action', copy: 'Incoming, preparing, and ready states create a clear rhythm.', icon: ChefHat },
   { role: 'For operators', title: 'Control beyond the rush', copy: 'Menu, performance, inventory, and settings live together.', icon: Gauge },
+];
+
+const comparisonRows = [
+  { moment: 'Price or item update', physical: 'Reprint pages or explain changes at every table.', qzaar: 'Update the digital menu once and publish the change.' },
+  { moment: 'Sold-out dish', physical: 'Guests often find out after they have chosen.', qzaar: 'Pause availability so the live menu stays current.' },
+  { moment: 'Placing an order', physical: 'Wait for a menu, then wait again for service staff.', qzaar: 'Scan, choose, and send the order from the guest’s phone.' },
+  { moment: 'Kitchen handoff', physical: 'Rely on handwritten notes or repeated verbal context.', qzaar: 'Keep table, item, and status details in a shared queue.' },
+  { moment: 'Learning what works', physical: 'Printed menus leave no useful ordering trail.', qzaar: 'Use order and menu activity to read daily performance.' },
+];
+
+const cityBenefits = [
+  { title: 'Independent-first', copy: 'Useful for family restaurants, cafés, quick-service counters, and growing local brands.', icon: Store },
+  { title: 'Simple for lean teams', copy: 'Focused screens help owners and staff operate without a complicated enterprise setup.', icon: UsersRound },
+  { title: 'Familiar to guests', copy: 'QR access and a browser-based flow work with the phones customers already carry.', icon: Smartphone },
+  { title: 'Ready for local checkout', copy: 'A payment journey designed around familiar options such as UPI and cards.', icon: IndianRupee },
 ];
 
 function ProductPreview({ product }) {
@@ -271,6 +291,60 @@ const ProductsPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div key={`${activeProduct.id}-preview`} className="qz-products-detail__preview" initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}><ProductPreview product={activeProduct} /></motion.div>
               </AnimatePresence>
+            </div>
+          </div>
+        </section>
+
+        <section className="qz-products-section qz-products-section--comparison">
+          <div className="qz-products-shell">
+            <div className="qz-products-heading qz-products-heading--center">
+              <span>PHYSICAL MENU VS QZAAR</span>
+              <h2>Move beyond a menu that stops at the table.</h2>
+              <p>A printed menu can show what you sell. Qzaar connects that choice to ordering, preparation, payment, and the decisions that follow.</p>
+            </div>
+
+            <div className="qz-products-compare">
+              <div className="qz-products-compare__head">
+                <span>The service moment</span>
+                <div><i><BookOpen size={18} /></i><p><b>Physical menu</b><small>Static and staff-dependent</small></p></div>
+                <div className="is-qzaar"><i><ScanLine size={18} /></i><p><b>Qzaar platform</b><small>Live and connected</small></p></div>
+              </div>
+              <div className="qz-products-compare__body">
+                {comparisonRows.map((row) => (
+                  <article key={row.moment}>
+                    <strong>{row.moment}</strong>
+                    <p><small>Physical menu</small>{row.physical}</p>
+                    <p className="is-qzaar"><small>Qzaar platform</small><Check size={16} />{row.qzaar}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="qz-products-compare__note">
+                <span><RefreshCw size={18} /></span>
+                <p><b>Keep the familiar table experience.</b><small>Qzaar adds a digital path around it—you can still use printed menus whenever your restaurant needs them.</small></p>
+                <Link to="/demo">See the digital journey <ArrowRight size={16} /></Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="qz-products-section qz-products-section--cities">
+          <div className="qz-products-city-orb qz-products-city-orb--one" />
+          <div className="qz-products-city-orb qz-products-city-orb--two" />
+          <div className="qz-products-shell qz-products-cities">
+            <div className="qz-products-cities__copy">
+              <span><MapPin size={15} /> FOCUS: TIER 2 & TIER 3 INDIA</span>
+              <h2>Built for the restaurants powering India’s growing cities.</h2>
+              <p>Qzaar is being built with Tier 2 and Tier 3 operators in mind—not only large metro chains. Independent restaurants get practical digital tools that fit familiar service habits, lean teams, and mobile-first guests.</p>
+              <div className="qz-products-cities__chips"><span>Independent restaurants</span><span>Family dining</span><span>Local cafés</span><span>Quick service</span></div>
+              <Link to="/signup" className="qz-products-button qz-products-button--city">Build your restaurant workspace <ArrowRight size={18} /></Link>
+            </div>
+
+            <div className="qz-products-cities__panel">
+              <div className="qz-products-cities__panel-head"><span><Building2 size={19} /></span><p><small>DESIGNED FOR GROWING CITIES</small><b>Local service. Modern control.</b></p><em><i /> India-focused</em></div>
+              <div className="qz-products-cities__benefits">
+                {cityBenefits.map((benefit) => { const Icon = benefit.icon; return <article key={benefit.title}><span><Icon size={19} /></span><div><b>{benefit.title}</b><p>{benefit.copy}</p></div></article>; })}
+              </div>
+              <div className="qz-products-cities__signal"><span><QrCode size={20} /></span><p><b>Start with one scan</b><small>No guest app download is required.</small></p><i><span /><span /><span /></i></div>
             </div>
           </div>
         </section>
