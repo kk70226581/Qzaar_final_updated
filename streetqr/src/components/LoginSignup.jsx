@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Eye,
@@ -124,14 +124,15 @@ function LoginSignup({ initialMode = 'login' }) {
 
   const passwordStrength = useMemo(() => {
     let score = 0;
-    if (password.length >= 6) score += 1;
+    if (password.length >= 10) score += 1;
     if (/[A-Z]/.test(password)) score += 1;
     if (/[0-9]/.test(password)) score += 1;
     if (/[^A-Za-z0-9]/.test(password)) score += 1;
 
-    if (score <= 1) return 'Basic';
-    if (score <= 3) return 'Good';
-    return 'Strong';
+    if (!password) return { label: 'Start typing', score: 0 };
+    if (score <= 1) return { label: 'Basic', score };
+    if (score <= 3) return { label: 'Good', score };
+    return { label: 'Strong', score };
   }, [password]);
 
   const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
@@ -272,6 +273,18 @@ function LoginSignup({ initialMode = 'login' }) {
     }
   };
 
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    if (!isResetMode) {
+      handleAuth();
+      return;
+    }
+
+    if (resetStep === 'email') handleForgotPassword();
+    if (resetStep === 'otp') handleVerifyOtp();
+    if (resetStep === 'password') handlePasswordReset();
+  };
+
   return (
     <>
       <Navbar />
@@ -282,8 +295,8 @@ function LoginSignup({ initialMode = 'login' }) {
               <Sparkles size={16} />
               Secure business access
             </span>
-            <h1>Every better service starts with one calm workspace.</h1>
-            <p>Build the experience your guests see, then keep every menu, order, and service update moving in one place.</p>
+            <h1>The calm side of a busy restaurant.</h1>
+            <p>Give guests a beautiful first scan, then keep every menu, order, and service update moving in one clear workspace.</p>
 
             <div className="auth-highlight-card">
               <div className="auth-highlight-card__header">
@@ -299,7 +312,7 @@ function LoginSignup({ initialMode = 'login' }) {
 
             <div className="auth-showcase__metrics" aria-label="Qzaar platform benefits">
               <div><strong>1</strong><span>place for the whole shift</span></div>
-              <div><strong>0</strong><span>apps needed for guests</span></div>
+              <div><strong>0</strong><span>apps guests must install</span></div>
             </div>
 
             <div className="auth-trust-row">
@@ -319,17 +332,17 @@ function LoginSignup({ initialMode = 'login' }) {
           <section className="auth-panel">
             <div className="auth-panel__header">
               <p className="auth-panel__eyebrow">{isResetMode ? 'Password recovery' : isSignup ? 'Create account' : 'Welcome back'}</p>
-              <h2>{isResetMode ? 'Reset your password.' : isSignup ? 'Build a better service flow.' : 'Welcome back to your workspace.'}</h2>
+              <h2>{isResetMode ? 'Reset your password.' : isSignup ? 'Start your workspace.' : 'Welcome back.'}</h2>
               <p>{isResetMode ? 'No old password is needed. Verify your email, enter the code we send, then choose a new password.' : isSignup ? 'Create your secure Qzaar account and bring your menu, orders, and daily operations together.' : 'Sign in to keep your restaurant moving, from the first scan to the final order.'}</p>
             </div>
 
             {message && (
-              <div className={`auth-alert auth-alert--${messageType}`}>
+              <div className={`auth-alert auth-alert--${messageType}`} role="status" aria-live="polite">
                 {message}
               </div>
             )}
 
-            <div className="auth-form">
+            <form className="auth-form" onSubmit={handleFormSubmit} noValidate>
               {isResetMode ? (
                 <div className="auth-reset-flow" aria-live="polite">
                   <div className="auth-reset-steps" aria-label={`Password reset step ${resetStep === 'email' ? 1 : resetStep === 'otp' ? 2 : 3} of 3`}>
@@ -379,7 +392,7 @@ function LoginSignup({ initialMode = 'login' }) {
                     </>
                   )}
 
-                  <button type="button" className="auth-secondary-btn" onClick={resetStep === 'email' ? handleForgotPassword : resetStep === 'otp' ? handleVerifyOtp : handlePasswordReset} disabled={isSendingReset}>
+                  <button type="submit" className="auth-secondary-btn" disabled={isSendingReset}>
                     {isSendingReset ? 'Please wait...' : resetStep === 'email' ? 'Send verification code' : resetStep === 'otp' ? 'Verify code' : 'Update password'}
                   </button>
                   {resetStep === 'otp' && <button type="button" className="auth-reset-back" onClick={() => setResetStep('email')}>Use a different email</button>}
@@ -442,7 +455,10 @@ function LoginSignup({ initialMode = 'login' }) {
 
                   <div className="auth-password-strength">
                     <span>Password strength</span>
-                    <strong>{password ? passwordStrength : 'Start typing'}</strong>
+                    <strong>{passwordStrength.label}</strong>
+                    <div className="auth-password-meter" aria-hidden="true">
+                      {[1, 2, 3, 4].map((level) => <i key={level} className={passwordStrength.score >= level ? 'is-filled' : ''} />)}
+                    </div>
                     <small>Use 10+ characters, uppercase, lowercase, and a number.</small>
                   </div>
                 </>
@@ -454,7 +470,7 @@ function LoginSignup({ initialMode = 'login' }) {
                 </button>
               )}
 
-              <button type="button" className="auth-primary-btn" onClick={handleAuth} disabled={isSubmitting}>
+              <button type="submit" className="auth-primary-btn" disabled={isSubmitting}>
                 {isSubmitting ? 'Please wait...' : isSignup ? 'Create account' : 'Login'}
                 {!isSubmitting && <ArrowRight size={17} />}
               </button>
@@ -463,22 +479,22 @@ function LoginSignup({ initialMode = 'login' }) {
 
               {!isResetMode && <p className="auth-legal">By continuing, you agree to Qzaar's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.</p>}
               <p className="auth-form__assurance"><CheckCircle2 size={15} /> {isResetMode ? 'Your old password is not required.' : 'Your account is protected with secure sign-in and reset verification.'}</p>
-            </div>
+            </form>
 
             {!isResetMode && <button
               type="button"
               className="auth-switch"
               onClick={() => {
-                setIsSignup((current) => !current);
                 setConfirmPassword('');
                 setShowForgotPanel(false);
                 setResetStep('email');
+                navigate(isSignup ? '/login' : '/signup');
               }}
             >
               {isSignup ? 'Already have an account? Login' : "Don't have an account? Sign up"}
             </button>}
 
-            <p className="auth-footer">(c) {new Date().getFullYear()} Qzaar Technologies Pvt. Ltd.</p>
+            <p className="auth-footer">© {new Date().getFullYear()} Qzaar Technologies Pvt. Ltd. · <Link to="/demo">View live demo</Link></p>
           </section>
         </div>
       </div>

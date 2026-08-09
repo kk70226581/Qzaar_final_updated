@@ -82,10 +82,13 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
         {shouldShowAuth && (
           <div className="qz-nav__actions">
             {!isLoggedIn ? (
-              <Link className="qz-nav__cta" to="/signup">
-                <LogIn size={16} />
-                Get started
-              </Link>
+              <>
+                <Link className="qz-nav__login" to="/login">Log in</Link>
+                <Link className="qz-nav__cta" to="/signup">
+                  Get started
+                  <LogIn size={16} />
+                </Link>
+              </>
             ) : (
               <button type="button" className="qz-nav__cta qz-nav__cta--ghost" onClick={handleLogout}>
                 <LogOut size={16} />
@@ -132,9 +135,12 @@ function Navbar({ hideAuth = false, showAuthLinks = true }) {
               <div className="qz-nav__mobile-divider" />
               {shouldShowAuth && (
                 !isLoggedIn ? (
-                  <Link className="qz-nav__mobile-cta" to="/signup">
-                    <LogIn size={16} /> Get started
-                  </Link>
+                  <div className="qz-nav__mobile-auth">
+                    <Link className="qz-nav__mobile-login" to="/login">Log in</Link>
+                    <Link className="qz-nav__mobile-cta" to="/signup">
+                      Get started <LogIn size={16} />
+                    </Link>
+                  </div>
                 ) : (
                   <button type="button" className="qz-nav__mobile-cta qz-nav__mobile-cta--ghost" onClick={handleLogout}>
                     <LogOut size={16} /> Logout

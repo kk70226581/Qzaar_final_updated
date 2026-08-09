@@ -1,18 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  ChevronRight, 
-  QrCode, 
-  MonitorPlay, 
-  BarChart3, 
-  Settings, 
-  Star, 
-  TrendingUp, 
-  CheckCircle, 
-  Smartphone, 
+import {
+  ArrowRight,
+  BarChart3,
+  Check,
   ChefHat,
-  UtensilsCrossed
+  ChevronRight,
+  Clock3,
+  LayoutDashboard,
+  MonitorPlay,
+  QrCode,
+  ScanLine,
+  Settings,
+  Smartphone,
+  Sparkles,
+  UtensilsCrossed,
+  Zap
 } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -20,305 +24,255 @@ import { hasActiveSession } from '../utils/authSession';
 import './Home.css';
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 }
 };
 
 const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.09 } }
 };
 
-const HomePage = () => {
+const workflow = [
+  { icon: ScanLine, label: 'Guest scans', detail: 'No app download' },
+  { icon: UtensilsCrossed, label: 'Order arrives', detail: 'Clear and instant' },
+  { icon: ChefHat, label: 'Kitchen prepares', detail: 'One live queue' },
+  { icon: BarChart3, label: 'Owner learns', detail: 'Useful daily insight' }
+];
+
+const steps = [
+  { number: '01', icon: Settings, title: 'Set up your space', text: 'Add your restaurant details, service hours, taxes, and team.' },
+  { number: '02', icon: UtensilsCrossed, title: 'Publish your menu', text: 'Create categories, add dishes, and update availability in seconds.' },
+  { number: '03', icon: QrCode, title: 'Place your QR codes', text: 'Give every table a direct path to your live guest menu.' },
+  { number: '04', icon: MonitorPlay, title: 'Run service live', text: 'Follow every order from guest choice to kitchen completion.' }
+];
+
+function HomePage() {
   const navigate = useNavigate();
   const isLoggedIn = hasActiveSession();
+  const primaryLabel = isLoggedIn ? 'Open workspace' : 'Start your workspace';
 
-  const handleCTA = () => {
-    if (isLoggedIn) {
-      navigate('/dashboard');
-    } else {
-      navigate('/signup');
-    }
-  };
+  const handleCTA = () => navigate(isLoggedIn ? '/dashboard' : '/signup');
 
   return (
     <div className="home-container">
       <Navbar />
-      
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-mesh-grid"></div>
-        <div className="hero-glow"></div>
-        
-        <div className="hero-content">
-          <motion.div 
-            initial="hidden" 
-            animate="visible" 
-            variants={staggerContainer}
-            className="hero-text"
-          >
-            <motion.h1 variants={fadeUp} className="hero-title">
-              Run your restaurant with <span className="hero-title-gradient">clarity</span>
-            </motion.h1>
-            <motion.p variants={fadeUp} className="hero-subtitle">
-              Qzaar brings your digital menu, kitchen operations, and business analytics into one beautiful, easy-to-use platform. Built for modern restaurants.
-            </motion.p>
-            <motion.div variants={fadeUp} className="hero-buttons">
-              <button onClick={handleCTA} className="btn-primary">
-                Get Started <ChevronRight size={18} />
-              </button>
-              <Link to="/demo" className="btn-secondary">See Demo</Link>
-            </motion.div>
-          </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="hero-mockup-wrapper"
-          >
-            <div className="hero-product-visual">
-              <img src="/images/brand/qzaar-restaurant-hero.png" alt="Qzaar QR ordering at a restaurant table" />
-              <div className="hero-product-visual__shade" />
-              <div className="hero-product-visual__caption">
-                <span><QrCode size={21} /></span>
-                <div><strong>From scan to service</strong><small>A smoother experience for every table</small></div>
+      <main>
+        <section className="home-hero">
+          <div className="home-hero__grid" aria-hidden="true" />
+          <div className="home-hero__orb home-hero__orb--one" aria-hidden="true" />
+          <div className="home-hero__orb home-hero__orb--two" aria-hidden="true" />
+
+          <div className="home-hero__inner">
+            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="home-hero__copy">
+              <motion.div variants={fadeUp} className="home-eyebrow">
+                <span><Sparkles size={14} /></span>
+                Restaurant service, finally in one flow
+              </motion.div>
+              <motion.h1 variants={fadeUp}>
+                One scan. Every part of service <em>in sync.</em>
+              </motion.h1>
+              <motion.p variants={fadeUp} className="home-hero__lead">
+                Qzaar connects your guest menu, live orders, kitchen, and daily insights—so your team can move faster without making service feel rushed.
+              </motion.p>
+              <motion.div variants={fadeUp} className="home-hero__actions">
+                <button type="button" onClick={handleCTA} className="home-button home-button--primary">
+                  {primaryLabel} <ArrowRight size={18} />
+                </button>
+                <Link to="/demo" className="home-button home-button--ghost">
+                  Explore live demo <ChevronRight size={17} />
+                </Link>
+              </motion.div>
+              <motion.div variants={fadeUp} className="home-hero__checks" aria-label="Platform benefits">
+                <span><Check size={14} /> No guest app</span>
+                <span><Check size={14} /> Live menu updates</span>
+                <span><Check size={14} /> Works on any device</span>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.65, delay: 0.18, ease: 'easeOut' }}
+              className="home-hero__visual"
+            >
+              <div className="home-preview">
+                <div className="home-preview__bar">
+                  <span className="home-preview__brand"><QrCode size={15} /> Qzaar live service</span>
+                  <span className="home-preview__status"><i /> Open now</span>
+                </div>
+                <div className="home-preview__image">
+                  <img src="/images/brand/qzaar-restaurant-hero.png" alt="Guests using Qzaar QR ordering at a restaurant table" />
+                  <div className="home-preview__shade" />
+                  <div className="home-preview__order">
+                    <span><Clock3 size={16} /> New order</span>
+                    <strong>Table 12</strong>
+                    <small>3 items · sent to kitchen</small>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8 }}
-              className="hero-badge badge-1"
-            >
-              <TrendingUp size={16} color="#4ade80" />
-              Live business insight
+              <motion.div
+                initial={{ opacity: 0, x: 18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.75 }}
+                className="home-float-card home-float-card--top"
+              >
+                <span><Zap size={16} /></span>
+                <div><strong>Menu updated</strong><small>Live for every table</small></div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.92 }}
+                className="home-float-card home-float-card--bottom"
+              >
+                <span><ChefHat size={16} /></span>
+                <div><strong>Kitchen in sync</strong><small>All orders in one queue</small></div>
+              </motion.div>
             </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1 }}
-              className="hero-badge badge-2"
-            >
-              <CheckCircle size={16} color="#38bdf8" />
-              Kitchen in sync
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Strip */}
-      <section className="stats-strip">
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="stats-container"
-        >
-          <motion.div variants={fadeUp} className="stat-item">
-            <div className="stat-number">500+</div>
-            <div className="stat-label">Restaurants Powered</div>
-          </motion.div>
-          <motion.div variants={fadeUp} className="stat-item">
-            <div className="stat-number">2M+</div>
-            <div className="stat-label">Orders Served</div>
-          </motion.div>
-          <motion.div variants={fadeUp} className="stat-item">
-            <div className="stat-number">98%</div>
-            <div className="stat-label">Uptime Guaranteed</div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="section-header">
-          <h2 className="section-title">Everything you need</h2>
-          <p className="section-desc">A complete suite of tools to manage your restaurant's digital presence and operations.</p>
-        </div>
-
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="features-grid"
-        >
-          <motion.div variants={fadeUp} className="feature-card">
-            <div className="feature-icon-wrapper">
-              <QrCode size={28} />
-            </div>
-            <h3 className="feature-title">Digital QR Menus</h3>
-            <p className="feature-desc">Create stunning digital menus that your customers can access instantly by scanning a QR code at their table.</p>
-            <Link to="/qrcode" className="feature-link">Learn more <ChevronRight size={16} /></Link>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="feature-card">
-            <div className="feature-icon-wrapper">
-              <MonitorPlay size={28} />
-            </div>
-            <h3 className="feature-title">Kitchen Display System</h3>
-            <p className="feature-desc">Streamline your back-of-house operations with real-time order tracking and digital kitchen tickets.</p>
-            <Link to="/modern/admin/kitchen" className="feature-link">Learn more <ChevronRight size={16} /></Link>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="feature-card">
-            <div className="feature-icon-wrapper">
-              <BarChart3 size={28} />
-            </div>
-            <h3 className="feature-title">Powerful Analytics</h3>
-            <p className="feature-desc">Get insights into your best-selling items, peak hours, and revenue trends to make data-driven decisions.</p>
-            <Link to="/modern/admin/analytics" className="feature-link">Learn more <ChevronRight size={16} /></Link>
-          </motion.div>
-
-          <motion.div variants={fadeUp} className="feature-card">
-            <div className="feature-icon-wrapper">
-              <Settings size={28} />
-            </div>
-            <h3 className="feature-title">Advanced Settings</h3>
-            <p className="feature-desc">Customize tax rates, add staff accounts, configure business hours, and manage multiple locations easily.</p>
-            <Link to="/modern/admin/settings" className="feature-link">Learn more <ChevronRight size={16} /></Link>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* How It Works Flow */}
-      <section className="flow-section">
-        <div className="section-header" style={{ color: 'var(--ink-900)' }}>
-          <h2 className="section-title">How it works</h2>
-          <p className="section-desc" style={{ color: 'var(--ink-500)' }}>Get up and running in minutes, not days.</p>
-        </div>
-
-        <div className="flow-container">
-          <div className="flow-connector">
-            <svg viewBox="0 0 100 2" preserveAspectRatio="none">
-              <motion.line 
-                x1="0" y1="1" x2="100" y2="1" 
-                stroke="#e2e8f0" 
-                strokeWidth="2" 
-                strokeDasharray="4 4"
-                initial={{ pathLength: 0 }}
-                whileInView={{ pathLength: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
-              />
-            </svg>
           </div>
-          
-          <motion.div 
+        </section>
+
+        <section className="home-workflow" aria-label="Qzaar service workflow">
+          <div className="home-workflow__inner">
+            {workflow.map(({ icon: Icon, label, detail }, index) => (
+              <React.Fragment key={label}>
+                <div className="home-workflow__item">
+                  <span><Icon size={19} /></span>
+                  <div><strong>{label}</strong><small>{detail}</small></div>
+                </div>
+                {index < workflow.length - 1 && <ChevronRight className="home-workflow__arrow" size={17} aria-hidden="true" />}
+              </React.Fragment>
+            ))}
+          </div>
+        </section>
+
+        <section className="home-products">
+          <div className="home-section-heading">
+            <span>One connected workspace</span>
+            <h2>Less tab-switching. More time for hospitality.</h2>
+            <p>Every Qzaar tool shares the same live service picture, from the first guest scan to your end-of-day review.</p>
+          </div>
+
+          <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: '-80px' }}
             variants={staggerContainer}
-            className="flow-steps"
+            className="home-bento"
           >
-            <motion.div variants={fadeUp} className="flow-step">
-              <div className="flow-number">1</div>
-              <div className="flow-icon"><ChefHat size={32} /></div>
-              <h3 className="flow-title">Setup Profile</h3>
-              <p className="flow-desc">Create your restaurant account and configure basic details.</p>
-            </motion.div>
-
-            <motion.div variants={fadeUp} className="flow-step">
-              <div className="flow-number">2</div>
-              <div className="flow-icon"><UtensilsCrossed size={32} /></div>
-              <h3 className="flow-title">Build Menu</h3>
-              <p className="flow-desc">Add categories, items, prices, and mouth-watering photos.</p>
-            </motion.div>
-
-            <motion.div variants={fadeUp} className="flow-step">
-              <div className="flow-number">3</div>
-              <div className="flow-icon"><Smartphone size={32} /></div>
-              <h3 className="flow-title">Share QR</h3>
-              <p className="flow-desc">Print and place your unique QR codes on tables.</p>
-            </motion.div>
-
-            <motion.div variants={fadeUp} className="flow-step">
-              <div className="flow-number">4</div>
-              <div className="flow-icon"><MonitorPlay size={32} /></div>
-              <h3 className="flow-title">Manage Orders</h3>
-              <p className="flow-desc">Receive and process orders seamlessly in your kitchen.</p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials-section">
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="testimonials-grid"
-        >
-          <motion.div variants={fadeUp} className="testimonial-card">
-            <div className="stars">
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-            </div>
-            <p className="quote-text">"Qzaar completely transformed how we handle peak hours. The digital menus combined with the kitchen display system reduced our wait times by 30%."</p>
-            <div className="quote-author">
-              <div className="author-avatar">MS</div>
-              <div className="author-info">
-                <h4>Maria Sanchez</h4>
-                <p>Owner, Taqueria El Sol</p>
+            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--menu">
+              <div className="home-bento__icon"><QrCode size={22} /></div>
+              <span className="home-bento__kicker">Guest experience</span>
+              <h3>A menu that is always ready.</h3>
+              <p>Update prices, availability, and photos once. Every table sees the change immediately.</p>
+              <Link to="/modern/menu">View guest menu <ArrowRight size={16} /></Link>
+              <div className="home-menu-card" aria-hidden="true">
+                <span className="home-menu-card__image">🥘</span>
+                <div><strong>Chef's Special</strong><small>Fresh today</small></div>
+                <b>₹349</b>
               </div>
-            </div>
-          </motion.div>
+            </motion.article>
 
-          <motion.div variants={fadeUp} className="testimonial-card">
-            <div className="stars">
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-              <Star fill="currentColor" size={20} />
-            </div>
-            <p className="quote-text">"The analytics dashboard alone is worth it. Knowing exactly what items perform best helps us optimize our prep and reduce food waste significantly."</p>
-            <div className="quote-author">
-              <div className="author-avatar">JD</div>
-              <div className="author-info">
-                <h4>James Davis</h4>
-                <p>Manager, The Daily Grind</p>
+            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--orders">
+              <div className="home-bento__icon"><MonitorPlay size={22} /></div>
+              <span className="home-bento__kicker">Live operations</span>
+              <h3>Every order, clearly placed.</h3>
+              <p>A focused kitchen queue keeps new, preparing, and ready orders easy to scan.</p>
+              <Link to="/modern/admin/kitchen">Open kitchen view <ArrowRight size={16} /></Link>
+              <div className="home-order-list" aria-hidden="true">
+                <div><i className="is-new" /><span><strong>#1042 · Table 8</strong><small>2 items</small></span><b>New</b></div>
+                <div><i className="is-cooking" /><span><strong>#1041 · Table 3</strong><small>4 items</small></span><b>Cooking</b></div>
+                <div><i className="is-ready" /><span><strong>#1039 · Pickup</strong><small>1 item</small></span><b>Ready</b></div>
               </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
+            </motion.article>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUp}
-          className="cta-container"
-        >
-          <h2 className="cta-title">Ready to modernize your restaurant?</h2>
-          <p className="cta-desc">Join hundreds of restaurants using Qzaar to streamline their operations.</p>
-          <div className="cta-buttons">
-            <button onClick={handleCTA} className="btn-white">Get Started for Free</button>
-            <Link to="/demo" className="btn-outline-white">Book a Demo</Link>
+            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--insight">
+              <div className="home-bento__icon"><BarChart3 size={22} /></div>
+              <span className="home-bento__kicker">Business insight</span>
+              <h3>Know what needs attention.</h3>
+              <p>See sales, popular dishes, and service patterns without digging through spreadsheets.</p>
+              <Link to="/modern/admin/analytics">Explore analytics <ArrowRight size={16} /></Link>
+              <div className="home-mini-chart" aria-hidden="true">
+                {[42, 58, 48, 72, 64, 84, 92].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}
+              </div>
+            </motion.article>
+          </motion.div>
+        </section>
+
+        <section className="home-roles">
+          <div className="home-roles__inner">
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              className="home-roles__visual"
+            >
+              <img src="/images/brand/qzaar-table-service-hero.png" alt="Restaurant team delivering attentive table service" />
+              <div className="home-roles__caption"><span><Smartphone size={17} /></span><div><strong>Simple for guests</strong><small>Scan, browse, and order from the table</small></div></div>
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-80px' }}
+              variants={staggerContainer}
+              className="home-roles__copy"
+            >
+              <motion.span variants={fadeUp} className="home-section-label">Designed around real service</motion.span>
+              <motion.h2 variants={fadeUp}>The right view for every person in the room.</motion.h2>
+              <motion.p variants={fadeUp}>Guests see a clean menu. The kitchen sees a calm queue. Owners see the full picture. Nobody has to learn a complicated system.</motion.p>
+              <motion.div variants={fadeUp} className="home-role-list">
+                <div><span><Smartphone size={18} /></span><strong>Guests</strong><small>Fast, familiar mobile ordering</small></div>
+                <div><span><ChefHat size={18} /></span><strong>Kitchen</strong><small>Clear priorities and order status</small></div>
+                <div><span><LayoutDashboard size={18} /></span><strong>Owners</strong><small>Controls and insights in one place</small></div>
+              </motion.div>
+            </motion.div>
           </div>
-        </motion.div>
-      </section>
+        </section>
+
+        <section className="home-steps">
+          <div className="home-section-heading home-section-heading--left">
+            <span>Up and running quickly</span>
+            <h2>From first setup to first scan.</h2>
+            <p>A straightforward path to a more connected service.</p>
+          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            variants={staggerContainer}
+            className="home-steps__grid"
+          >
+            {steps.map(({ number, icon: Icon, title, text }) => (
+              <motion.article variants={fadeUp} key={number} className="home-step">
+                <span className="home-step__number">{number}</span>
+                <div className="home-step__icon"><Icon size={21} /></div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </motion.article>
+            ))}
+          </motion.div>
+        </section>
+
+        <section className="home-cta">
+          <div className="home-cta__glow" aria-hidden="true" />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="home-cta__inner">
+            <span><Sparkles size={15} /> Your next service can run smoother</span>
+            <h2>Bring your whole restaurant into one calm workspace.</h2>
+            <p>Start with your menu, explore the live flow, and shape Qzaar around the way your team already works.</p>
+            <div className="home-cta__actions">
+              <button type="button" onClick={handleCTA} className="home-button home-button--light">{primaryLabel} <ArrowRight size={18} /></button>
+              <Link to="/contact" className="home-button home-button--outline">Talk to us</Link>
+            </div>
+          </motion.div>
+        </section>
+      </main>
 
       <Footer />
     </div>
   );
-};
+}
 
 export default HomePage;
