@@ -25,6 +25,7 @@ const HowItWorksPage = lazy(() => import('./components/HowItWorksPage'));
 const ProductsPage = lazy(() => import('./components/ProductsPage'));
 const ContactPage = lazy(() => import('./components/ContactPage'));
 const DemoPage = lazy(() => import('./components/DemoPage'));
+const ResetPassword = lazy(() => import('./components/ResetPassword'));
 
 // Modern Redesign Pages (Split into on-demand bundles)
 const LandingPage = lazy(() => import('./components/pages').then(m => ({ default: m.LandingPage })));
@@ -59,6 +60,8 @@ function AppRoutes() {
             <Route path="/landing" element={<HomePage />} />
             <Route path="/login" element={<LoginSignup />} />
             <Route path="/signup" element={<LoginSignup initialMode="signup" />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/vendor" element={<Navigate to="/dashboard" replace />} />
             <Route path="/signin" element={<Navigate to="/login" replace />} />

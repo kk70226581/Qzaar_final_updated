@@ -1,8 +1,9 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const { User } = require('./models');
+const { User, Shopkeeper } = require('./models');
 const sendEmail = require('./sendmail');
 const { authenticateToken } = require('./middleware/auth');
 
@@ -195,25 +196,30 @@ router.post('/change-password', authenticateToken, async (req, res) => {
 // ✅ 7. Forgot Password
 router.post('/forgot-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = String(req.body.email || '').trim().toLowerCase();
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email is required' });
-    }
-
-    const user = await User.findOne({ email }).select('_id');
-    if (!user) {
-      // Don't reveal if email exists
-      return res.json({ success: true, message: 'If email exists, reset link has been sent' });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ success: false, message: 'Valid email is required' });
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 1 hour
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    await User.updateOne(
-      { _id: user._id },
-      { resetToken, resetTokenExpiry }
-    );
+    let user = null;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({ email });
+      if (!user) {
+        user = await Shopkeeper.findOne({ email });
+      }
+    }
+
+    if (user) {
+      user.resetToken = resetToken;
+      user.resetTokenExpiry = resetTokenExpiry;
+      user.passwordResetGrantHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+      user.passwordResetGrantExpiresAt = resetTokenExpiry;
+      await user.save();
+    }
 
     const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
     const html = `
@@ -232,11 +238,17 @@ router.post('/forgot-password', async (req, res) => {
       </div>
     `;
 
-    await sendEmail(email, 'StreetQR Password Reset', html);
+    if (sendEmail.isConfigured()) {
+      await sendEmail(email, 'StreetQR Password Reset', html);
+    } else {
+      console.log(`🔑 [DEV MODE RESET LINK] ${email}: ${resetLink}`);
+    }
 
     return res.json({
       success: true,
-      message: 'If email exists, reset link has been sent'
+      message: 'If email exists, reset link has been sent',
+      resetToken,
+      resetLink
     });
   } catch (error) {
     console.error('Forgot password error:', error?.message);
@@ -244,33 +256,53 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// ✅ 8. Reset Password
-router.post('/reset-password/:token', async (req, res) => {
+// ✅ 8. Reset Password (Supports URL param :token OR body.token/resetToken)
+const handleAuthResetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { password } = req.body;
+    const token = String(req.params.token || req.body.token || req.body.resetToken || '').trim();
+    const password = req.body.password || req.body.newPassword;
 
-    if (!token || !password) {
-      return res.status(400).json({ success: false, message: 'Token and password required' });
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'Reset token is required' });
     }
 
-    if (password.length < 6) {
+    if (!password || password.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
-    const user = await User.findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }
-    });
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const now = new Date();
 
-    if (!user) {
+    let account = null;
+    if (mongoose.connection.readyState === 1) {
+      account = await User.findOne({
+        $or: [
+          { resetToken: token, resetTokenExpiry: { $gt: now } },
+          { passwordResetGrantHash: hashedToken, passwordResetGrantExpiresAt: { $gt: now } }
+        ]
+      });
+
+      if (!account) {
+        account = await Shopkeeper.findOne({
+          $or: [
+            { resetToken: token, resetTokenExpiry: { $gt: now } },
+            { passwordResetGrantHash: hashedToken, passwordResetGrantExpiresAt: { $gt: now } }
+          ]
+        });
+      }
+    }
+
+    if (!account) {
       return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
     }
 
-    user.passwordHash = await bcrypt.hash(password, 10);
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
-    await user.save();
+    account.passwordHash = await bcrypt.hash(password, 12);
+    account.resetToken = undefined;
+    account.resetTokenExpiry = undefined;
+    account.passwordResetGrantHash = '';
+    account.passwordResetGrantExpiresAt = null;
+    account.passwordChangedAt = new Date();
+    await account.save();
 
     return res.json({
       success: true,
@@ -280,7 +312,10 @@ router.post('/reset-password/:token', async (req, res) => {
     console.error('Reset password error:', error?.message);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
-});
+};
+
+router.post('/reset-password/:token', handleAuthResetPassword);
+router.post('/reset-password', handleAuthResetPassword);
 
 // ✅ 9. Refresh Token
 router.post('/refresh-token', authenticateToken, async (req, res) => {

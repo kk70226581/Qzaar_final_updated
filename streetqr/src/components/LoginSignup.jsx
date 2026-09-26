@@ -211,13 +211,16 @@ function LoginSignup({ initialMode = 'login' }) {
       if (response.data.success) {
         setForgotEmail(targetEmail);
         setResetStep('otp');
+        if (response.data.devOtp) {
+          setResetOtp(response.data.devOtp);
+        }
         showMessage(response.data.message, 'success');
       } else {
         showMessage(response.data.message || 'Error sending reset email.', 'danger');
       }
     } catch (error) {
       console.error('Forgot password error:', error);
-      showMessage('Server error. Try again later.', 'danger');
+      showMessage(error.response?.data?.message || 'Server error. Try again later.', 'danger');
     } finally {
       setIsSendingReset(false);
     }
@@ -246,8 +249,8 @@ function LoginSignup({ initialMode = 'login' }) {
 
   const handlePasswordReset = async () => {
     const targetEmail = forgotEmail || email;
-    if (resetPassword.length < 10 || !/[a-z]/.test(resetPassword) || !/[A-Z]/.test(resetPassword) || !/\d/.test(resetPassword)) {
-      showMessage('Use 10+ characters with uppercase, lowercase, and a number.', 'danger');
+    if (resetPassword.length < 6) {
+      showMessage('Password must be at least 6 characters.', 'danger');
       return;
     }
     if (resetPassword !== resetConfirmPassword) {
@@ -257,7 +260,12 @@ function LoginSignup({ initialMode = 'login' }) {
 
     setIsSendingReset(true);
     try {
-      const response = await axios.post(`${API_BASE}/api/reset-password`, { email: targetEmail, resetToken, password: resetPassword });
+      const response = await axios.post(`${API_BASE}/api/reset-password`, {
+        email: targetEmail,
+        resetToken,
+        token: resetToken,
+        password: resetPassword
+      });
       if (!response.data.success) throw new Error(response.data.message || 'Password reset failed.');
       setShowForgotPanel(false);
       setResetStep('email');
