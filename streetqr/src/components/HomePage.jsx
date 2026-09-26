@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -8,6 +8,7 @@ import {
   ChefHat,
   ChevronRight,
   Clock3,
+  Flame,
   LayoutDashboard,
   MonitorPlay,
   QrCode,
@@ -51,6 +52,7 @@ function HomePage() {
   const navigate = useNavigate();
   const isLoggedIn = hasActiveSession();
   const primaryLabel = isLoggedIn ? 'Open workspace' : 'Start your workspace';
+  const [activeTab, setActiveTab] = useState('menu');
 
   const handleCTA = () => navigate(isLoggedIn ? '/dashboard' : '/signup');
 
@@ -151,55 +153,378 @@ function HomePage() {
 
         <section className="home-products">
           <div className="home-section-heading">
-            <span>One connected workspace</span>
+            <span>Unified Restaurant OS</span>
             <h2>Less tab-switching. More time for hospitality.</h2>
             <p>Every Qzaar tool shares the same live service picture, from the first guest scan to your end-of-day review.</p>
           </div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-80px' }}
-            variants={staggerContainer}
-            className="home-bento"
-          >
-            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--menu">
-              <div className="home-bento__icon"><QrCode size={22} /></div>
-              <span className="home-bento__kicker">Guest experience</span>
+          {/* Interactive Feature Tabs */}
+          <div className="home-tabs-container">
+            <div className="home-tabs-nav" role="tablist" aria-label="Product features">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'menu'}
+                className={`home-tab-btn ${activeTab === 'menu' ? 'is-active' : ''}`}
+                onClick={() => setActiveTab('menu')}
+              >
+                <QrCode size={18} />
+                <span>Guest QR Menu</span>
+                <span className="home-tab-pill">Mobile-first</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'kitchen'}
+                className={`home-tab-btn ${activeTab === 'kitchen' ? 'is-active' : ''}`}
+                onClick={() => setActiveTab('kitchen')}
+              >
+                <MonitorPlay size={18} />
+                <span>Kitchen Display (KDS)</span>
+                <span className="home-tab-pill">Real-time</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'analytics'}
+                className={`home-tab-btn ${activeTab === 'analytics' ? 'is-active' : ''}`}
+                onClick={() => setActiveTab('analytics')}
+              >
+                <BarChart3 size={18} />
+                <span>Live Analytics</span>
+                <span className="home-tab-pill">Intelligence</span>
+              </button>
+            </div>
+
+            {/* Interactive Showcase Window */}
+            <div className="home-showcase-window">
+              <div className="home-showcase-window__bar">
+                <div className="home-showcase-window__dots">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="home-showcase-window__address">
+                  {activeTab === 'menu' && 'app.qzaar.in/table/04/menu'}
+                  {activeTab === 'kitchen' && 'app.qzaar.in/kds/live-station'}
+                  {activeTab === 'analytics' && 'app.qzaar.in/dashboard/insights'}
+                </div>
+                <div className="home-showcase-window__status">
+                  <span className="home-pulse-dot" />
+                  <span>Live sync active</span>
+                </div>
+              </div>
+
+              <div className="home-showcase-window__body">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'menu' && (
+                    <motion.div
+                      key="tab-menu"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.22 }}
+                      className="home-showcase-panel home-showcase-panel--menu"
+                    >
+                      <div className="home-preview-menu__header">
+                        <div className="home-preview-menu__branding">
+                          <span className="home-preview-menu__avatar">🥘</span>
+                          <div>
+                            <strong>The Royal Courtyard</strong>
+                            <small>Table 04 · Dine-In Service</small>
+                          </div>
+                        </div>
+                        <span className="home-tag home-tag--green">✓ Live Table Synced</span>
+                      </div>
+
+                      <div className="home-preview-menu__categories">
+                        <span className="is-active">🔥 Chef Specials</span>
+                        <span>🍛 Main Course</span>
+                        <span>🥟 Starters</span>
+                        <span>🥤 Refreshers</span>
+                      </div>
+
+                      <div className="home-preview-menu__cards">
+                        <div className="home-preview-dish">
+                          <img
+                            src="/images/menu/biryani.png"
+                            alt="Royal Dum Biryani"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                          <div className="home-preview-dish__info">
+                            <div className="home-preview-dish__top">
+                              <strong>Royal Dum Biryani</strong>
+                              <b>₹380</b>
+                            </div>
+                            <p>Layered basmati rice with fragrant spices & saffron</p>
+                            <div className="home-preview-dish__bottom">
+                              <span className="home-dish-pill"><Flame size={12} /> Bestseller</span>
+                              <button type="button" className="home-mini-add-btn">+ Add</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="home-preview-dish">
+                          <img
+                            src="/images/menu/paneer-tikka.png"
+                            alt="Paneer Tikka Grill"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                          <div className="home-preview-dish__info">
+                            <div className="home-preview-dish__top">
+                              <strong>Paneer Tikka Grill</strong>
+                              <b>₹290</b>
+                            </div>
+                            <p>Smoky tandoori cottage cheese with bell peppers</p>
+                            <div className="home-preview-dish__bottom">
+                              <span className="home-dish-pill home-dish-pill--veg">🌱 Pure Veg</span>
+                              <button type="button" className="home-mini-add-btn">+ Add</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="home-preview-menu__cart-bar">
+                        <div className="home-preview-menu__cart-text">
+                          <span className="home-preview-cart-count">2</span>
+                          <div>
+                            <strong>Table 04 Order Ready</strong>
+                            <small>₹670 total · Direct kitchen dispatch</small>
+                          </div>
+                        </div>
+                        <Link to="/modern/menu" className="home-preview-menu__cart-link">
+                          Explore live guest menu <ArrowRight size={15} />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'kitchen' && (
+                    <motion.div
+                      key="tab-kitchen"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.22 }}
+                      className="home-showcase-panel home-showcase-panel--kitchen"
+                    >
+                      <div className="home-preview-kds__stats">
+                        <div>
+                          <span>Active tickets</span>
+                          <strong>3 orders</strong>
+                        </div>
+                        <div>
+                          <span>Average prep speed</span>
+                          <strong className="text-emerald">8.5 mins</strong>
+                        </div>
+                        <div>
+                          <span>Queue bottleneck</span>
+                          <strong>Zero delays</strong>
+                        </div>
+                      </div>
+
+                      <div className="home-preview-kds__grid">
+                        <div className="home-kds-card home-kds-card--new">
+                          <div className="home-kds-card__head">
+                            <span className="home-kds-ticket">#1042</span>
+                            <span className="home-kds-table">Table 8</span>
+                            <span className="home-kds-badge home-kds-badge--blue">New (2m)</span>
+                          </div>
+                          <ul className="home-kds-card__items">
+                            <li><span>2x</span> Paneer Tikka Grill</li>
+                            <li><span>1x</span> Garlic Butter Naan</li>
+                          </ul>
+                          <div className="home-kds-card__action">
+                            <button type="button" className="home-kds-btn home-kds-btn--blue">▶ Start Cooking</button>
+                          </div>
+                        </div>
+
+                        <div className="home-kds-card home-kds-card--cooking">
+                          <div className="home-kds-card__head">
+                            <span className="home-kds-ticket">#1041</span>
+                            <span className="home-kds-table">Table 3</span>
+                            <span className="home-kds-badge home-kds-badge--amber">Cooking (6m)</span>
+                          </div>
+                          <ul className="home-kds-card__items">
+                            <li><span>1x</span> Royal Dum Biryani</li>
+                            <li><span>2x</span> Cold Brew Latte</li>
+                          </ul>
+                          <div className="home-kds-card__action">
+                            <button type="button" className="home-kds-btn home-kds-btn--amber">✓ Mark Ready</button>
+                          </div>
+                        </div>
+
+                        <div className="home-kds-card home-kds-card--ready">
+                          <div className="home-kds-card__head">
+                            <span className="home-kds-ticket">#1039</span>
+                            <span className="home-kds-table">Pickup</span>
+                            <span className="home-kds-badge home-kds-badge--green">Ready (11m)</span>
+                          </div>
+                          <ul className="home-kds-card__items">
+                            <li><span>1x</span> Sizzling Brownie</li>
+                          </ul>
+                          <div className="home-kds-card__action">
+                            <button type="button" className="home-kds-btn home-kds-btn--green">✓ Dispatch Order</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="home-preview-kds__footer">
+                        <span>WebSocket live connection synchronized with all service tables</span>
+                        <Link to="/modern/admin/kitchen">Open kitchen view <ArrowRight size={15} /></Link>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'analytics' && (
+                    <motion.div
+                      key="tab-analytics"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.22 }}
+                      className="home-showcase-panel home-showcase-panel--analytics"
+                    >
+                      <div className="home-analytics-top">
+                        <div className="home-analytics-metric">
+                          <small>Today's Gross Sales</small>
+                          <div className="home-analytics-metric__val">
+                            <strong>₹48,250</strong>
+                            <span className="text-emerald">+24.8%</span>
+                          </div>
+                          <span>184 paid orders today</span>
+                        </div>
+
+                        <div className="home-analytics-metric">
+                          <small>Table Turnaround</small>
+                          <div className="home-analytics-metric__val">
+                            <strong>34 mins</strong>
+                            <span className="text-emerald">-6m faster</span>
+                          </div>
+                          <span>3.8 turns per table avg</span>
+                        </div>
+
+                        <div className="home-analytics-metric">
+                          <small>Guest Satisfaction</small>
+                          <div className="home-analytics-metric__val">
+                            <strong>4.9 ★</strong>
+                            <span className="text-indigo">98% positive</span>
+                          </div>
+                          <span>Zero missed tickets</span>
+                        </div>
+                      </div>
+
+                      <div className="home-analytics-split">
+                        <div className="home-analytics-chart-box">
+                          <div className="home-analytics-chart-box__head">
+                            <strong>Hourly Order Volume</strong>
+                            <small>Peak service: 8:00 PM - 10:00 PM</small>
+                          </div>
+                          <div className="home-visual-bars">
+                            {[
+                              { label: '12p', height: 42, count: 18 },
+                              { label: '2p', height: 68, count: 32 },
+                              { label: '4p', height: 35, count: 14 },
+                              { label: '6p', height: 58, count: 28 },
+                              { label: '8p', height: 96, count: 48 },
+                              { label: '10p', height: 78, count: 36 }
+                            ].map((bar, idx) => (
+                              <div key={idx} className="home-visual-bar-col">
+                                <div className="home-bar-wrap">
+                                  <span className="home-bar-tooltip">{bar.count} orders</span>
+                                  <div className="home-bar-fill" style={{ height: `${bar.height}%` }} />
+                                </div>
+                                <span className="home-bar-label">{bar.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="home-analytics-ranking">
+                          <strong>Top Moving Dishes</strong>
+                          <div className="home-ranking-list">
+                            <div className="home-ranking-row">
+                              <span className="home-rank-num">1</span>
+                              <div className="home-rank-details">
+                                <strong>Royal Dum Biryani</strong>
+                                <small>48 orders · ₹18,240</small>
+                              </div>
+                              <span className="home-rank-share">38%</span>
+                            </div>
+                            <div className="home-ranking-row">
+                              <span className="home-rank-num">2</span>
+                              <div className="home-rank-details">
+                                <strong>Paneer Tikka Grill</strong>
+                                <small>36 orders · ₹10,440</small>
+                              </div>
+                              <span className="home-rank-share">26%</span>
+                            </div>
+                            <div className="home-ranking-row">
+                              <span className="home-rank-num">3</span>
+                              <div className="home-rank-details">
+                                <strong>Sizzling Brownie</strong>
+                                <small>29 orders · ₹6,960</small>
+                              </div>
+                              <span className="home-rank-share">18%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="home-preview-analytics__footer">
+                        <span>Database aggregation pipelines calculate live margins in sub-10ms</span>
+                        <Link to="/modern/admin/analytics">Explore analytics suite <ArrowRight size={15} /></Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Balanced, Uniform Bento Cards Below */}
+          <div className="home-bento">
+            <article className="home-bento__card">
+              <div className="home-bento__header">
+                <div className="home-bento__icon"><QrCode size={20} /></div>
+                <span className="home-bento__kicker">Guest Experience</span>
+              </div>
               <h3>A menu that is always ready.</h3>
-              <p>Update prices, availability, and photos once. Every table sees the change immediately.</p>
-              <Link to="/modern/menu">View guest menu <ArrowRight size={16} /></Link>
-              <div className="home-menu-card" aria-hidden="true">
-                <span className="home-menu-card__image">🥘</span>
-                <div><strong>Chef's Special</strong><small>Fresh today</small></div>
-                <b>₹349</b>
+              <p>Update prices, availability, and high-res photos once. Every table sees updates immediately without re-printing.</p>
+              <div className="home-bento__footer">
+                <Link to="/modern/menu">View guest menu <ArrowRight size={16} /></Link>
+                <span className="home-card-pill">Zero App Install</span>
               </div>
-            </motion.article>
+            </article>
 
-            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--orders">
-              <div className="home-bento__icon"><MonitorPlay size={22} /></div>
-              <span className="home-bento__kicker">Live operations</span>
+            <article className="home-bento__card">
+              <div className="home-bento__header">
+                <div className="home-bento__icon"><MonitorPlay size={20} /></div>
+                <span className="home-bento__kicker">Live Operations</span>
+              </div>
               <h3>Every order, clearly placed.</h3>
-              <p>A focused kitchen queue keeps new, preparing, and ready orders easy to scan.</p>
-              <Link to="/modern/admin/kitchen">Open kitchen view <ArrowRight size={16} /></Link>
-              <div className="home-order-list" aria-hidden="true">
-                <div><i className="is-new" /><span><strong>#1042 · Table 8</strong><small>2 items</small></span><b>New</b></div>
-                <div><i className="is-cooking" /><span><strong>#1041 · Table 3</strong><small>4 items</small></span><b>Cooking</b></div>
-                <div><i className="is-ready" /><span><strong>#1039 · Pickup</strong><small>1 item</small></span><b>Ready</b></div>
+              <p>A focused kitchen queue keeps new, preparing, and ready orders easy to scan and expedite without tickets getting lost.</p>
+              <div className="home-bento__footer">
+                <Link to="/modern/admin/kitchen">Open kitchen view <ArrowRight size={16} /></Link>
+                <span className="home-card-pill">WebSocket Synced</span>
               </div>
-            </motion.article>
+            </article>
 
-            <motion.article variants={fadeUp} className="home-bento__card home-bento__card--insight">
-              <div className="home-bento__icon"><BarChart3 size={22} /></div>
-              <span className="home-bento__kicker">Business insight</span>
-              <h3>Know what needs attention.</h3>
-              <p>See sales, popular dishes, and service patterns without digging through spreadsheets.</p>
-              <Link to="/modern/admin/analytics">Explore analytics <ArrowRight size={16} /></Link>
-              <div className="home-mini-chart" aria-hidden="true">
-                {[42, 58, 48, 72, 64, 84, 92].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}
+            <article className="home-bento__card">
+              <div className="home-bento__header">
+                <div className="home-bento__icon"><BarChart3 size={20} /></div>
+                <span className="home-bento__kicker">Business Insight</span>
               </div>
-            </motion.article>
-          </motion.div>
+              <h3>Know what needs attention.</h3>
+              <p>See live revenue, popular dishes, peak service patterns, and table velocity without digging through spreadsheets.</p>
+              <div className="home-bento__footer">
+                <Link to="/modern/admin/analytics">Explore analytics <ArrowRight size={16} /></Link>
+                <span className="home-card-pill">Real-time Metrics</span>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="home-roles">

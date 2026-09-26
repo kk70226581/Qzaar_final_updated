@@ -4,8 +4,10 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { User } = require('./models');
 const sendEmail = require('./sendmail');
+const { authenticateToken } = require('./middleware/auth');
 
 const router = express.Router();
+router.authenticateToken = authenticateToken;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 
@@ -371,26 +373,5 @@ router.post('/check-permission', authenticateToken, async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
-
-// ========================================
-// MIDDLEWARE
-// ========================================
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'No token provided' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ success: false, message: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-}
 
 module.exports = router;

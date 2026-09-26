@@ -34,7 +34,7 @@ const app = express();
 const httpServer = createServer(app);
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 const allowedOrigins = [
   'http://localhost:3000',
@@ -63,6 +63,9 @@ const io = new Server(httpServer, {
     credentials: true
   }
 });
+
+// Expose io instance to Express app for modular routes
+app.set('io', io);
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
@@ -105,12 +108,26 @@ app.use('/api/signup', authLimiter);
 app.use('/api/auth/google', authLimiter);
 app.use('/api/forgot-password', resetLimiter);
 
-// ✅ Razorpay Initialization
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || ''
-});
+// Razorpay Initialization (Graceful fallback if keys not configured)
 const hasRazorpayCredentials = Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
+const razorpay = hasRazorpayCredentials
+  ? new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    })
+  : {
+      orders: {
+        create: async (opts) => ({
+          id: `order_dev_${Date.now()}`,
+          amount: opts.amount,
+          currency: opts.currency || 'INR',
+          status: 'created'
+        })
+      },
+      payments: {
+        refund: async () => ({ id: `rfnd_dev_${Date.now()}`, status: 'processed' })
+      }
+    };
 
 // ✅ MongoDB Connection
 if (!process.env.MONGO_URI) {

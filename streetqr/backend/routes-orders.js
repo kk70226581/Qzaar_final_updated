@@ -1,5 +1,6 @@
 const express = require('express');
-const { Order, Coupon, PaymentTransaction } = require('./models');
+const mongoose = require('mongoose');
+const { Order, Coupon, PaymentTransaction, MenuItem } = require('./models');
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
 // ORDERS ENDPOINTS (20+ endpoints)
 // ========================================
 
-// ✅ 1. Create Order
+// ✅ 1. Create Order with Concurrency-Safe Stock Reservation & Real-Time Sync
 router.post('/:shopId', async (req, res) => {
   try {
     const {
@@ -26,6 +27,71 @@ router.post('/:shopId', async (req, res) => {
 
     if (!customerName || !tableNumber || !items || !items.length) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Avoid Table Double-Booking / Accidental Duplicate Orders
+    const cleanTable = String(tableNumber || '').trim();
+    if (cleanTable && mongoose.connection.readyState === 1) {
+      const activeStatuses = ['pending', 'confirmed', 'preparing', 'ready'];
+      const existingActiveOrder = await Order.findOne({
+        shopId: req.params.shopId,
+        tableNumber: cleanTable,
+        status: { $in: activeStatuses }
+      }).select('_id tableNumber customerName status createdAt total').lean();
+
+      if (existingActiveOrder && !req.body.isAddonOrder) {
+        return res.status(409).json({
+          success: false,
+          isDoubleBooking: true,
+          message: `Table ${cleanTable} already has an active order in progress (#${String(existingActiveOrder._id).slice(-5).toUpperCase()} - ${existingActiveOrder.status.toUpperCase()}). Please track your existing order or confirm if you wish to place an add-on order.`,
+          activeOrder: {
+            orderId: existingActiveOrder._id,
+            displayId: `ORD-${String(existingActiveOrder._id).slice(-5).toUpperCase()}`,
+            status: existingActiveOrder.status,
+            customerName: existingActiveOrder.customerName,
+            createdAt: existingActiveOrder.createdAt,
+            total: existingActiveOrder.total
+          }
+        });
+      }
+    }
+
+    // Atomic Inventory Reservation (prevent overselling race conditions)
+    const reservedItems = [];
+    try {
+      for (const item of items) {
+        const itemId = item.itemId || item.id || item._id;
+        const qty = Number(item.quantity || item.qty || 1);
+
+        if (itemId) {
+          // Check if item has limited stock (stock >= 0)
+          const menuItem = await MenuItem.findById(itemId).select('stock name').lean();
+          if (menuItem && menuItem.stock >= 0) {
+            const updated = await MenuItem.findOneAndUpdate(
+              { _id: itemId, stock: { $gte: qty } },
+              { $inc: { stock: -qty } },
+              { new: true }
+            );
+
+            if (!updated) {
+              // Rollback previously reserved items in this order
+              for (const reserved of reservedItems) {
+                await MenuItem.findByIdAndUpdate(reserved.itemId, {
+                  $inc: { stock: reserved.qty }
+                });
+              }
+              return res.status(409).json({
+                success: false,
+                message: `Item "${menuItem.name}" is out of stock or insufficient quantity.`
+              });
+            }
+
+            reservedItems.push({ itemId, qty });
+          }
+        }
+      }
+    } catch (stockError) {
+      console.error('Inventory reservation error:', stockError);
     }
 
     const prepMinutes = Math.max(...items.map(i => Number(i.prepTime) || 15), 15);
@@ -50,7 +116,22 @@ router.post('/:shopId', async (req, res) => {
       status: 'pending'
     });
 
-    return res.json({
+    // Real-Time WebSocket broadcast to Kitchen Display System (KDS) & tracking rooms
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`shop_${req.params.shopId}`).emit('new_order', {
+        order,
+        estimatedReadyAt,
+        createdAt: order.createdAt
+      });
+      io.to(`order_${order._id}`).emit('order_status_changed', {
+        orderId: order._id,
+        status: 'pending',
+        estimatedReadyAt
+      });
+    }
+
+    return res.status(201).json({
       success: true,
       order,
       estimatedReadyAt,
@@ -58,7 +139,72 @@ router.post('/:shopId', async (req, res) => {
     });
   } catch (error) {
     console.error('Create order error:', error?.message);
+    if (!mongoose.connection.readyState) {
+      const mockId = `demo_ord_${Date.now()}`;
+      return res.status(201).json({
+        success: true,
+        orderId: mockId,
+        order: {
+          _id: mockId,
+          shopId: req.params.shopId,
+          customerName: req.body.customerName,
+          tableNumber: req.body.tableNumber,
+          items: req.body.items,
+          total: req.body.total,
+          status: 'pending',
+          createdAt: new Date()
+        },
+        estimatedReadyAt: new Date(Date.now() + 15 * 60 * 1000),
+        estimatedPrepMinutes: 15,
+        demoMode: true
+      });
+    }
     return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ✅ 1b. Check Active Table Order (Pre-Flight Double Booking Check)
+router.get('/:shopId/table/:tableNumber/active', async (req, res) => {
+  try {
+    const cleanTable = String(req.params.tableNumber || '').trim();
+    if (!cleanTable) {
+      return res.status(400).json({ success: false, message: 'Table number required' });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ success: true, hasActiveOrder: false, demoMode: true });
+    }
+
+    const activeOrder = await Order.findOne({
+      shopId: req.params.shopId,
+      tableNumber: cleanTable,
+      status: { $in: ['pending', 'confirmed', 'preparing', 'ready'] }
+    })
+      .sort({ createdAt: -1 })
+      .select('_id tableNumber customerName status createdAt total items')
+      .lean();
+
+    if (!activeOrder) {
+      return res.json({ success: true, hasActiveOrder: false });
+    }
+
+    return res.json({
+      success: true,
+      hasActiveOrder: true,
+      activeOrder: {
+        orderId: activeOrder._id,
+        displayId: `ORD-${String(activeOrder._id).slice(-5).toUpperCase()}`,
+        status: activeOrder.status,
+        customerName: activeOrder.customerName,
+        createdAt: activeOrder.createdAt,
+        total: activeOrder.total,
+        itemCount: (activeOrder.items || []).length
+      }
+    });
+  } catch (error) {
+    console.error('Check active table order error:', error?.message);
+    // Graceful fallback for offline / mock demo mode
+    return res.json({ success: true, hasActiveOrder: false, demoMode: true });
   }
 });
 
@@ -140,7 +286,7 @@ router.put('/:shopId/:orderId/status', async (req, res) => {
   try {
     const { status } = req.body;
 
-    const validStatuses = ['pending', 'preparing', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
     }
@@ -155,6 +301,22 @@ router.put('/:shopId/:orderId/status', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    // Broadcast real-time order status change
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`shop_${req.params.shopId}`).emit('order_status_changed', {
+        orderId: req.params.orderId,
+        status,
+        updatedAt: order.updatedAt
+      });
+      io.to(`order_${req.params.orderId}`).emit('order_status_changed', {
+        orderId: req.params.orderId,
+        status,
+        estimatedReadyAt: order.estimatedReadyAt,
+        updatedAt: order.updatedAt
+      });
+    }
+
     return res.json({ success: true, order });
   } catch (error) {
     console.error('Update order status error:', error?.message);
@@ -162,7 +324,7 @@ router.put('/:shopId/:orderId/status', async (req, res) => {
   }
 });
 
-// ✅ 6. Cancel Order
+// ✅ 6. Cancel Order & Restock
 router.post('/:shopId/:orderId/cancel', async (req, res) => {
   try {
     const { reason } = req.body;
@@ -185,6 +347,34 @@ router.post('/:shopId/:orderId/cancel', async (req, res) => {
     order.cancelReason = reason || 'Customer cancelled';
     order.refundAmount = order.paymentStatus === 'paid' ? order.total : 0;
     await order.save();
+
+    // Restock items if they were tracked
+    if (Array.isArray(order.items)) {
+      for (const item of order.items) {
+        const itemId = item.itemId || item.id || item._id;
+        const qty = Number(item.quantity || item.qty || 1);
+        if (itemId) {
+          await MenuItem.findOneAndUpdate(
+            { _id: itemId, stock: { $gte: 0 } },
+            { $inc: { stock: qty } }
+          ).catch((e) => console.error('Restock item error:', e));
+        }
+      }
+    }
+
+    // Broadcast real-time cancellation
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`shop_${req.params.shopId}`).emit('order_cancelled', {
+        orderId: req.params.orderId,
+        refundAmount: order.refundAmount
+      });
+      io.to(`order_${req.params.orderId}`).emit('order_cancelled', {
+        orderId: req.params.orderId,
+        status: 'cancelled',
+        refundAmount: order.refundAmount
+      });
+    }
 
     return res.json({ success: true, order });
   } catch (error) {

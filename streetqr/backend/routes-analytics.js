@@ -1,20 +1,22 @@
 const express = require('express');
 const { Order, MenuItem, Analytics } = require('./models');
+const { optionalAuth, verifyShopOwner } = require('./middleware/auth');
 
 const router = express.Router();
 
 // ========================================
-// ANALYTICS ENDPOINTS (10 endpoints)
+// ANALYTICS ENDPOINTS (High-Performance MongoDB Aggregations)
 // ========================================
 
-// Middleware: Verify shop ownership
-async function verifyShop(req, res, next) {
+// Verify shop middleware
+async function resolveShop(req, res, next) {
   req.shopId = req.params.shopId;
   next();
 }
+const verifyShop = resolveShop;
 
-// ✅ 1. Get Metrics
-router.get('/metrics/:shopId', verifyShop, async (req, res) => {
+// ✅ 1. Get Metrics (MongoDB Aggregation Pipeline)
+router.get('/metrics/:shopId', optionalAuth, resolveShop, async (req, res) => {
   try {
     const { period = 'week' } = req.query;
     let startDate = new Date();
@@ -29,65 +31,116 @@ router.get('/metrics/:shopId', verifyShop, async (req, res) => {
       startDate.setFullYear(startDate.getFullYear() - 1);
     }
 
-    const orders = await Order.find({
-      shopId: req.shopId,
-      createdAt: { $gte: startDate },
-      status: { $ne: 'cancelled' }
-    }).lean();
+    const [metricsResult, statusCounts] = await Promise.all([
+      Order.aggregate([
+        {
+          $match: {
+            shopId: req.shopId,
+            createdAt: { $gte: startDate },
+            status: { $ne: 'cancelled' }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$total' },
+            totalOrders: { $sum: 1 },
+            avgOrderValue: { $avg: '$total' },
+            uniqueCustomers: { $addToSet: '$customerEmail' }
+          }
+        }
+      ]),
+      Order.aggregate([
+        {
+          $match: {
+            shopId: req.shopId,
+            createdAt: { $gte: startDate }
+          }
+        },
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 }
+          }
+        }
+      ])
+    ]);
 
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-    const totalOrders = orders.length;
-    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const totalCustomers = new Set(orders.map(o => o.customerEmail)).size;
+    const m = metricsResult[0] || {};
+    const statusMap = statusCounts.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+
+    const totalRevenue = Math.round(m.totalRevenue || 0);
+    const totalOrders = m.totalOrders || 0;
+    const avgOrderValue = Math.round(m.avgOrderValue || 0);
+    const totalCustomers = (m.uniqueCustomers || []).filter(Boolean).length;
 
     return res.json({
       success: true,
       metrics: {
         period,
-        totalRevenue: Math.round(totalRevenue),
+        totalRevenue,
         totalOrders,
         totalCustomers,
-        avgOrderValue: Math.round(avgOrderValue),
+        avgOrderValue,
         orderStatus: {
-          pending: orders.filter(o => o.status === 'pending').length,
-          preparing: orders.filter(o => o.status === 'preparing').length,
-          completed: orders.filter(o => o.status === 'completed').length
+          pending: statusMap['pending'] || 0,
+          preparing: statusMap['preparing'] || 0,
+          completed: statusMap['completed'] || 0
         }
       }
     });
   } catch (error) {
-    console.error('Get metrics error:', error?.message);
+    console.error('Get metrics aggregation error:', error?.message);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// ✅ 2. Get Revenue Chart
-router.get('/revenue-chart/:shopId', verifyShop, async (req, res) => {
+// ✅ 2. Get Revenue Chart (Single-Pass Aggregation with $dateToString)
+router.get('/revenue-chart/:shopId', optionalAuth, resolveShop, async (req, res) => {
   try {
     const { days = 7 } = req.query;
+    const daysNum = Math.min(90, Math.max(1, parseInt(days, 10) || 7));
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysNum);
+    startDate.setHours(0, 0, 0, 0);
+
+    const chartAgg = await Order.aggregate([
+      {
+        $match: {
+          shopId: req.shopId,
+          status: { $ne: 'cancelled' },
+          createdAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          revenue: { $sum: '$total' },
+          orders: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const chartMap = chartAgg.reduce((acc, curr) => {
+      acc[curr._id] = { revenue: Math.round(curr.revenue), orders: curr.orders };
+      return acc;
+    }, {});
+
+    // Ensure all days in the range exist in the output array
     const chartData = [];
     const now = new Date();
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-
-      const nextDate = new Date(date);
-      nextDate.setDate(nextDate.getDate() + 1);
-
-      const dayOrders = await Order.find({
-        shopId: req.shopId,
-        createdAt: { $gte: date, $lt: nextDate },
-        status: { $ne: 'cancelled' }
-      }).lean();
-
-      const revenue = dayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-
+    for (let i = daysNum - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateKey = d.toISOString().split('T')[0];
       chartData.push({
-        date: date.toISOString().split('T')[0],
-        revenue: Math.round(revenue),
-        orders: dayOrders.length
+        date: dateKey,
+        revenue: chartMap[dateKey]?.revenue || 0,
+        orders: chartMap[dateKey]?.orders || 0
       });
     }
 
@@ -98,32 +151,50 @@ router.get('/revenue-chart/:shopId', verifyShop, async (req, res) => {
   }
 });
 
-// ✅ 3. Get Popular Dishes
-router.get('/popular-dishes/:shopId', verifyShop, async (req, res) => {
+// ✅ 3. Get Popular Dishes (Unwind & Group Aggregation Pipeline)
+router.get('/popular-dishes/:shopId', optionalAuth, resolveShop, async (req, res) => {
   try {
-    const { limit = 5 } = req.query;
-    const orders = await Order.find({ shopId: req.shopId, status: { $ne: 'cancelled' } }).lean();
+    const limitNum = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 5));
 
-    const dishMap = {};
-    orders.forEach(order => {
-      (order.items || []).forEach(item => {
-        const name = item.name || 'Unknown';
-        if (!dishMap[name]) {
-          dishMap[name] = { name, orders: 0, revenue: 0, quantity: 0 };
+    const dishes = await Order.aggregate([
+      {
+        $match: {
+          shopId: req.shopId,
+          status: { $ne: 'cancelled' }
         }
-        dishMap[name].orders += 1;
-        dishMap[name].quantity += item.quantity || 1;
-        dishMap[name].revenue += (item.price || 0) * (item.quantity || 1);
-      });
-    });
-
-    const dishes = Object.values(dishMap)
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, limit);
+      },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: { $ifNull: ['$items.name', 'Menu Item'] },
+          quantity: { $sum: { $ifNull: ['$items.quantity', 1] } },
+          orders: { $sum: 1 },
+          revenue: {
+            $sum: {
+              $multiply: [
+                { $ifNull: ['$items.price', 0] },
+                { $ifNull: ['$items.quantity', 1] }
+              ]
+            }
+          }
+        }
+      },
+      { $sort: { quantity: -1 } },
+      { $limit: limitNum },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          quantity: 1,
+          orders: 1,
+          revenue: { $round: ['$revenue', 2] }
+        }
+      }
+    ]);
 
     return res.json({ success: true, dishes });
   } catch (error) {
-    console.error('Get popular dishes error:', error?.message);
+    console.error('Get popular dishes aggregation error:', error?.message);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });

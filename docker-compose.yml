@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: qzaar-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - qzaar-network
+
+  backend:
+    build:
+      context: ./streetqr/backend
+      dockerfile: Dockerfile
+    container_name: qzaar-backend
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongodb:27017/qzaar
+      - JWT_SECRET=production-grade-sde1-demo-secret
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - mongodb
+    networks:
+      - qzaar-network
+
+  frontend:
+    build:
+      context: ./streetqr
+      dockerfile: Dockerfile
+    container_name: qzaar-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - qzaar-network
+
+networks:
+  qzaar-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local

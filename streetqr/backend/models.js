@@ -105,6 +105,7 @@ const menuItemSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 menuItemSchema.index({ restaurantId: 1, category: 1 });
+menuItemSchema.index({ restaurantId: 1, available: 1 });
 menuItemSchema.index({ restaurantId: 1, name: 'text', description: 'text' });
 const MenuItem = mongoose.model('MenuItem', menuItemSchema);
 
@@ -347,6 +348,7 @@ const orderSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 orderSchema.index({ shopId: 1, createdAt: -1 });
+orderSchema.index({ shopId: 1, status: 1, createdAt: -1 });
 orderSchema.index({ razorpayOrderId: 1 });
 orderSchema.index({ customerEmail: 1 });
 // A table can only have one active dine-in order at a time. Once completed or

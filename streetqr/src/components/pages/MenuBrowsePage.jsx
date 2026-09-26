@@ -27,6 +27,7 @@ import {
   Phone,
   CreditCard,
   QrCode,
+  AlertTriangle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -159,20 +160,23 @@ const mockFoods = [
 
 const getFoodImage = (item) => {
   const existingImage = item.image || '';
-  const isPlaceholder = !existingImage || /\/images\/(showcase|landing|brand)\//.test(existingImage);
-  if (!isPlaceholder) return existingImage;
+  if (existingImage && !existingImage.includes('placeholder')) return existingImage;
 
   const name = (item.name || '').toLowerCase();
   const category = (item.categoryId || item.category || '').toLowerCase();
-  if (/naan/.test(name)) return '/images/menu/garlic-naan.png';
-  if (/chicken|tandoori|feast/.test(name)) return '/images/menu/tandoori-chicken.png';
-  if (/thali|dal makhani/.test(name)) return '/images/menu/chefs-thali.png';
-  if (/gulab|rasmalai|kulfi/.test(name)) return '/images/menu/gulab-jamun.png';
-  if (/cold coffee/.test(name)) return '/images/menu/cold-coffee.png';
+
+  if (/garlic naan|butter naan|naan|roti|paratha/i.test(name)) return '/images/menu/garlic-naan.png';
+  if (/chicken tikka|tandoori chicken|chicken|feast/i.test(name)) return '/images/menu/tandoori-chicken.png';
+  if (/dal makhani|kadai paneer|thali|curry/i.test(name)) return '/images/menu/chefs-thali.png';
+  if (/paneer|tikka|kebab/i.test(name)) return '/images/menu/paneer-tikka.png';
+  if (/biryani|pulao|rice/i.test(name)) return '/images/menu/biryani.png';
+  if (/gulab|rasmalai|kulfi|jamun/i.test(name)) return '/images/menu/gulab-jamun.png';
+  if (/brownie|cake|ice cream|chocolate/i.test(name)) return '/images/menu/sizzling-brownie.png';
+  if (/cold coffee|shake|coffee/i.test(name)) return '/images/menu/cold-coffee.png';
+  if (/chai|tea|beverage|drink|lime soda|lassi/i.test(name)) return '/images/menu/masala-chai.png';
   if (category.includes('dessert')) return '/images/menu/sizzling-brownie.png';
-  if (category.includes('beverage') || category.includes('drink')) return '/images/menu/masala-chai.png';
-  if (!item.isVeg || /biryani|rice/i.test(name)) return '/images/menu/biryani.png';
-  return '/images/menu/paneer-tikka.png';
+  if (category.includes('beverage') || category.includes('drink')) return '/images/menu/cold-coffee.png';
+  return item.isVeg ? '/images/menu/paneer-tikka.png' : '/images/menu/biryani.png';
 };
 
 const MenuBrowsePage = () => {
@@ -211,6 +215,39 @@ const MenuBrowsePage = () => {
   const [ratingComment, setRatingComment] = useState('');
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+
+  // Double Booking Prevention States
+  const [activeTableOrder, setActiveTableOrder] = useState(null);
+  const [isAddonOrder, setIsAddonOrder] = useState(false);
+  const [isCheckingTable, setIsCheckingTable] = useState(false);
+
+  // Real-time pre-flight check when tableNumber changes to detect active table orders
+  useEffect(() => {
+    const trimmed = String(tableNumber || '').trim();
+    if (!trimmed) {
+      setActiveTableOrder(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingTable(true);
+      try {
+        const targetShop = restaurantId || 'demo-shop';
+        const res = await apiClient.get(`/api/orders/${targetShop}/table/${encodeURIComponent(trimmed)}/active`);
+        if (res.data?.success && res.data?.hasActiveOrder) {
+          setActiveTableOrder(res.data.activeOrder);
+        } else {
+          setActiveTableOrder(null);
+        }
+      } catch (err) {
+        setActiveTableOrder(null);
+      } finally {
+        setIsCheckingTable(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [tableNumber, restaurantId]);
 
   useEffect(() => {
     fetchMenu();
@@ -371,28 +408,57 @@ const MenuBrowsePage = () => {
   };
 
   const placeOrder = async () => {
-    if (!restaurantId) return toast('Choose a live restaurant menu to place an order.');
+    const targetShop = restaurantId || 'demo-shop';
     if (!customerName.trim() || !tableNumber.trim()) return toast.error('Please enter your name and table number.');
     if (!cart.length) return toast.error('Your cart is empty.');
+
+    // Prevent Accidental Double Booking
+    if (activeTableOrder && !isAddonOrder) {
+      toast.error(
+        `Table ${tableNumber} has an active order (#${activeTableOrder.displayId} - ${activeTableOrder.status?.toUpperCase()}). Check "Add-on Order" below if you want to add to this table's bill.`,
+        { duration: 5000, icon: '⚠️' }
+      );
+      return;
+    }
+
     if (paymentMethod === 'razorpay' && !customerEmail.trim()) return toast.error('Email is required for online payment.');
 
     const payload = {
-      shopId: restaurantId, customerName, customerEmail, customerPhone, tableNumber,
-      items: cart, total: finalTotal, subTotal: cartTotal, discountAmount,
-      couponCode: appliedCoupon?.code || '', taxes: gst, paymentMethod,
+      shopId: targetShop,
+      customerName,
+      customerEmail,
+      customerPhone,
+      tableNumber,
+      items: cart,
+      total: finalTotal,
+      subTotal: cartTotal,
+      discountAmount,
+      couponCode: appliedCoupon?.code || '',
+      taxes: gst,
+      paymentMethod,
+      isAddonOrder: Boolean(isAddonOrder),
       estimatedPrepMinutes: Math.max(...cart.map((item) => item.prepTime || 15)),
     };
+
     if (paymentMethod === 'razorpay') return setShowPaymentGateway(true);
 
     setIsPlacingOrder(true);
     try {
       const response = await createOrder(payload);
-      if (!response.data.success) throw new Error(response.data.message);
-      toast.success('Order placed successfully!');
+      if (!response.data?.success) throw new Error(response.data?.message || 'Failed to place order');
+      toast.success(isAddonOrder ? 'Add-on order placed successfully!' : 'Order placed successfully!');
       setCart([]);
-      navigate(`/track-order/${response.data.orderId}`);
+      setActiveTableOrder(null);
+      setIsAddonOrder(false);
+      const targetOrderId = response.data.order?._id || response.data.orderId;
+      navigate(`/track-order/${targetOrderId}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || 'Unable to place your order.');
+      if (error.response?.data?.isDoubleBooking) {
+        setActiveTableOrder(error.response.data.activeOrder);
+        toast.error(error.response.data.message, { duration: 6000, icon: '⚠️' });
+      } else {
+        toast.error(error.response?.data?.message || error.message || 'Unable to place your order.');
+      }
     } finally {
       setIsPlacingOrder(false);
     }
@@ -730,7 +796,43 @@ const MenuBrowsePage = () => {
                     <div className="checkout-field">
                       <label><Hash size={14} /> Table Number <span className="required">*</span></label>
                       <input type="text" value={tableNumber} onChange={e => setTableNumber(e.target.value)} placeholder="e.g. 12" />
+                      {isCheckingTable && <small style={{ color: '#6366f1', fontSize: '12px', marginTop: '4px', display: 'block' }}>Checking table order status...</small>}
                     </div>
+
+                    {/* Double Booking Warning Banner */}
+                    {activeTableOrder && (
+                      <div className="table-double-booking-warning">
+                        <div className="warning-header">
+                          <AlertTriangle className="warning-icon" size={20} />
+                          <div className="warning-text">
+                            <strong>Active Order in Progress for Table {tableNumber}</strong>
+                            <p>
+                              Order <strong>{activeTableOrder.displayId}</strong> is currently <strong>{activeTableOrder.status?.toUpperCase()}</strong> ({activeTableOrder.itemCount} item{activeTableOrder.itemCount !== 1 ? 's' : ''} • ₹{activeTableOrder.total}).
+                            </p>
+                          </div>
+                        </div>
+                        <div className="warning-actions">
+                          <button 
+                            type="button" 
+                            className="btn-track-existing"
+                            onClick={() => {
+                              setIsCartOpen(false);
+                              navigate(`/track-order/${activeTableOrder.orderId}`);
+                            }}
+                          >
+                            Track Existing Order
+                          </button>
+                          <label className="addon-checkbox-label">
+                            <input 
+                              type="checkbox" 
+                              checked={isAddonOrder} 
+                              onChange={(e) => setIsAddonOrder(e.target.checked)} 
+                            />
+                            <span>I am at Table {tableNumber} & adding items (Add-on Order)</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="checkout-field">
                       <label><Phone size={14} /> Phone <span className="optional">(optional)</span></label>
@@ -892,7 +994,15 @@ const MenuBrowsePage = () => {
     return (
       <div key={food.id} className={`menu-browse__food-card ${qty > 0 ? 'in-cart' : ''}`}>
         <div className="food-card-img-wrapper" onClick={() => { setRatingFood(food); setSelectedRating(0); setRatingComment(''); }}>
-          <img src={food.image} alt={food.name} />
+          <img 
+            src={food.image} 
+            alt={food.name} 
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = food.isVeg ? '/images/menu/paneer-tikka.png' : '/images/menu/biryani.png';
+            }}
+          />
           <div className="food-card-badges">
             {food.isBestseller && <span className="badge bestseller">BESTSELLER</span>}
             {food.isChefRecommended && <span className="badge chef">CHEF'S PICK</span>}

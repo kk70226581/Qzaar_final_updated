@@ -1,5 +1,6 @@
 const express = require('express');
 const { Inventory } = require('./models');
+const { authenticateToken, verifyShopOwner } = require('./middleware/auth');
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
 // INVENTORY ENDPOINTS (15 endpoints)
 // ========================================
 
-// ✅ 1. Get Inventory with Filters
+// ✅ 1. Get Inventory with Server-Side Sorting & Pagination
 router.get('/:shopId', async (req, res) => {
   try {
     const { category, search, sortBy = 'name', page = 1, limit = 20 } = req.query;
@@ -19,28 +20,35 @@ router.get('/:shopId', async (req, res) => {
       query.itemName = { $regex: search, $options: 'i' };
     }
 
-    const skip = (page - 1) * limit;
-    let inventory = await Inventory.find(query)
-      .skip(skip)
-      .limit(Number(limit))
-      .lean();
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const skip = (pageNum - 1) * limitNum;
 
-    if (sortBy === 'quantity-asc') {
-      inventory.sort((a, b) => a.quantity - b.quantity);
-    } else if (sortBy === 'quantity-desc') {
-      inventory.sort((a, b) => b.quantity - a.quantity);
-    } else if (sortBy === 'expiry') {
-      inventory.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
-    } else {
-      inventory.sort((a, b) => a.itemName.localeCompare(b.itemName));
-    }
+    // Database-level sorting before pagination (O(log N) indexed sort)
+    let sortQuery = { itemName: 1 };
+    if (sortBy === 'quantity-asc') sortQuery = { quantity: 1 };
+    else if (sortBy === 'quantity-desc') sortQuery = { quantity: -1 };
+    else if (sortBy === 'expiry') sortQuery = { expiryDate: 1 };
+    else if (sortBy === 'updatedAt') sortQuery = { updatedAt: -1 };
 
-    const total = await Inventory.countDocuments(query);
+    const [inventory, total] = await Promise.all([
+      Inventory.find(query)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Inventory.countDocuments(query)
+    ]);
 
     return res.json({
       success: true,
       inventory,
-      pagination: { page: Number(page), limit: Number(limit), total }
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum)
+      }
     });
   } catch (error) {
     console.error('Get inventory error:', error?.message);
@@ -48,8 +56,8 @@ router.get('/:shopId', async (req, res) => {
   }
 });
 
-// ✅ 2. Create Inventory Item
-router.post('/:shopId', async (req, res) => {
+// ✅ 2. Create Inventory Item (Protected)
+router.post('/:shopId', authenticateToken, verifyShopOwner, async (req, res) => {
   try {
     const { itemId, itemName, quantity, unit, costPerUnit } = req.body;
 
@@ -92,8 +100,8 @@ router.get('/:shopId/:itemId', async (req, res) => {
   }
 });
 
-// ✅ 4. Update Inventory Item
-router.put('/:shopId/:itemId', async (req, res) => {
+// ✅ 4. Update Inventory Item (Protected)
+router.put('/:shopId/:itemId', authenticateToken, verifyShopOwner, async (req, res) => {
   try {
     const { itemName, quantity, unit, costPerUnit, reorderLevel, supplier } = req.body;
 
@@ -122,8 +130,8 @@ router.put('/:shopId/:itemId', async (req, res) => {
   }
 });
 
-// ✅ 5. Delete Inventory Item
-router.delete('/:shopId/:itemId', async (req, res) => {
+// ✅ 5. Delete Inventory Item (Protected)
+router.delete('/:shopId/:itemId', authenticateToken, verifyShopOwner, async (req, res) => {
   try {
     const item = await Inventory.findOneAndDelete({
       restaurantId: req.params.shopId,
@@ -141,8 +149,8 @@ router.delete('/:shopId/:itemId', async (req, res) => {
   }
 });
 
-// ✅ 6. Add Stock
-router.post('/:shopId/:itemId/add-stock', async (req, res) => {
+// ✅ 6. Add Stock (Protected)
+router.post('/:shopId/:itemId/add-stock', authenticateToken, verifyShopOwner, async (req, res) => {
   try {
     const { quantity, reason } = req.body;
 
