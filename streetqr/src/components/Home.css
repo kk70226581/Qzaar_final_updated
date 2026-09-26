@@ -1261,285 +1261,316 @@
 }
 
 /* ==========================================================================
-   4. LIVE VISUAL FOOD MENU GALLERY
+   4. 6 CORE RESTAURANT OS PLATFORM CAPABILITIES
    ========================================================================== */
-.home-gallery-section {
-  padding: clamp(3.5rem, 6vw, 5.5rem) 1.5rem;
+.home-capabilities-section {
+  padding: clamp(3.5rem, 6vw, 6rem) 1.5rem;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;
 }
 
-.home-gallery__inner {
+.home-capabilities__inner {
   width: min(1240px, 94vw);
   margin: 0 auto;
 }
 
-.home-gallery__filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  margin-bottom: 2rem;
-}
-
-.home-gallery-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1.15rem;
-  border-radius: 9999px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.home-gallery-pill:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
-}
-
-.home-gallery-pill.is-active {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
-}
-
-.home-cart-toast {
-  max-width: 32rem;
-  margin: 0 auto 1.5rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
-  background: #10b981;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.4);
-}
-
-.home-gallery__grid {
+.home-capabilities-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.35rem;
 }
 
-.home-food-card {
+.home-capability-card {
   display: flex;
   flex-direction: column;
+  padding: 1.6rem;
+  border-radius: 16px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.home-food-card:hover {
-  transform: translateY(-4px);
+.home-capability-card:hover {
+  transform: translateY(-3px);
   border-color: #cbd5e1;
-  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08);
 }
 
-.home-food-card__media {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 11;
-  overflow: hidden;
-  background: #f1f5f9;
-}
-
-.home-food-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-}
-
-.home-food-card:hover .home-food-card__media img {
-  transform: scale(1.05);
-}
-
-.home-food-card__badges {
-  position: absolute;
-  top: 0.65rem;
-  left: 0.65rem;
-  right: 0.65rem;
+.home-capability-card__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
-  pointer-events: none;
+  margin-bottom: 1.15rem;
 }
 
-.home-food-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  font-size: 0.68rem;
-  font-weight: 750;
-  letter-spacing: 0.02em;
-  backdrop-filter: blur(8px);
-}
-
-.home-food-badge--fire {
-  background: rgba(239, 68, 68, 0.92);
-  color: #ffffff;
-}
-
-.home-food-badge--veg {
-  background: rgba(16, 185, 129, 0.92);
-  color: #ffffff;
-}
-
-.home-food-badge--chef {
-  background: rgba(99, 102, 241, 0.92);
-  color: #ffffff;
-}
-
-.home-food-badge--gold {
-  background: rgba(245, 158, 11, 0.95);
-  color: #ffffff;
-}
-
-.home-food-badge--blue {
-  background: rgba(14, 165, 233, 0.92);
-  color: #ffffff;
-}
-
-.home-food-badge--neutral {
-  background: rgba(15, 23, 42, 0.85);
-  color: #ffffff;
-}
-
-.home-food-badge--rating {
-  background: rgba(255, 255, 255, 0.94);
-  color: #0f172a;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.home-food-card__body {
-  padding: 1.15rem;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.home-food-card__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.45rem;
-}
-
-.home-food-card__header h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 750;
-  color: #0f172a;
-  line-height: 1.25;
-}
-
-.home-food-card__price {
-  font-size: 1.1rem;
-  font-weight: 800;
+.home-capability-card__icon {
+  width: 2.85rem;
+  height: 2.85rem;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
   color: #4f46e5;
-  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.home-food-card__desc {
-  margin: 0 0 0.85rem;
-  font-size: 0.78rem;
-  color: #64748b;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex: 1;
-}
-
-.home-food-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-bottom: 0.95rem;
-}
-
-.home-meta-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+.home-capability-card__badge {
   font-size: 0.68rem;
-  font-weight: 600;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
   background: #f1f5f9;
   color: #475569;
 }
 
-.home-food-card__action {
-  margin-top: auto;
+.home-capability-card h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
-.home-food-card__add-btn {
-  width: 100%;
-  padding: 0.55rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #4f46e5;
-  background: #ffffff;
-  color: #4f46e5;
-  font-family: inherit;
-  font-size: 0.78rem;
+.home-capability-card__headline {
+  display: block;
+  font-size: 0.8rem;
   font-weight: 700;
-  cursor: pointer;
+  color: #4f46e5;
+  margin-bottom: 0.75rem;
+}
+
+.home-capability-card p {
+  margin: 0 0 1.25rem;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.55;
+  flex: 1;
+}
+
+.home-capability-card__highlights {
+  list-style: none;
+  padding: 0.75rem 0 0;
+  margin: 0;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.home-capability-card__highlights li {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.home-capability-card__highlights li svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   5. INTERACTIVE TABLE QR CODE GENERATOR & SERVICE DEMO
+   ========================================================================== */
+.home-qr-demo-section {
+  padding: clamp(3.5rem, 6vw, 6rem) 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.home-qr-demo__inner {
+  width: min(1200px, 94vw);
+  margin: 0 auto;
+}
+
+.home-qr-sandbox {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2.25rem;
+  box-shadow: 0 8px 30px -8px rgba(15, 23, 42, 0.06);
+}
+
+.home-qr-sandbox__controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-qr-sandbox__label {
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
+.home-qr-sandbox__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1.5rem;
+}
+
+.home-qr-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.home-food-card__add-btn:hover {
-  background: #4f46e5;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+.home-qr-tab:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
-.home-demo-cart-strip {
-  margin-top: 2rem;
-  padding: 0.85rem 1.5rem;
-  border-radius: 14px;
+.home-qr-tab.is-active {
   background: #0f172a;
   color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+.home-qr-tab small {
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+.home-qr-sandbox__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.15rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.home-qr-meta-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  box-shadow: 0 14px 35px -8px rgba(15, 23, 42, 0.3);
+  font-size: 0.78rem;
 }
 
-.home-demo-cart-strip__info {
+.home-qr-meta-item span {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.home-qr-meta-item strong {
+  color: #0f172a;
+}
+
+.home-qr-meta-item code {
+  font-family: monospace;
+  font-size: 0.74rem;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+}
+
+.home-qr-sandbox__actions {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 0.85rem;
 }
 
-.home-demo-cart-badge {
+.home-qr-stand-mockup {
+  display: flex;
+  justify-content: center;
+}
+
+.home-qr-stand-card {
+  width: 100%;
+  max-width: 320px;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.15),
+              0 0 0 1px rgba(15, 23, 42, 0.04);
+  position: relative;
+}
+
+.home-qr-stand-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #e2e8f0;
+  margin-bottom: 1.25rem;
+}
+
+.home-qr-stand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.home-qr-stand-logo svg {
+  color: #4f46e5;
+}
+
+.home-qr-stand-kicker {
+  font-size: 0.65rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: #6366f1;
+  background: #eef2ff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.home-qr-stand-card__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-qr-code-box {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  margin-bottom: 1rem;
+}
+
+.home-qr-graphic {
+  color: #0f172a;
+}
+
+.home-qr-code-center-badge {
+  position: absolute;
   width: 2.2rem;
   height: 2.2rem;
   display: grid;
@@ -1547,62 +1578,91 @@
   border-radius: 50%;
   background: #4f46e5;
   color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 2px solid #ffffff;
+}
+
+.home-qr-stand-card__center h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  font-size: 0.95rem;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
-.home-demo-cart-strip__info strong {
-  display: block;
-  font-size: 0.92rem;
+.home-qr-stand-card__center p {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 600;
 }
 
-.home-demo-cart-strip__info small {
-  display: block;
-  font-size: 0.75rem;
+.home-qr-subtext {
+  font-size: 0.68rem;
   color: #94a3b8;
+  display: block;
 }
 
-.home-demo-cart-strip__actions {
+.home-qr-stand-card__footer {
+  margin-top: 1.25rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed #e2e8f0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.home-demo-cart-clear {
-  padding: 0.5rem 0.85rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #cbd5e1;
-  font-family: inherit;
-  font-size: 0.78rem;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #64748b;
   font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.home-demo-cart-clear:hover {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.home-demo-cart-cta {
+.home-qr-stand-card__footer span {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  background: #4f46e5;
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.2s;
+  gap: 0.3rem;
 }
 
-.home-demo-cart-cta:hover {
-  background: #4338ca;
-  text-decoration: none;
+/* Guest Flow Architecture inside Tab 1 */
+.home-guest-flow-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.home-guest-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.home-guest-step-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+.home-guest-step-card strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.home-guest-step-card small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+  line-height: 1.4;
 }
 
 /* ==========================================================================
@@ -2423,8 +2483,14 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .home-gallery__grid {
+  .home-capabilities-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-qr-sandbox {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1.75rem;
   }
 
   .home-bento {
@@ -2460,7 +2526,8 @@
     padding: 3rem 1rem 3.5rem;
   }
   .home-products,
-  .home-gallery-section,
+  .home-capabilities-section,
+  .home-qr-demo-section,
   .home-bento-section,
   .home-comparison-section,
   .home-hardware-section,
@@ -2472,7 +2539,7 @@
     padding-inline: 1rem;
   }
 
-  .home-preview-menu__cards {
+  .home-guest-flow-preview {
     grid-template-columns: 1fr;
   }
   .home-preview-kds__grid {
@@ -2486,7 +2553,7 @@
     grid-template-columns: 1fr;
   }
 
-  .home-gallery__grid {
+  .home-capabilities-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2527,13 +2594,15 @@
     grid-template-columns: 1fr;
     text-align: left;
   }
-  .home-demo-cart-strip {
-    flex-direction: column;
-    align-items: flex-start;
+  .home-qr-sandbox {
+    padding: 1.25rem 1rem;
   }
-  .home-demo-cart-strip__actions {
+  .home-qr-sandbox__tabs {
+    flex-direction: column;
+  }
+  .home-qr-tab {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
   }
   .home-steps__grid {
     grid-template-columns: 1fr;

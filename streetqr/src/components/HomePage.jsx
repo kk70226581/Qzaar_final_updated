@@ -12,10 +12,12 @@ import {
   ChevronDown,
   ChevronRight,
   Clock3,
-  Coffee,
   CreditCard,
+  Download,
   Flame,
+  Globe,
   HelpCircle,
+  Layers,
   LayoutDashboard,
   MonitorPlay,
   Printer,
@@ -23,11 +25,10 @@ import {
   ScanLine,
   Settings,
   ShieldCheck,
-  ShoppingBag,
   Smartphone,
   Sparkles,
-  Star,
   TrendingUp,
+  Users,
   UtensilsCrossed,
   Wifi,
   XCircle,
@@ -55,126 +56,54 @@ const workflow = [
   { icon: BarChart3, label: 'Owner Learns', detail: 'Live margins & daily turnover' }
 ];
 
-const sampleDishes = [
+const platformCapabilities = [
   {
-    id: 'biryani',
-    name: 'Royal Dum Biryani',
-    category: 'signature',
-    price: 380,
-    time: '15 mins',
-    rating: 4.9,
-    reviews: 342,
-    spicy: 'Medium',
-    isVeg: false,
-    badge: 'Bestseller',
-    badgeType: 'fire',
-    image: '/images/menu/biryani.png',
-    description: 'Slow-cooked aromatic basmati rice layered with tender marinated pieces, saffron, caramelized onions and whole royal spices.'
+    icon: QrCode,
+    badge: 'Mobile-First',
+    title: 'Smart Table QR Ordering',
+    headline: 'Instant Camera Scan · Zero App Downloads',
+    description: 'Generate dynamic, branded QR codes unique to each table. Guests scan with their phone camera to browse real-time menus, select customizable modifiers, and dispatch orders in seconds.',
+    highlights: ['< 1.0s WebApp load speed', 'Table-specific session isolation', 'Duplicate order collision guard']
   },
   {
-    id: 'paneer-tikka',
-    name: 'Smoked Paneer Tikka',
-    category: 'veg',
-    price: 290,
-    time: '12 mins',
-    rating: 4.8,
-    reviews: 218,
-    spicy: 'Mild',
-    isVeg: true,
-    badge: 'Pure Veg',
-    badgeType: 'veg',
-    image: '/images/menu/paneer-tikka.png',
-    description: 'Clay-oven charred cottage cheese cubes marinated in spiced hung curd, bell peppers, mint glaze and chaat masala.'
+    icon: MonitorPlay,
+    badge: 'Station-Routed',
+    title: 'Live Kitchen Display (KDS)',
+    headline: 'Color-Coded Urgency · Real-Time Station Sync',
+    description: 'Eliminate lost paper tickets with a high-visibility digital kitchen queue. Automatically routes orders across kitchen, tandoor/grill, and bar stations with live countdown timers.',
+    highlights: ['Color-coded priority alerts', '1-tap status (Cooking / Ready)', 'Station auto-splitting']
   },
   {
-    id: 'tandoori-chicken',
-    name: 'Tandoori Chicken Supreme',
-    category: 'nonveg',
-    price: 420,
-    time: '18 mins',
-    rating: 4.9,
-    reviews: 410,
-    spicy: 'Medium',
-    isVeg: false,
-    badge: "Chef's Choice",
-    badgeType: 'chef',
-    image: '/images/menu/tandoori-chicken.png',
-    description: 'Classic bone-in chicken slow roasted in a fiery tandoor, infused with Kashmiri chili, mustard oil and fresh lemon.'
+    icon: Layers,
+    badge: 'Instant Sync',
+    title: 'Dynamic Menu & 86 Engine',
+    headline: 'Update Prices & 86 Sold-Out Items in 2 Seconds',
+    description: 'Make price adjustments, launch dinner specials, or mark sold-out items across every single customer menu QR code instantly without expensive reprinting.',
+    highlights: ['1-click "Sold Out" toggle', 'Zero reprint lag or cost', 'Smart modifier upselling']
   },
   {
-    id: 'chefs-thali',
-    name: 'Grand Maharaja Thali',
-    category: 'signature',
-    price: 499,
-    time: '20 mins',
-    rating: 4.9,
-    reviews: 520,
-    spicy: 'Mild',
-    isVeg: true,
-    badge: 'Royal Feast',
-    badgeType: 'gold',
-    image: '/images/menu/chefs-thali.png',
-    description: 'Sumptuous banquet spread featuring 2 curries, slow-simmered dal makhani, paneer lababdar, pulao, rotis and dessert.'
+    icon: Printer,
+    badge: 'Universal Hardware',
+    title: 'Thermal KOT & Bill Printing',
+    headline: 'ESC/POS 80mm & 58mm · Bluetooth, USB & LAN',
+    description: 'Plug-and-play integration with standard restaurant receipt printers. Automatically prints kitchen order tickets (KOT) as soon as guests submit their orders.',
+    highlights: ['Auto-cutter support', 'Custom GST & tax invoices', 'Offline print spooling buffer']
   },
   {
-    id: 'garlic-naan',
-    name: 'Garlic Butter Naan',
-    category: 'veg',
-    price: 75,
-    time: '6 mins',
-    rating: 4.8,
-    reviews: 180,
-    spicy: 'None',
-    isVeg: true,
-    badge: 'Tandoor Fresh',
-    badgeType: 'neutral',
-    image: '/images/menu/garlic-naan.png',
-    description: 'Hand-stretched leavened flatbread brushed with garlic-infused clarified butter and toasted crisp in a clay oven.'
+    icon: BarChart3,
+    badge: 'Live Intelligence',
+    title: 'Executive Margin Analytics',
+    headline: 'Real-Time Revenue, Table Turns & Peak Rush Heatmaps',
+    description: 'Track gross daily sales, top-performing high-margin dishes, average table turnaround times, and hourly volume curves to optimize kitchen staffing.',
+    highlights: ['Sub-10ms aggregation queries', 'Table turnaround velocity', '1-click CSV & tax export']
   },
   {
-    id: 'cold-coffee',
-    name: 'Artisanal Cold Brew Latte',
-    category: 'beverages',
-    price: 180,
-    time: '5 mins',
-    rating: 4.7,
-    reviews: 165,
-    spicy: 'None',
-    isVeg: true,
-    badge: 'Chilled',
-    badgeType: 'blue',
-    image: '/images/menu/cold-coffee.png',
-    description: '18-hour cold extracted single-origin Arabica coffee served over crystal ice with silky whole milk foam.'
-  },
-  {
-    id: 'sizzling-brownie',
-    name: 'Sizzling Belgian Brownie',
-    category: 'beverages',
-    price: 240,
-    time: '8 mins',
-    rating: 5.0,
-    reviews: 395,
-    spicy: 'None',
-    isVeg: true,
-    badge: 'Crowd Favorite',
-    badgeType: 'fire',
-    image: '/images/menu/sizzling-brownie.png',
-    description: 'Decadent warm fudge brownie served on a smoking cast-iron platter, crowned with Madagascar vanilla bean gelato.'
-  },
-  {
-    id: 'gulab-jamun',
-    name: 'Warm Rose Gulab Jamun',
-    category: 'beverages',
-    price: 140,
-    time: '4 mins',
-    rating: 4.9,
-    reviews: 290,
-    spicy: 'None',
-    isVeg: true,
-    badge: 'Sweet Ending',
-    badgeType: 'gold',
-    image: '/images/menu/gulab-jamun.png',
-    description: 'Golden fried milk dumplings gently steeped in warm saffron-cardamom sugar syrup and garnished with roasted pistachios.'
+    icon: CreditCard,
+    badge: 'Flexible Settlement',
+    title: 'Multi-Channel Table Payments',
+    headline: 'Dynamic Table UPI QR, Cards & Counter Cash',
+    description: 'Guests can pay directly from their table via UPI QR (Google Pay, PhonePe, Paytm), debit/credit cards, or request traditional bill payment with floor staff.',
+    highlights: ['Instant dynamic UPI settlement', 'Zero terminal rental fees', 'Automated bill splitting']
   }
 ];
 
@@ -240,12 +169,12 @@ const hardwareList = [
 
 const testimonials = [
   {
-    quote: 'Switching to Qzaar cut our Saturday night table turnaround from 48 minutes down to 33 minutes. Guests love seeing high-res photos before ordering, and our dessert sales jumped 40%.',
+    quote: 'Switching to Qzaar cut our Saturday night table turnaround from 48 minutes down to 33 minutes. Guests love scanning without downloading apps, and our dessert sales jumped 40%.',
     author: 'Chef Vikram Singhania',
     role: 'Founder & Head Chef',
     restaurant: 'The Olive Hearth',
     city: 'Bengaluru',
-    stat: '+38% Dessert Revenue',
+    stat: '+38% Beverage & Dessert Upsell',
     avatar: '👨‍🍳'
   },
   {
@@ -270,8 +199,8 @@ const testimonials = [
 
 const steps = [
   { number: '01', icon: Settings, title: 'Set up your restaurant', text: 'Enter your brand profile, service hours, table count, and tax preferences in minutes.' },
-  { number: '02', icon: UtensilsCrossed, title: 'Build your visual menu', text: 'Add categories, mouthwatering dish photos, dietary badges, and set item pricing.' },
-  { number: '03', icon: QrCode, title: 'Place smart table QR codes', text: 'Download print-ready PDF QR stands formatted cleanly for each individual table.' },
+  { number: '02', icon: UtensilsCrossed, title: 'Build your digital menu', text: 'Create categories, organize modifier options, set pricing, and configure station routing.' },
+  { number: '03', icon: QrCode, title: 'Place smart table QR stands', text: 'Download print-ready PDF QR stands formatted cleanly for each individual table.' },
   { number: '04', icon: MonitorPlay, title: 'Run service live with KDS', text: 'Receive guest orders directly in the kitchen display and track real-time revenue.' }
 ];
 
@@ -302,44 +231,22 @@ const faqs = [
   }
 ];
 
+const sampleTables = [
+  { id: '01', name: 'Table 01', type: 'Booth Seating', guests: '2 Guests', code: 'QZ-TB01', status: 'Available' },
+  { id: '04', name: 'Table 04', type: 'Window Section', guests: '4 Guests', code: 'QZ-TB04', status: 'Active Service' },
+  { id: '08', name: 'Table 08', type: 'Main Dining Floor', guests: '6 Guests', code: 'QZ-TB08', status: 'Active Service' },
+  { id: '12', name: 'Table 12', type: 'Rooftop Patio', guests: '8 Guests', code: 'QZ-TB12', status: 'Reserved' }
+];
+
 function HomePage() {
   const navigate = useNavigate();
   const isLoggedIn = hasActiveSession();
   const primaryLabel = isLoggedIn ? 'Open workspace' : 'Start your workspace';
   const [activeTab, setActiveTab] = useState('menu');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [demoCart, setDemoCart] = useState({ items: [], count: 0, total: 0 });
-  const [cartToast, setCartToast] = useState(null);
+  const [selectedTable, setSelectedTable] = useState(sampleTables[1]);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   const handleCTA = () => navigate(isLoggedIn ? '/dashboard' : '/signup');
-
-  const filteredDishes = sampleDishes.filter((dish) => {
-    if (selectedCategory === 'all') return true;
-    if (selectedCategory === 'signature') return dish.category === 'signature';
-    if (selectedCategory === 'veg') return dish.isVeg;
-    if (selectedCategory === 'nonveg') return !dish.isVeg;
-    if (selectedCategory === 'beverages') return dish.category === 'beverages';
-    return true;
-  });
-
-  const handleAddToCart = (dish) => {
-    setDemoCart((prev) => ({
-      items: [...prev.items, dish],
-      count: prev.count + 1,
-      total: prev.total + dish.price
-    }));
-    setCartToast(`${dish.name} added to Table 04 order!`);
-    setTimeout(() => {
-      setCartToast(null);
-    }, 2800);
-  };
-
-  const handleResetCart = () => {
-    setDemoCart({ items: [], count: 0, total: 0 });
-    setCartToast('Demo cart cleared.');
-    setTimeout(() => setCartToast(null), 2000);
-  };
 
   return (
     <div className="home-container">
@@ -445,7 +352,7 @@ function HomePage() {
               <div className="home-metric-item__content">
                 <strong>+28%</strong>
                 <span>Higher Average Spend</span>
-                <small>Driven by high-res photo menus</small>
+                <small>Driven by smart upsell prompts</small>
               </div>
             </div>
 
@@ -490,7 +397,123 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            4. UNIFIED RESTAURANT OS SHOWCASE (3 Interactive Tabs)
+            4. 6 CORE RESTAURANT OS PLATFORM CAPABILITIES
+            ================================================================= */}
+        <section className="home-capabilities-section" aria-label="Platform capabilities suite">
+          <div className="home-capabilities__inner">
+            <div className="home-section-heading">
+              <span>Enterprise-Grade Architecture</span>
+              <h2>Everything you need to orchestrate high-volume service.</h2>
+              <p>Built from the ground up to replace fragmented POS tools with a single real-time restaurant operating system.</p>
+            </div>
+
+            <div className="home-capabilities-grid">
+              {platformCapabilities.map(({ icon: Icon, badge, title, headline, description, highlights }) => (
+                <article key={title} className="home-capability-card">
+                  <div className="home-capability-card__top">
+                    <div className="home-capability-card__icon">
+                      <Icon size={22} />
+                    </div>
+                    <span className="home-capability-card__badge">{badge}</span>
+                  </div>
+                  <h3>{title}</h3>
+                  <strong className="home-capability-card__headline">{headline}</strong>
+                  <p>{description}</p>
+                  <ul className="home-capability-card__highlights">
+                    {highlights.map((h, i) => (
+                      <li key={i}><CheckCircle2 size={14} /> {h}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================
+            5. INTERACTIVE TABLE QR CODE GENERATOR & SERVICE DEMO
+            ================================================================= */}
+        <section className="home-qr-demo-section" aria-label="Interactive table QR code generator">
+          <div className="home-qr-demo__inner">
+            <div className="home-section-heading">
+              <span>Instant Floor Deployment</span>
+              <h2>Generate intelligent, table-locked QR stands in seconds.</h2>
+              <p>Every table receives its own encrypted QR token that isolates guest carts, prevents duplicate order collisions, and auto-routes tickets to the right service section.</p>
+            </div>
+
+            <div className="home-qr-sandbox">
+              <div className="home-qr-sandbox__controls">
+                <span className="home-qr-sandbox__label">Select Service Table to Preview:</span>
+                <div className="home-qr-sandbox__tabs">
+                  {sampleTables.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className={`home-qr-tab ${selectedTable.id === t.id ? 'is-active' : ''}`}
+                      onClick={() => setSelectedTable(t)}
+                    >
+                      <QrCode size={15} />
+                      <span>{t.name}</span>
+                      <small>({t.guests})</small>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="home-qr-sandbox__meta">
+                  <div className="home-qr-meta-item">
+                    <span>Floor Section:</span>
+                    <strong>{selectedTable.type}</strong>
+                  </div>
+                  <div className="home-qr-meta-item">
+                    <span>Target Endpoint:</span>
+                    <code>https://app.qzaar.in/t/{selectedTable.id}/menu</code>
+                  </div>
+                  <div className="home-qr-meta-item">
+                    <span>Session Status:</span>
+                    <span className="home-tag home-tag--green">● {selectedTable.status}</span>
+                  </div>
+                </div>
+
+                <div className="home-qr-sandbox__actions">
+                  <Link to="/modern/menu" className="home-button home-button--primary">
+                    Test Live Table Scan <ArrowRight size={16} />
+                  </Link>
+                  <Link to="/dashboard" className="home-button home-button--ghost">
+                    <Download size={16} /> Print Table Stand (PDF)
+                  </Link>
+                </div>
+              </div>
+
+              {/* Physical Acrylic QR Stand Mockup */}
+              <div className="home-qr-stand-mockup">
+                <div className="home-qr-stand-card">
+                  <div className="home-qr-stand-card__header">
+                    <span className="home-qr-stand-logo"><ScanLine size={18} /> Qzaar</span>
+                    <span className="home-qr-stand-kicker">Contactless Dine-In</span>
+                  </div>
+
+                  <div className="home-qr-stand-card__center">
+                    <div className="home-qr-code-box">
+                      <QrCode size={110} strokeWidth={1.75} className="home-qr-graphic" />
+                      <span className="home-qr-code-center-badge"><UtensilsCrossed size={16} /></span>
+                    </div>
+                    <h3>{selectedTable.name}</h3>
+                    <p>Scan with your phone camera to browse & order</p>
+                    <span className="home-qr-subtext">No app download · Instant browser menu</span>
+                  </div>
+
+                  <div className="home-qr-stand-card__footer">
+                    <span><Globe size={12} /> app.qzaar.in/t/{selectedTable.id}</span>
+                    <span><Users size={12} /> {selectedTable.guests}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================
+            6. UNIFIED RESTAURANT OS SHOWCASE (3 Interactive Tabs)
             ================================================================= */}
         <section className="home-products">
           <div className="home-section-heading">
@@ -509,7 +532,7 @@ function HomePage() {
                 onClick={() => setActiveTab('menu')}
               >
                 <QrCode size={18} />
-                <span>Guest QR Menu</span>
+                <span>Guest QR Ordering</span>
                 <span className="home-tab-pill">Mobile-first</span>
               </button>
 
@@ -578,63 +601,43 @@ function HomePage() {
                         <span className="home-tag home-tag--green">✓ Live Table Synced</span>
                       </div>
 
-                      <div className="home-preview-menu__categories">
-                        <span className="is-active">🔥 Chef Specials</span>
-                        <span>🍛 Main Course</span>
-                        <span>🥟 Starters</span>
-                        <span>🥤 Refreshers</span>
-                      </div>
-
-                      <div className="home-preview-menu__cards">
-                        <div className="home-preview-dish">
-                          <img
-                            src="/images/menu/biryani.png"
-                            alt="Royal Dum Biryani"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
-                          <div className="home-preview-dish__info">
-                            <div className="home-preview-dish__top">
-                              <strong>Royal Dum Biryani</strong>
-                              <b>₹380</b>
-                            </div>
-                            <p>Layered basmati rice with fragrant spices & saffron</p>
-                            <div className="home-preview-dish__bottom">
-                              <span className="home-dish-pill"><Flame size={12} /> Bestseller</span>
-                              <button type="button" onClick={() => handleAddToCart(sampleDishes[0])} className="home-mini-add-btn">+ Add</button>
-                            </div>
+                      {/* Guest session state architecture */}
+                      <div className="home-guest-flow-preview">
+                        <div className="home-guest-step-card">
+                          <span className="home-guest-step-icon"><ScanLine size={18} /></span>
+                          <div>
+                            <strong>1. Zero App Scan</strong>
+                            <small>Guest opens camera and arrives directly at Table 04</small>
                           </div>
                         </div>
 
-                        <div className="home-preview-dish">
-                          <img
-                            src="/images/menu/paneer-tikka.png"
-                            alt="Paneer Tikka Grill"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
-                          <div className="home-preview-dish__info">
-                            <div className="home-preview-dish__top">
-                              <strong>Paneer Tikka Grill</strong>
-                              <b>₹290</b>
-                            </div>
-                            <p>Smoky tandoori cottage cheese with bell peppers</p>
-                            <div className="home-preview-dish__bottom">
-                              <span className="home-dish-pill home-dish-pill--veg">🌱 Pure Veg</span>
-                              <button type="button" onClick={() => handleAddToCart(sampleDishes[1])} className="home-mini-add-btn">+ Add</button>
-                            </div>
+                        <div className="home-guest-step-card">
+                          <span className="home-guest-step-icon"><UtensilsCrossed size={18} /></span>
+                          <div>
+                            <strong>2. Direct Table Dispatch</strong>
+                            <small>Orders transmit over WebSocket directly to KDS queue</small>
+                          </div>
+                        </div>
+
+                        <div className="home-guest-step-card">
+                          <span className="home-guest-step-icon"><CreditCard size={18} /></span>
+                          <div>
+                            <strong>3. Contactless Settle</strong>
+                            <small>Instant UPI QR checkout, cards, or traditional table bill</small>
                           </div>
                         </div>
                       </div>
 
                       <div className="home-preview-menu__cart-bar">
                         <div className="home-preview-menu__cart-text">
-                          <span className="home-preview-cart-count">{demoCart.count > 0 ? demoCart.count : 2}</span>
+                          <span className="home-preview-cart-count">3</span>
                           <div>
-                            <strong>Table 04 Order Ready</strong>
-                            <small>₹{demoCart.total > 0 ? demoCart.total : 670} total · Direct kitchen dispatch</small>
+                            <strong>Table 04 Active Service Ticket</strong>
+                            <small>3 items preparing · Direct KDS dispatch synchronized</small>
                           </div>
                         </div>
                         <Link to="/modern/menu" className="home-preview-menu__cart-link">
-                          Explore live guest menu <ArrowRight size={15} />
+                          Explore live guest flow <ArrowRight size={15} />
                         </Link>
                       </div>
                     </motion.div>
@@ -672,7 +675,7 @@ function HomePage() {
                             <span className="home-kds-badge home-kds-badge--blue">New (2m)</span>
                           </div>
                           <ul className="home-kds-card__items">
-                            <li><span>2x</span> Smoked Paneer Tikka</li>
+                            <li><span>2x</span> Tandoori Platter</li>
                             <li><span>1x</span> Garlic Butter Naan</li>
                           </ul>
                           <div className="home-kds-card__action">
@@ -687,8 +690,8 @@ function HomePage() {
                             <span className="home-kds-badge home-kds-badge--amber">Cooking (6m)</span>
                           </div>
                           <ul className="home-kds-card__items">
-                            <li><span>1x</span> Royal Dum Biryani</li>
-                            <li><span>2x</span> Cold Brew Latte</li>
+                            <li><span>1x</span> Dum Biryani Handi</li>
+                            <li><span>2x</span> Artisanal Cold Brew</li>
                           </ul>
                           <div className="home-kds-card__action">
                             <button type="button" className="home-kds-btn home-kds-btn--amber">✓ Mark Ready</button>
@@ -702,7 +705,7 @@ function HomePage() {
                             <span className="home-kds-badge home-kds-badge--green">Ready (11m)</span>
                           </div>
                           <ul className="home-kds-card__items">
-                            <li><span>1x</span> Sizzling Belgian Brownie</li>
+                            <li><span>1x</span> Belgian Chocolate Dessert</li>
                           </ul>
                           <div className="home-kds-card__action">
                             <button type="button" className="home-kds-btn home-kds-btn--green">✓ Dispatch Order</button>
@@ -782,12 +785,12 @@ function HomePage() {
                         </div>
 
                         <div className="home-analytics-ranking">
-                          <strong>Top Moving Dishes</strong>
+                          <strong>Top Margin Categories</strong>
                           <div className="home-ranking-list">
                             <div className="home-ranking-row">
                               <span className="home-rank-num">1</span>
                               <div className="home-rank-details">
-                                <strong>Royal Dum Biryani</strong>
+                                <strong>Chef Signature Handis</strong>
                                 <small>48 orders · ₹18,240</small>
                               </div>
                               <span className="home-rank-share">38%</span>
@@ -795,7 +798,7 @@ function HomePage() {
                             <div className="home-ranking-row">
                               <span className="home-rank-num">2</span>
                               <div className="home-rank-details">
-                                <strong>Paneer Tikka Grill</strong>
+                                <strong>Clay Tandoor Starters</strong>
                                 <small>36 orders · ₹10,440</small>
                               </div>
                               <span className="home-rank-share">26%</span>
@@ -803,7 +806,7 @@ function HomePage() {
                             <div className="home-ranking-row">
                               <span className="home-rank-num">3</span>
                               <div className="home-rank-details">
-                                <strong>Sizzling Brownie</strong>
+                                <strong>Specialty Beverages</strong>
                                 <small>29 orders · ₹6,960</small>
                               </div>
                               <span className="home-rank-share">18%</span>
@@ -825,143 +828,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            5. LIVE VISUAL FOOD MENU GALLERY (Interactive Dish Showcase)
-            ================================================================= */}
-        <section className="home-gallery-section" aria-label="Visual digital menu preview">
-          <div className="home-gallery__inner">
-            <div className="home-section-heading">
-              <span>Visual Appetite Appeal</span>
-              <h2>Menus with high-definition photos sell 28% more food.</h2>
-              <p>Guests order with their eyes. Qzaar displays rich dish photography, dietary tags, spice ratings, and customizable add-ons cleanly on every smartphone screen.</p>
-            </div>
-
-            {/* Category filter tabs */}
-            <div className="home-gallery__filters" role="tablist">
-              <button
-                type="button"
-                className={`home-gallery-pill ${selectedCategory === 'all' ? 'is-active' : ''}`}
-                onClick={() => setSelectedCategory('all')}
-              >
-                All Items ({sampleDishes.length})
-              </button>
-              <button
-                type="button"
-                className={`home-gallery-pill ${selectedCategory === 'signature' ? 'is-active' : ''}`}
-                onClick={() => setSelectedCategory('signature')}
-              >
-                <Flame size={14} /> Chef's Signature
-              </button>
-              <button
-                type="button"
-                className={`home-gallery-pill ${selectedCategory === 'veg' ? 'is-active' : ''}`}
-                onClick={() => setSelectedCategory('veg')}
-              >
-                🌱 Pure Veg
-              </button>
-              <button
-                type="button"
-                className={`home-gallery-pill ${selectedCategory === 'nonveg' ? 'is-active' : ''}`}
-                onClick={() => setSelectedCategory('nonveg')}
-              >
-                🍗 Tandoor & Grills
-              </button>
-              <button
-                type="button"
-                className={`home-gallery-pill ${selectedCategory === 'beverages' ? 'is-active' : ''}`}
-                onClick={() => setSelectedCategory('beverages')}
-              >
-                <Coffee size={14} /> Drinks & Desserts
-              </button>
-            </div>
-
-            {/* Interactive Demo Cart Notification */}
-            {cartToast && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="home-cart-toast"
-              >
-                <CheckCircle2 size={16} /> {cartToast}
-              </motion.div>
-            )}
-
-            {/* Food Cards Grid */}
-            <div className="home-gallery__grid">
-              {filteredDishes.map((dish) => (
-                <article key={dish.id} className="home-food-card">
-                  <div className="home-food-card__media">
-                    <img
-                      src={dish.image}
-                      alt={dish.name}
-                      onError={(e) => { e.currentTarget.src = '/images/brand/qzaar-restaurant-hero.png'; }}
-                      loading="lazy"
-                    />
-                    <div className="home-food-card__badges">
-                      <span className={`home-food-badge home-food-badge--${dish.badgeType}`}>
-                        {dish.badgeType === 'fire' && <Flame size={11} />}
-                        {dish.badgeType === 'veg' && '🌱 '}
-                        {dish.badge}
-                      </span>
-                      <span className="home-food-badge home-food-badge--rating">
-                        <Star size={11} fill="#f59e0b" stroke="#f59e0b" /> {dish.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="home-food-card__body">
-                    <div className="home-food-card__header">
-                      <h3>{dish.name}</h3>
-                      <span className="home-food-card__price">₹{dish.price}</span>
-                    </div>
-
-                    <p className="home-food-card__desc">{dish.description}</p>
-
-                    <div className="home-food-card__meta">
-                      <span className="home-meta-chip"><Clock3 size={12} /> {dish.time}</span>
-                      <span className="home-meta-chip">{dish.isVeg ? '🌱 Veg' : '🍗 Non-Veg'}</span>
-                      {dish.spicy !== 'None' && <span className="home-meta-chip">🌶️ {dish.spicy}</span>}
-                    </div>
-
-                    <div className="home-food-card__action">
-                      <button
-                        type="button"
-                        onClick={() => handleAddToCart(dish)}
-                        className="home-food-card__add-btn"
-                      >
-                        <ShoppingBag size={14} /> + Add to Order
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            {/* Live Demo Cart Floating Action Pill */}
-            {demoCart.count > 0 && (
-              <div className="home-demo-cart-strip">
-                <div className="home-demo-cart-strip__info">
-                  <span className="home-demo-cart-badge">{demoCart.count}</span>
-                  <div>
-                    <strong>Table 04 Demo Order Active</strong>
-                    <small>{demoCart.count} dishes selected · Total ₹{demoCart.total}</small>
-                  </div>
-                </div>
-                <div className="home-demo-cart-strip__actions">
-                  <button type="button" onClick={handleResetCart} className="home-demo-cart-clear">
-                    Reset
-                  </button>
-                  <Link to="/modern/menu" className="home-demo-cart-cta">
-                    Open Guest Menu Checkout <ArrowRight size={15} />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* =================================================================
-            6. ENHANCED BENTO CARDS (With Real Mockups & Check Bullets)
+            7. ENHANCED BENTO CARDS (With Real Mockups & Check Bullets)
             ================================================================= */}
         <section className="home-bento-section">
           <div className="home-section-heading">
@@ -1041,7 +908,7 @@ function HomePage() {
                   <div className="home-bento__icon"><BarChart3 size={20} /></div>
                   <span className="home-bento__kicker">Business Intelligence</span>
                 </div>
-                <h3>Live profit margins, top dishes, & 86'ing.</h3>
+                <h3>Live profit margins, top categories, & 86'ing.</h3>
                 <p>Know exactly which dishes yield the highest profit margins, track peak hour dining rushes, and 86 sold-out items in 2 clicks.</p>
                 <ul className="home-bento__bullet-list">
                   <li><CheckCircle2 size={16} /> 1-click 'Sold Out' toggle immediately updates all table QR codes</li>
@@ -1058,7 +925,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            7. PAPER MENUS VS QZAAR MATRIX
+            8. PAPER MENUS VS QZAAR MATRIX
             ================================================================= */}
         <section className="home-comparison-section" aria-label="Paper menus vs Qzaar comparison">
           <div className="home-comparison__inner">
@@ -1104,7 +971,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            8. HARDWARE & PAYMENTS ECOSYSTEM STRIP
+            9. HARDWARE & PAYMENTS ECOSYSTEM STRIP
             ================================================================= */}
         <section className="home-hardware-section" aria-label="Supported restaurant hardware">
           <div className="home-hardware__inner">
@@ -1130,7 +997,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            9. ROLE-BASED EXPERIENCE SPLIT
+            10. ROLE-BASED EXPERIENCE SPLIT
             ================================================================= */}
         <section className="home-roles">
           <div className="home-roles__inner">
@@ -1160,7 +1027,7 @@ function HomePage() {
               <motion.span variants={fadeUp} className="home-section-label">Designed around real service</motion.span>
               <motion.h2 variants={fadeUp}>The right view for every person in the room.</motion.h2>
               <motion.p variants={fadeUp}>
-                Guests see a rich visual menu. The kitchen sees a calm prioritized queue. Floor staff spend less time writing orders and more time greeting guests.
+                Guests see a fast responsive menu. The kitchen sees a calm prioritized queue. Floor staff spend less time writing orders and more time greeting guests.
               </motion.p>
               <motion.div variants={fadeUp} className="home-role-list">
                 <div>
@@ -1190,7 +1057,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            10. SOCIAL PROOF & TESTIMONIALS
+            11. SOCIAL PROOF & TESTIMONIALS
             ================================================================= */}
         <section className="home-testimonials-section" aria-label="Customer testimonials">
           <div className="home-testimonials__inner">
@@ -1224,7 +1091,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            11. 4-STEP ONBOARDING
+            12. 4-STEP ONBOARDING
             ================================================================= */}
         <section className="home-steps">
           <div className="home-section-heading home-section-heading--left">
@@ -1251,7 +1118,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            12. FREQUENTLY ASKED QUESTIONS (Accordion)
+            13. FREQUENTLY ASKED QUESTIONS (Accordion)
             ================================================================= */}
         <section className="home-faq-section" aria-label="Frequently asked questions">
           <div className="home-faq__inner">
@@ -1297,7 +1164,7 @@ function HomePage() {
         </section>
 
         {/* =================================================================
-            13. CALL TO ACTION
+            14. CALL TO ACTION
             ================================================================= */}
         <section className="home-cta">
           <div className="home-cta__glow" aria-hidden="true" />

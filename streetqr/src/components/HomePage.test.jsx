@@ -34,7 +34,7 @@ jest.mock('framer-motion', () => {
   };
 });
 
-describe('HomePage Revamped Suite', () => {
+describe('HomePage Restaurant OS Suite', () => {
   test('renders hero headline, cta buttons, and real-impact metrics strip', () => {
     render(
       <MemoryRouter>
@@ -55,42 +55,43 @@ describe('HomePage Revamped Suite', () => {
     expect(screen.getByText('0%')).toBeInTheDocument();
   });
 
-  test('renders interactive food menu gallery and handles category filtering', () => {
+  test('renders the 6 core platform capabilities without any food dishes', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
 
-    // Initial dishes in gallery
-    expect(screen.getByText('Grand Maharaja Thali')).toBeInTheDocument();
-    expect(screen.getByText('Smoked Paneer Tikka')).toBeInTheDocument();
+    // 6 Platform Capabilities
+    expect(screen.getByText('Smart Table QR Ordering')).toBeInTheDocument();
+    expect(screen.getByText('Live Kitchen Display (KDS)')).toBeInTheDocument();
+    expect(screen.getByText('Dynamic Menu & 86 Engine')).toBeInTheDocument();
+    expect(screen.getByText('Thermal KOT & Bill Printing')).toBeInTheDocument();
+    expect(screen.getByText('Executive Margin Analytics')).toBeInTheDocument();
+    expect(screen.getByText('Multi-Channel Table Payments')).toBeInTheDocument();
 
-    // Filter by Pure Veg
-    const vegBtn = screen.getByRole('button', { name: /🌱 Pure Veg/i });
-    fireEvent.click(vegBtn);
-
-    expect(screen.getByText('Smoked Paneer Tikka')).toBeInTheDocument();
-    expect(screen.queryByText('Tandoori Chicken Supreme')).not.toBeInTheDocument();
-
-    // Return to All Items
-    const allBtn = screen.getByRole('button', { name: /All Items/i });
-    fireEvent.click(allBtn);
-    expect(screen.getByText('Tandoori Chicken Supreme')).toBeInTheDocument();
+    // Verify food catalog items are NOT on the homepage
+    expect(screen.queryByText('Royal Dum Biryani')).not.toBeInTheDocument();
+    expect(screen.queryByText('Grand Maharaja Thali')).not.toBeInTheDocument();
+    expect(screen.queryByText('Smoked Paneer Tikka')).not.toBeInTheDocument();
   });
 
-  test('adds dish to demo cart and displays interactive order pill', () => {
+  test('interacts with table QR code generator sandbox', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
     );
 
-    const addButtons = screen.getAllByRole('button', { name: /\+ Add to Order/i });
-    fireEvent.click(addButtons[0]);
+    // Initial table selection
+    expect(screen.getByText('Window Section')).toBeInTheDocument();
 
-    // Demo cart active banner
-    expect(screen.getByText(/Table 04 Demo Order Active/i)).toBeInTheDocument();
+    // Switch to Table 08
+    const table08Btn = screen.getByRole('button', { name: /Table 08/i });
+    fireEvent.click(table08Btn);
+
+    expect(screen.getByText('Main Dining Floor')).toBeInTheDocument();
+    expect(screen.getByText('https://app.qzaar.in/t/08/menu')).toBeInTheDocument();
   });
 
   test('renders paper vs qzaar comparison matrix', () => {
