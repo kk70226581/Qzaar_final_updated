@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  Activity,
   ArrowRight,
   Award,
   BarChart3,
@@ -22,6 +23,7 @@ import {
   MonitorPlay,
   Printer,
   QrCode,
+  RefreshCw,
   ScanLine,
   Settings,
   ShieldCheck,
@@ -245,6 +247,9 @@ function HomePage() {
   const [activeTab, setActiveTab] = useState('menu');
   const [selectedTable, setSelectedTable] = useState(sampleTables[1]);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [heroActiveView, setHeroActiveView] = useState('floor');
+  const [eightySixToggled, setEightySixToggled] = useState(false);
+  const [printerActive, setPrinterActive] = useState(false);
 
   const handleCTA = () => navigate(isLoggedIn ? '/dashboard' : '/signup');
 
@@ -297,18 +302,65 @@ function HomePage() {
             >
               <div className="home-preview">
                 <div className="home-preview__bar">
-                  <span className="home-preview__brand"><QrCode size={15} /> Qzaar Table Service OS</span>
-                  <span className="home-preview__status"><BellRing size={13} /> Dining Room Active</span>
-                </div>
-                <div className="home-preview__image">
-                  <img src="/images/brand/qzaar-restaurant-hero.png" alt="Guests using Qzaar QR ordering at a restaurant table" />
-                  <div className="home-preview__shade" />
-                  <div className="home-preview__order">
-                    <span><Clock3 size={16} /> New Live Ticket</span>
-                    <strong>Table 12 · 4 Guests</strong>
-                    <small>3 items · routed to kitchen station</small>
+                  <div className="home-preview__tabs">
+                    <button
+                      type="button"
+                      className={`home-preview__tab-btn ${heroActiveView === 'floor' ? 'is-active' : ''}`}
+                      onClick={() => setHeroActiveView('floor')}
+                    >
+                      <QrCode size={13} /> Floor Live
+                    </button>
+                    <button
+                      type="button"
+                      className={`home-preview__tab-btn ${heroActiveView === 'kds' ? 'is-active' : ''}`}
+                      onClick={() => setHeroActiveView('kds')}
+                    >
+                      <MonitorPlay size={13} /> Kitchen KDS
+                    </button>
                   </div>
+                  <span className="home-preview__status">
+                    <BellRing size={12} className="home-bell-ring" />
+                    <span>WebSocket 12ms</span>
+                  </span>
                 </div>
+
+                {heroActiveView === 'floor' ? (
+                  <div className="home-preview__image">
+                    <img src="/images/brand/qzaar-restaurant-hero.png" alt="Guests using Qzaar QR ordering at a restaurant table" />
+                    <div className="home-preview__shade" />
+                    <div className="home-preview__laser-beam" />
+                    <div className="home-preview__order">
+                      <span><Clock3 size={15} className="home-timer-spin" /> Live Order Stream</span>
+                      <strong>Table 12 · 4 Guests</strong>
+                      <small>3 items · dispatched to kitchen station</small>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="home-preview__kds-terminal">
+                    <div className="home-hero-kds-header">
+                      <span><ChefHat size={14} /> Live Kitchen Queue</span>
+                      <span className="home-hero-kds-badge">3 Tickets Active</span>
+                    </div>
+                    <div className="home-hero-kds-tickets">
+                      <div className="home-hero-kds-ticket is-new">
+                        <div className="home-hero-ticket-head">
+                          <strong>#1042 · Table 8</strong>
+                          <span className="home-hero-badge-blue">New (2m)</span>
+                        </div>
+                        <p>2x Tandoori Platter, 1x Butter Naan</p>
+                        <div className="home-hero-ticket-bar"><div className="home-hero-prog-fill" style={{ width: '40%' }} /></div>
+                      </div>
+                      <div className="home-hero-kds-ticket is-cooking">
+                        <div className="home-hero-ticket-head">
+                          <strong>#1041 · Table 3</strong>
+                          <span className="home-hero-badge-amber">Cooking (6m)</span>
+                        </div>
+                        <p>1x Dum Biryani Handi, 2x Artisanal Brew</p>
+                        <div className="home-hero-ticket-bar"><div className="home-hero-prog-fill is-amber" style={{ width: '80%' }} /></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <motion.div
@@ -387,10 +439,16 @@ function HomePage() {
             {workflow.map(({ icon: Icon, label, detail }, index) => (
               <React.Fragment key={label}>
                 <div className="home-workflow__item">
+                  <div className="home-workflow__step-badge">0{index + 1}</div>
                   <span><Icon size={19} /></span>
                   <div><strong>{label}</strong><small>{detail}</small></div>
                 </div>
-                {index < workflow.length - 1 && <ChevronRight className="home-workflow__arrow" size={17} aria-hidden="true" />}
+                {index < workflow.length - 1 && (
+                  <div className="home-workflow__connector">
+                    <div className="home-workflow__pulse-line" />
+                    <ChevronRight className="home-workflow__arrow" size={17} aria-hidden="true" />
+                  </div>
+                )}
               </React.Fragment>
             ))}
           </div>
@@ -408,7 +466,7 @@ function HomePage() {
             </div>
 
             <div className="home-capabilities-grid">
-              {platformCapabilities.map(({ icon: Icon, badge, title, headline, description, highlights }) => (
+              {platformCapabilities.map(({ icon: Icon, badge, title, headline, description, highlights }, idx) => (
                 <article key={title} className="home-capability-card">
                   <div className="home-capability-card__top">
                     <div className="home-capability-card__icon">
@@ -416,6 +474,145 @@ function HomePage() {
                     </div>
                     <span className="home-capability-card__badge">{badge}</span>
                   </div>
+
+                  {/* 1. Live Visual Micro-Simulator Widget for Each Capability */}
+                  {idx === 0 && (
+                    <div className="home-cap-widget home-cap-widget--qr">
+                      <div className="home-cap-qr-display">
+                        <div className="home-cap-scanner-laser" />
+                        <div className="home-cap-qr-corner top-left" />
+                        <div className="home-cap-qr-corner top-right" />
+                        <div className="home-cap-qr-corner bottom-left" />
+                        <div className="home-cap-qr-corner bottom-right" />
+                        <QrCode size={52} className="home-cap-qr-svg" />
+                        <span className="home-cap-qr-center-badge"><UtensilsCrossed size={12} /></span>
+                      </div>
+                      <div className="home-cap-qr-meta">
+                        <span className="home-cap-pill-green"><span className="home-pulse-dot" /> 0.8s Camera Load</span>
+                        <span className="home-cap-table-tag">Table 04 · Active</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {idx === 1 && (
+                    <div className="home-cap-widget home-cap-widget--kds">
+                      <div className="home-cap-kds-ticket">
+                        <div className="home-cap-kds-head">
+                          <strong>Ticket #1042</strong>
+                          <span className="home-cap-timer"><Clock3 size={11} className="home-timer-spin" /> 04:18m</span>
+                        </div>
+                        <div className="home-cap-kds-items">
+                          <span>2x Truffle Paneer Tikka</span>
+                          <span>1x Clay Oven Naan</span>
+                        </div>
+                        <div className="home-cap-kds-bar"><div className="home-cap-kds-bar-fill" /></div>
+                        <div className="home-cap-kds-foot">
+                          <span className="home-tag home-tag--blue">Tandoor Station</span>
+                          <span className="home-cap-live-text">● Cooking Live</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {idx === 2 && (
+                    <div className="home-cap-widget home-cap-widget--eightysix">
+                      <div className="home-cap-86-row">
+                        <div className="home-cap-86-info">
+                          <strong>Smoked Dal Makhani</strong>
+                          <small>Chef Special · ₹380</small>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEightySixToggled(!eightySixToggled)}
+                          className={`home-cap-86-toggle ${eightySixToggled ? 'is-86ed' : 'is-active'}`}
+                          title="Click to toggle 86 Sold Out status"
+                        >
+                          {eightySixToggled ? (
+                            <>
+                              <XCircle size={13} /> <span>86'd Sold Out</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 size={13} /> <span>In Stock</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <div className="home-cap-86-sync">
+                        <RefreshCw size={11} className="home-sync-spin" />
+                        <span>{eightySixToggled ? 'Hidden across all 24 tables in 1.2s' : 'Live & orderable across 24 tables'}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {idx === 3 && (
+                    <div className="home-cap-widget home-cap-widget--printer">
+                      <div className="home-cap-printer-slot">
+                        <div className={`home-cap-receipt ${printerActive ? 'is-printing' : ''}`}>
+                          <div className="home-cap-receipt-head">
+                            <span>QZAAR KOT #108</span>
+                            <small>Table 06 · 20:45</small>
+                          </div>
+                          <div className="home-cap-receipt-dash">✂ - - - - - - - - -</div>
+                          <div className="home-cap-receipt-row"><span>1x Dum Biryani</span><span>₹420</span></div>
+                          <div className="home-cap-receipt-row"><span>2x Cold Brew</span><span>₹360</span></div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPrinterActive(true);
+                          setTimeout(() => setPrinterActive(false), 2400);
+                        }}
+                        className="home-cap-printer-btn"
+                      >
+                        <Printer size={13} /> {printerActive ? 'Auto-Cutting KOT...' : 'Test ESC/POS Print'}
+                      </button>
+                    </div>
+                  )}
+
+                  {idx === 4 && (
+                    <div className="home-cap-widget home-cap-widget--analytics">
+                      <div className="home-cap-analytics-top">
+                        <div>
+                          <small>Today Gross</small>
+                          <strong>₹68,450</strong>
+                        </div>
+                        <span className="home-cap-analytics-growth"><TrendingUp size={12} /> +32.4%</span>
+                      </div>
+                      <div className="home-cap-bars">
+                        <div className="home-cap-bar-col"><div className="home-cap-bar" style={{ height: '45%' }} /><small>12p</small></div>
+                        <div className="home-cap-bar-col"><div className="home-cap-bar" style={{ height: '70%' }} /><small>2p</small></div>
+                        <div className="home-cap-bar-col"><div className="home-cap-bar" style={{ height: '35%' }} /><small>4p</small></div>
+                        <div className="home-cap-bar-col"><div className="home-cap-bar" style={{ height: '62%' }} /><small>6p</small></div>
+                        <div className="home-cap-bar-col"><div className="home-cap-bar is-peak" style={{ height: '95%' }} /><small>8p</small></div>
+                        <div className="home-cap-bar-col"><div className="home-cap-bar" style={{ height: '78%' }} /><small>10p</small></div>
+                      </div>
+                      <span className="home-cap-analytics-foot">
+                        <Activity size={11} className="home-pulse-icon" /> Peak: 8:30 PM (48 tickets/hr)
+                      </span>
+                    </div>
+                  )}
+
+                  {idx === 5 && (
+                    <div className="home-cap-widget home-cap-widget--payments">
+                      <div className="home-cap-pay-row">
+                        <span className="home-cap-pay-badge"><span className="home-pulse-dot" /> Dynamic Table UPI</span>
+                        <strong className="text-emerald">Instant</strong>
+                      </div>
+                      <div className="home-cap-pay-chips">
+                        <span>GPay</span>
+                        <span>PhonePe</span>
+                        <span>Paytm</span>
+                        <span>Cards</span>
+                      </div>
+                      <div className="home-cap-pay-alert">
+                        <CheckCircle2 size={13} className="text-emerald" />
+                        <span>Table 04: ₹1,280 settled · Zero terminal rental</span>
+                      </div>
+                    </div>
+                  )}
+
                   <h3>{title}</h3>
                   <strong className="home-capability-card__headline">{headline}</strong>
                   <p>{description}</p>
@@ -494,6 +691,11 @@ function HomePage() {
 
                   <div className="home-qr-stand-card__center">
                     <div className="home-qr-code-box">
+                      <div className="home-qr-scan-laser" />
+                      <div className="home-qr-corner top-left" />
+                      <div className="home-qr-corner top-right" />
+                      <div className="home-qr-corner bottom-left" />
+                      <div className="home-qr-corner bottom-right" />
                       <QrCode size={110} strokeWidth={1.75} className="home-qr-graphic" />
                       <span className="home-qr-code-center-badge"><UtensilsCrossed size={16} /></span>
                     </div>

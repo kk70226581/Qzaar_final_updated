@@ -2989,3 +2989,701 @@
   }
 }
 
+/* ==========================================================================
+   15. INTERACTIVE LIVE SIMULATOR WIDGETS & SCANNER LASERS
+   ========================================================================== */
+
+/* Hero Preview Switcher & Scanner */
+.home-preview__tabs {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.home-preview__tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-preview__tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.home-preview__tab-btn.is-active {
+  color: #ffffff;
+  background: #4f46e5;
+  border-color: #6366f1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.home-preview__laser-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8 20%, #818cf8 50%, #38bdf8 80%, transparent);
+  box-shadow: 0 0 14px 2px rgba(56, 189, 248, 0.8), 0 0 24px 4px rgba(99, 102, 241, 0.5);
+  animation: heroLaserSweep 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes heroLaserSweep {
+  0% { top: 12%; opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { top: 78%; opacity: 0.4; }
+}
+
+/* Hero Live KDS Terminal */
+.home-preview__kds-terminal {
+  padding: 1.15rem 1.25rem;
+  background: #090e1a;
+  min-height: clamp(18rem, 26vw, 24rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.home-hero-kds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.home-hero-kds-header span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.home-hero-kds-badge {
+  font-size: 0.68rem;
+  font-weight: 750;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.home-hero-kds-tickets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+.home-hero-kds-ticket {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.home-hero-ticket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.home-hero-ticket-head strong {
+  color: #ffffff;
+  font-size: 0.84rem;
+}
+
+.home-hero-badge-blue {
+  font-size: 0.65rem;
+  font-weight: 750;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.home-hero-badge-amber {
+  font-size: 0.65rem;
+  font-weight: 750;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+}
+
+.home-hero-kds-ticket p {
+  margin: 0 0 0.55rem;
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+.home-hero-ticket-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.home-hero-prog-fill {
+  height: 100%;
+  background: #6366f1;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.home-hero-prog-fill.is-amber {
+  background: #f59e0b;
+}
+
+/* Workflow Step Badges and Connectors */
+.home-workflow__item {
+  position: relative;
+}
+
+.home-workflow__step-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #6366f1;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  margin-right: 0.2rem;
+}
+
+.home-workflow__connector {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.home-workflow__pulse-line {
+  width: 1.5rem;
+  height: 2px;
+  background: linear-gradient(90deg, #e2e8f0, #818cf8, #e2e8f0);
+  background-size: 200% 100%;
+  animation: pulseLineTravel 2.4s linear infinite;
+}
+
+@keyframes pulseLineTravel {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Capabilities Live Interactive Mini Simulator Widgets */
+.home-cap-widget {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.15rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.home-capability-card:hover .home-cap-widget {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Widget 0: QR Scan */
+.home-cap-qr-display {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.75rem;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.home-cap-scanner-laser {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6366f1, #38bdf8, #6366f1, transparent);
+  box-shadow: 0 0 8px 1px rgba(99, 102, 241, 0.8);
+  animation: capLaserScan 2.4s ease-in-out infinite alternate;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes capLaserScan {
+  0% { top: 6px; }
+  100% { top: 62px; }
+}
+
+.home-cap-qr-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: #6366f1;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.home-cap-qr-corner.top-left { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-top-left-radius: 2px; }
+.home-cap-qr-corner.top-right { top: -1px; right: -1px; border-width: 2px 2px 0 0; border-top-right-radius: 2px; }
+.home-cap-qr-corner.bottom-left { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; border-bottom-left-radius: 2px; }
+.home-cap-qr-corner.bottom-right { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 2px; }
+
+.home-cap-qr-center-badge {
+  position: absolute;
+  width: 1.3rem;
+  height: 1.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+}
+
+.home-cap-qr-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+}
+
+.home-cap-pill-green {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #059669;
+  font-weight: 700;
+  background: #dcfce7;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.home-cap-table-tag {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Widget 1: KDS Station */
+.home-cap-kds-ticket {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.home-cap-kds-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.home-cap-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.home-cap-kds-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+.home-cap-kds-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+
+.home-cap-kds-bar-fill {
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 9999px;
+  animation: kdsBarGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes kdsBarGlow {
+  0% { width: 55%; }
+  100% { width: 75%; }
+}
+
+.home-cap-kds-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+}
+
+.home-cap-live-text {
+  color: #34d399;
+  font-weight: 700;
+}
+
+/* Widget 2: 86 Engine */
+.home-cap-86-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.home-cap-86-info strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #0f172a;
+}
+
+.home-cap-86-info small {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.home-cap-86-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 750;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-cap-86-toggle.is-active {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.home-cap-86-toggle.is-active:hover {
+  background: #d1fae5;
+  transform: scale(1.05);
+}
+
+.home-cap-86-toggle.is-86ed {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.home-cap-86-toggle.is-86ed:hover {
+  background: #fee2e2;
+  transform: scale(1.05);
+}
+
+.home-cap-86-sync {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.home-sync-spin {
+  animation: syncRotate 4s linear infinite;
+  color: #6366f1;
+}
+
+@keyframes syncRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Widget 3: Thermal Printer */
+.home-cap-printer-slot {
+  background: #1e293b;
+  border-radius: 8px 8px 0 0;
+  padding: 0.5rem 0.65rem 0;
+  position: relative;
+  overflow: hidden;
+  height: 85px;
+  display: flex;
+  justify-content: center;
+}
+
+.home-cap-receipt {
+  width: 90%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 0.45rem 0.65rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.65rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(12px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-cap-receipt.is-printing {
+  transform: translateY(-8px);
+  animation: receiptFeed 2s ease-in-out infinite alternate;
+}
+
+@keyframes receiptFeed {
+  0% { transform: translateY(12px); }
+  100% { transform: translateY(-12px); }
+}
+
+.home-cap-receipt-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.home-cap-receipt-dash {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  margin: 0.15rem 0;
+  letter-spacing: -1px;
+}
+
+.home-cap-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  color: #334155;
+}
+
+.home-cap-printer-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #4f46e5;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.home-cap-printer-btn:hover {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+/* Widget 4: Analytics Bars */
+.home-cap-analytics-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.home-cap-analytics-top small {
+  display: block;
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+.home-cap-analytics-top strong {
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.home-cap-analytics-growth {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #059669;
+  background: #dcfce7;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.home-cap-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 48px;
+  gap: 0.35rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed #e2e8f0;
+  margin-bottom: 0.45rem;
+}
+
+.home-cap-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.home-cap-bar {
+  width: 100%;
+  background: #c7d2fe;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.4s ease, background 0.2s ease;
+}
+
+.home-cap-bar:hover,
+.home-cap-bar.is-peak {
+  background: #4f46e5;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.4);
+}
+
+.home-cap-bar-col small {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.home-cap-analytics-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.home-pulse-icon {
+  color: #6366f1;
+  animation: pulseIcon 2s ease-in-out infinite;
+}
+
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); color: #4338ca; }
+}
+
+/* Widget 5: Payments */
+.home-cap-pay-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.home-cap-pay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.home-cap-pay-chips {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+}
+
+.home-cap-pay-chips span {
+  flex: 1;
+  text-align: center;
+  padding: 0.2rem 0;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.65rem;
+  font-weight: 750;
+  color: #475569;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.home-cap-pay-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 650;
+}
+
+/* Large Table QR Stand Mockup Laser Scanner */
+.home-qr-scan-laser {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #6366f1, #38bdf8, #6366f1, transparent);
+  box-shadow: 0 0 12px 2px rgba(99, 102, 241, 0.75), 0 0 20px 4px rgba(56, 189, 248, 0.5);
+  animation: tableLaserSweep 3s ease-in-out infinite alternate;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes tableLaserSweep {
+  0% { top: 8px; opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { top: 122px; opacity: 0.6; }
+}
+
+.home-qr-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #4f46e5;
+  border-style: solid;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.home-qr-corner.top-left { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-top-left-radius: 4px; }
+.home-qr-corner.top-right { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-top-right-radius: 4px; }
+.home-qr-corner.bottom-left { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-bottom-left-radius: 4px; }
+.home-qr-corner.bottom-right { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-bottom-right-radius: 4px; }
+
+.home-timer-spin {
+  animation: timerTick 3s ease-in-out infinite;
+}
+
+@keyframes timerTick {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(18deg) scale(1.15); }
+}
+
